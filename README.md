@@ -4,19 +4,27 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 
 ---
 
+## 🌟 Latest Updates
+
+- **Monolithic Architecture Transition**: The system has been fully migrated from a separated React frontend to a high-performance **Laravel Blade + Tailwind CSS** monolithic architecture, improving load times and simplifying the deployment process.
+- **Enterprise Security Hardening**: Implemented advanced security measures including Strict API Rate Limiting, XSS Payload Sanitization (`XssSanitizer`), SafeSecurityHeaders middleware, encrypted session payloads, hardened Eloquent models, and strict hospital-code-only restrictions for patient lookups.
+- **Enhanced Clinical Workflows**: Integrated real-time "Diagnostic Reports" directly into the patient's comprehensive Clinical File History, allowing Doctors to securely view approved lab and radiology results independent of the active triage queue.
+- **Codebase Optimization**: Redundant development scratch files, boilerplate test scripts, and the entirely obsolete React codebase were purged to create a lightweight, production-ready environment.
+
+---
+
 ## 🚀 Technologies Stack
 
-### Frontend Portal
-- **Framework**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS v4 + Outfit Google Fonts
-- **State & Server sync**: Axios Client with authorization interceptors
-- **Form validation**: Zod schema constraints
-
-### Backend REST API
+### Application Core (Monolith)
 - **Framework**: Laravel 12 + PHP 8.4
-- **Auth & Protection**: Laravel Sanctum tokens + custom Multi-Factor Authentication (MFA)
-- **Architecture**: Repository Pattern + Service Layer + DTO validations
-- **Middlewares**: Custom RBAC Verification + Automating Audit Trail capture
+- **Frontend UI**: Laravel Blade templating engine
+- **Styling**: Tailwind CSS v4 + Outfit Google Fonts
+- **Icons**: Lucide Icons for premium visual aesthetics
+
+### Security & Architecture
+- **Auth & Protection**: Laravel Sanctum tokens, Custom RBAC Verification, and automated Audit Trail capture.
+- **Data Protection**: Encrypted sessions, advanced XSS/CSRF mitigation, strict request throttling.
+- **Architecture**: Repository Pattern + Service Layer + DTO validations.
 
 ### Database & Deployments
 - **Database**: PostgreSQL 15 (normalized to 3NF)
@@ -29,24 +37,22 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 
 ```
 nis_hospital_management_system/
-├── backend/                  # Laravel 12 REST API Codebase
+├── backend/                  # Laravel 12 Monolithic Codebase
 │   ├── app/
-│   │   ├── Http/Controllers/ # API endpoints controllers
-│   │   ├── Http/Middleware/  # RBAC and Audit logging middlewares
-│   │   ├── Models/           # Eloquent Database models
+│   │   ├── Http/Controllers/ # Web and API endpoints controllers
+│   │   ├── Http/Middleware/  # RBAC, Security Headers, XSS and Audit logging middlewares
+│   │   ├── Models/           # Hardened Eloquent Database models
 │   │   ├── Repositories/     # Clean repository layer contracts
 │   │   └── Services/         # Orchestrating business services & transactions
 │   ├── database/
 │   │   ├── migrations/       # Normalized 3NF PostgreSQL migrations
 │   │   └── seeders/          # Pre-populating default roles and sample data
-│   └── routes/api.php        # Secured API endpoints routing
-│
-├── frontend/                 # Vite + React + TS Codebase
-│   ├── src/
-│   │   ├── components/       # Collapsible Sidebar & Glassmorphic Navbar
-│   │   ├── contexts/         # Authentication & Theme controllers
-│   │   ├── pages/            # Role-based dashboards & clinical modules
-│   │   └── index.css         # Styling directives and custom Tailwind variables
+│   ├── resources/
+│   │   └── views/            # Laravel Blade templates and UI logic
+│   ├── routes/
+│   │   ├── api.php           # Secured API endpoints
+│   │   └── web.php           # Web application routing
+│   └── public/               # Public assets and entry point
 │
 ├── docs/                     # Architecture & ERD Specifications
 │   ├── architecture_diagrams.md
@@ -65,24 +71,19 @@ nis_hospital_management_system/
 
 ## ⚡ Quick Start Command Guides
 
-### 1. Backend REST API Server
+### 1. Start the Application Server
+Since the system is now a streamlined monolith, you only need to run the Laravel development server.
+
 ```bash
 cd backend
 php artisan serve
 ```
 Running on: `http://127.0.0.1:8000`.
 
-### 2. Frontend Portal Server
-```bash
-cd frontend
-npm run dev
-```
-Running on: `http://localhost:5173`.
-
-### 3. Run Automated Tests
+### 2. Run Automated Tests
 ```bash
 cd backend
-php vendor/bin/phpunit
+php artisan test
 ```
 
 ---
