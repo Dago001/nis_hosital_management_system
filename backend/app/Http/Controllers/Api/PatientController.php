@@ -219,24 +219,30 @@ class PatientController extends Controller
         // 1. Search in staff table
         $staff = \App\Models\Staff::where('service_number', $serviceNum)->first();
         if ($staff) {
+            $existing = \App\Models\Patient::where('sponsor_service_number', $serviceNum)->get(['id', 'relationship_to_sponsor']);
             return response()->json([
                 'found' => true,
                 'type' => 'staff',
                 'surname' => $staff->last_name,
                 'first_name' => $staff->first_name,
-                'full_name' => "{$staff->first_name} {$staff->last_name} (" . ($staff->rank ?? 'Officer') . ")"
+                'phone' => $staff->phone ?? 'N/A',
+                'full_name' => "{$staff->first_name} {$staff->last_name} (" . ($staff->rank ?? 'Officer') . ")",
+                'existing_dependants' => $existing
             ]);
         }
 
         // 2. Search in patients table
         $patient = \App\Models\Patient::where('immigration_service_number', $serviceNum)->first();
         if ($patient) {
+            $existing = \App\Models\Patient::where('sponsor_service_number', $serviceNum)->get(['id', 'relationship_to_sponsor']);
             return response()->json([
                 'found' => true,
                 'type' => 'patient',
                 'surname' => $patient->last_name,
                 'first_name' => $patient->first_name,
-                'full_name' => "{$patient->first_name} {$patient->last_name} (Patient File: {$patient->immigration_service_number})"
+                'phone' => $patient->phone ?? 'N/A',
+                'full_name' => "{$patient->first_name} {$patient->last_name} (Patient File: {$patient->immigration_service_number})",
+                'existing_dependants' => $existing
             ]);
         }
 

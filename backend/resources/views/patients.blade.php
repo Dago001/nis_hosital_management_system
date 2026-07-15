@@ -129,58 +129,61 @@
                     </div>
                 </div>
 
-                <!-- Standalone Name Inputs (Hidden in Dependant Mode) -->
-                <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                        <input type="text" id="first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                <!-- Standalone Demographic Fields (Hidden in Dependant Mode) -->
+                <div id="standalone-demographics-container" class="space-y-4">
+                    <!-- Standalone Name Inputs -->
+                    <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
+                            <input type="text" id="first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
+                            <input type="text" id="middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Last Name</label>
+                            <input type="text" id="last_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                        <input type="text" id="middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Last Name</label>
-                        <input type="text" id="last_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Gender</label>
-                        <select id="gender" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <!-- Standalone DOB (Hidden in Dependant Mode) -->
-                    <div id="standalone-dob-group">
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth</label>
-                        <input type="date" id="date_of_birth" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
-                        <input type="text" id="phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
-                        <input type="email" id="email" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                    <div id="standalone-service-group">
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
-                        <input type="text" id="immigration_service_number" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
-                        <input type="text" id="nin" maxLength="11" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Gender</label>
+                            <select id="gender" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <!-- Standalone DOB -->
+                        <div id="standalone-dob-group">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth</label>
+                            <input type="date" id="date_of_birth" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
+                            <input type="text" id="phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
+                            <input type="email" id="email" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div id="standalone-service-group">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
+                            <input type="text" id="immigration_service_number" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
+                            <input type="text" id="nin" maxLength="11" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
                     </div>
                 </div>
                 <!-- Dependant Mode notice in Step 1 -->
                 <div id="dependant-mode-notice" class="hidden p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold">
                     <div class="flex items-center gap-2">
                         <i data-lucide="info" class="w-4 h-4"></i>
-                        <span>Dependant mode active: names, DOB and sponsor details will be configured in Step 2.</span>
+                        <span>Dependant mode active: names, DOB, gender and sponsor details will be configured in Step 2.</span>
                     </div>
                 </div>
             </div>
@@ -198,7 +201,7 @@
                 <div id="dependant-active-inputs" class="hidden space-y-4">
                     <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-[10px] font-black flex items-center gap-2">
                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                        <span>NOTE: Dependant status is strictly restricted to children below 18 years of age.</span>
+                        <span>NOTE: Dependants are limited to 1 Wife (no age limit) and 3 Children (under 18 years).</span>
                     </div>
 
                     <!-- Sponsor search input -->
@@ -226,26 +229,35 @@
                         <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
                     </div>
 
-                    <!-- Dependant Name Details -->
+                    <!-- Dependant Name & Details -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                            <input type="text" id="dep_first_name" oninput="syncDepName()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                            <input type="text" id="dep_middle_name" oninput="syncDepName()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Gender</label>
+                            <select id="dep_gender" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth</label>
-                            <input type="date" id="dep_date_of_birth" onchange="syncDepDob()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="date" id="dep_date_of_birth" onchange="validateDependantAge()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Relationship to Sponsor</label>
-                            <select id="relationship_to_sponsor" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <select id="relationship_to_sponsor" onchange="validateDependantAge()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                                 <option value="Son">Son</option>
                                 <option value="Daughter">Daughter</option>
                                 <option value="Ward">Ward</option>
+                                <option value="Wife">Wife</option>
                             </select>
                         </div>
                     </div>
@@ -257,6 +269,21 @@
                             <span>Age Policy Check Failed</span>
                         </div>
                         <p class="text-[10px] mt-1 text-slate-600 dark:text-slate-400 font-semibold" id="dependant-age-msg"></p>
+                    </div>
+
+                    <!-- Add Dependant Action Button -->
+                    <div class="flex justify-end pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button type="button" onclick="handleAddDependantClick()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Dependant
+                        </button>
+                    </div>
+
+                    <!-- List of Pending Dependants -->
+                    <div id="pending-deps-container" class="hidden mt-4 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 bg-slate-50/50 dark:bg-slate-950/20">
+                        <h4 class="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider mb-2">Dependants to be Registered</h4>
+                        <div id="pending-deps-list" class="space-y-2">
+                            <!-- Pending dependants markup injected here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -602,16 +629,17 @@
             loadPatients(val);
         }, 300);
     }
-
     let currentRegisterStep = 1;
     let registrationMode = 'standalone';
     let sponsorVerified = false;
     let sponsorSurname = '';
+    let sponsorPhone = '';
+    let sponsorExistingDependants = [];
+    let pendingDependants = [];
 
     function handleModeChange(mode) {
         registrationMode = mode;
-        const standaloneNames = document.getElementById('standalone-names-group');
-        const standaloneDob = document.getElementById('standalone-dob-group');
+        const demographicsContainer = document.getElementById('standalone-demographics-container');
         const dependantNotice = document.getElementById('dependant-mode-notice');
         
         const depSkipped = document.getElementById('dependant-skipped-msg');
@@ -620,13 +648,10 @@
         const firstName = document.getElementById('first_name');
         const lastName = document.getElementById('last_name');
         const dob = document.getElementById('date_of_birth');
-        
-        const depFirstName = document.getElementById('dep_first_name');
-        const depDob = document.getElementById('dep_date_of_birth');
+        const phone = document.getElementById('phone');
         
         if (mode === 'standalone') {
-            if (standaloneNames) standaloneNames.classList.remove('hidden');
-            if (standaloneDob) standaloneDob.classList.remove('hidden');
+            if (demographicsContainer) demographicsContainer.classList.remove('hidden');
             if (dependantNotice) dependantNotice.classList.add('hidden');
             
             if (depSkipped) depSkipped.classList.remove('hidden');
@@ -635,12 +660,9 @@
             if (firstName) firstName.setAttribute('required', 'required');
             if (lastName) lastName.setAttribute('required', 'required');
             if (dob) dob.setAttribute('required', 'required');
-            
-            if (depFirstName) depFirstName.removeAttribute('required');
-            if (depDob) depDob.removeAttribute('required');
+            if (phone) phone.setAttribute('required', 'required');
         } else {
-            if (standaloneNames) standaloneNames.classList.add('hidden');
-            if (standaloneDob) standaloneDob.classList.add('hidden');
+            if (demographicsContainer) demographicsContainer.classList.add('hidden');
             if (dependantNotice) dependantNotice.classList.remove('hidden');
             
             if (depSkipped) depSkipped.classList.add('hidden');
@@ -649,25 +671,13 @@
             if (firstName) firstName.removeAttribute('required');
             if (lastName) lastName.removeAttribute('required');
             if (dob) dob.removeAttribute('required');
-            
-            if (depFirstName) depFirstName.setAttribute('required', 'required');
-            if (depDob) depDob.setAttribute('required', 'required');
+            if (phone) phone.removeAttribute('required');
         }
-    }
-
-    function syncDepName() {
-        const depFirst = document.getElementById('dep_first_name');
-        const depMiddle = document.getElementById('dep_middle_name');
-        if (depFirst) document.getElementById('first_name').value = depFirst.value;
-        if (depMiddle) document.getElementById('middle_name').value = depMiddle.value;
-    }
-
-    function syncDepDob() {
-        const depDob = document.getElementById('dep_date_of_birth');
-        if (depDob) {
-            document.getElementById('date_of_birth').value = depDob.value;
-        }
-        validateDependantAge();
+        
+        // Reset dependants lists when switching modes
+        pendingDependants = [];
+        sponsorExistingDependants = [];
+        renderPendingDependantsList();
     }
 
     function calculateAge(dobString) {
@@ -683,46 +693,34 @@
     }
 
     function validateDependantAge() {
-        const dob = document.getElementById('date_of_birth').value;
+        const dobInput = document.getElementById('dep_date_of_birth');
+        if (!dobInput) return true;
+        
+        const dob = dobInput.value;
+        const rel = document.getElementById('relationship_to_sponsor').value;
         const ageWarning = document.getElementById('dependant-age-warning');
         const ageMsg = document.getElementById('dependant-age-msg');
-        const nextBtn = document.getElementById('next-step-btn');
         
-        if (registrationMode !== 'dependant') {
+        if (registrationMode !== 'dependant' || !dob) {
             if (ageWarning) ageWarning.classList.add('hidden');
-            if (nextBtn) {
-                nextBtn.disabled = false;
-                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
             return true;
         }
         
-        if (!dob) {
+        if (rel === 'Wife') {
+            // Wives have no age limit!
             if (ageWarning) ageWarning.classList.add('hidden');
-            if (nextBtn) {
-                nextBtn.disabled = false;
-                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            return false;
+            return true;
         }
         
         const age = calculateAge(dob);
         if (age >= 18) {
             if (ageMsg) {
-                ageMsg.innerHTML = `⚠️ Dependant is <b>${age} years old</b>. Dependant status is strictly restricted to children below 18 years of age. Please register this patient as a <b>standalone patient</b> (go back and select Standalone mode).`;
+                ageMsg.innerHTML = `⚠️ Dependant is <b>${age} years old</b>. Dependant status for children (Son/Daughter/Ward) is strictly restricted to below 18 years of age.`;
             }
             if (ageWarning) ageWarning.classList.remove('hidden');
-            if (nextBtn) {
-                nextBtn.disabled = true;
-                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
             return false;
         } else {
             if (ageWarning) ageWarning.classList.add('hidden');
-            if (nextBtn) {
-                nextBtn.disabled = false;
-                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
             return true;
         }
     }
@@ -745,29 +743,170 @@
             if (res.found) {
                 sponsorVerified = true;
                 sponsorSurname = res.surname;
+                sponsorPhone = res.phone || '';
+                sponsorExistingDependants = res.existing_dependants || [];
+                
+                // Clear any leftover pending list when verifying new sponsor
+                pendingDependants = [];
+                renderPendingDependantsList();
+                updateRelationshipOptions();
                 
                 if (statusCard) statusCard.classList.remove('hidden');
                 if (fullnameLabel) fullnameLabel.innerText = res.full_name;
                 if (surnameBadge) surnameBadge.innerText = res.surname;
                 
-                // Automatically populate and sync last name of the patient record
-                document.getElementById('last_name').value = res.surname;
-                
-                alert('Sponsor verified successfully! Surname has been fetched and mapped.');
+                alert('Sponsor verified successfully! Surname and coordinates have been mapped.');
             } else {
                 sponsorVerified = false;
                 sponsorSurname = '';
+                sponsorPhone = '';
+                sponsorExistingDependants = [];
                 if (statusCard) statusCard.classList.add('hidden');
-                document.getElementById('last_name').value = '';
                 alert(res.message || 'Sponsor not found. Please verify the Service Number.');
             }
         } catch (err) {
             sponsorVerified = false;
             sponsorSurname = '';
+            sponsorPhone = '';
+            sponsorExistingDependants = [];
             if (statusCard) statusCard.classList.add('hidden');
-            document.getElementById('last_name').value = '';
             alert('Sponsor verification failed: ' + (err.message || 'connection error'));
         }
+    }
+
+    function updateRelationshipOptions() {
+        const select = document.getElementById('relationship_to_sponsor');
+        if (!select) return;
+
+        const existingWifeCount = sponsorExistingDependants.filter(d => d.relationship_to_sponsor === 'Wife').length;
+        const pendingWifeCount = pendingDependants.filter(d => d.relationship_to_sponsor === 'Wife').length;
+        const totalWife = existingWifeCount + pendingWifeCount;
+
+        const currentVal = select.value;
+        select.innerHTML = '';
+
+        const options = [
+            { value: 'Son', text: 'Son' },
+            { value: 'Daughter', text: 'Daughter' },
+            { value: 'Ward', text: 'Ward' }
+        ];
+
+        // Only allow "Wife" option if none exists yet
+        if (totalWife === 0) {
+            options.push({ value: 'Wife', text: 'Wife' });
+        }
+
+        options.forEach(opt => {
+            const o = document.createElement('option');
+            o.value = opt.value;
+            o.textContent = opt.text;
+            select.appendChild(o);
+        });
+
+        if (options.some(opt => opt.value === currentVal)) {
+            select.value = currentVal;
+        } else {
+            select.value = options[0].value;
+        }
+    }
+
+    function handleAddDependantClick() {
+        const depFirst = document.getElementById('dep_first_name').value.trim();
+        const depMiddle = document.getElementById('dep_middle_name').value.trim();
+        const depDob = document.getElementById('dep_date_of_birth').value;
+        const depGender = document.getElementById('dep_gender').value;
+        const rel = document.getElementById('relationship_to_sponsor').value;
+        const sponsor = document.getElementById('sponsor_service_number').value.trim();
+
+        if (!sponsor || !sponsorVerified) {
+            alert('Please verify the Sponsor/Officer Service Number first.');
+            return;
+        }
+
+        if (!depFirst || !depDob) {
+            alert('Please fill out First Name and Date of Birth.');
+            return;
+        }
+
+        const age = calculateAge(depDob);
+        if (rel !== 'Wife' && age >= 18) {
+            alert('Sponsor dependants (Son/Daughter/Ward) must be strictly under 18 years of age.');
+            return;
+        }
+
+        const existingCount = sponsorExistingDependants.length;
+        const pendingCount = pendingDependants.length;
+        if (existingCount + pendingCount >= 4) {
+            alert('A maximum of 4 dependants is allowed per sponsor.');
+            return;
+        }
+
+        const existingWifeCount = sponsorExistingDependants.filter(d => d.relationship_to_sponsor === 'Wife').length;
+        const pendingWifeCount = pendingDependants.filter(d => d.relationship_to_sponsor === 'Wife').length;
+        if (rel === 'Wife' && (existingWifeCount + pendingWifeCount >= 1)) {
+            alert('Only one Wife is allowed as a dependant.');
+            return;
+        }
+
+        const existingChildCount = sponsorExistingDependants.filter(d => d.relationship_to_sponsor !== 'Wife').length;
+        const pendingChildCount = pendingDependants.filter(d => d.relationship_to_sponsor !== 'Wife').length;
+        if (rel !== 'Wife' && (existingChildCount + pendingChildCount >= 3)) {
+            alert('A maximum of 3 children (Son/Daughter/Ward) is allowed.');
+            return;
+        }
+
+        pendingDependants.push({
+            first_name: depFirst,
+            middle_name: depMiddle || null,
+            last_name: sponsorSurname,
+            gender: depGender,
+            date_of_birth: depDob,
+            relationship_to_sponsor: rel,
+            sponsor_service_number: sponsor
+        });
+
+        renderPendingDependantsList();
+        updateRelationshipOptions();
+
+        // Clear input fields
+        document.getElementById('dep_first_name').value = '';
+        document.getElementById('dep_middle_name').value = '';
+        document.getElementById('dep_date_of_birth').value = '';
+        document.getElementById('dep_gender').value = 'Male';
+    }
+
+    function renderPendingDependantsList() {
+        const container = document.getElementById('pending-deps-container');
+        const listDiv = document.getElementById('pending-deps-list');
+        if (!container || !listDiv) return;
+
+        if (pendingDependants.length === 0) {
+            container.classList.add('hidden');
+            return;
+        }
+
+        container.classList.remove('hidden');
+        listDiv.innerHTML = pendingDependants.map((dep, idx) => `
+            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                <div>
+                    <span class="px-2 py-0.5 rounded font-black text-[8px] bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400 uppercase mr-2">
+                        ${dep.relationship_to_sponsor}
+                    </span>
+                    <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
+                    <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} — DOB: ${dep.date_of_birth})</span>
+                </div>
+                <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
+                </button>
+            </div>
+        `).join('');
+        lucide.createIcons();
+    }
+
+    function removePendingDependant(idx) {
+        pendingDependants.splice(idx, 1);
+        renderPendingDependantsList();
+        updateRelationshipOptions();
     }
 
     // Modal display rules
@@ -788,6 +927,14 @@
         if (verifyStatus) verifyStatus.classList.add('hidden');
         const ageWarning = document.getElementById('dependant-age-warning');
         if (ageWarning) ageWarning.classList.add('hidden');
+
+        // Reset memory lists
+        pendingDependants = [];
+        sponsorExistingDependants = [];
+        sponsorVerified = false;
+        sponsorSurname = '';
+        sponsorPhone = '';
+        renderPendingDependantsList();
 
         // Set standalone mode default
         const modeStandaloneRadio = document.getElementById('mode-standalone');
@@ -862,7 +1009,7 @@
                     if (i < stepNum) {
                         line.className = 'h-0.5 bg-emerald-500 flex-1 -mt-4 transition-all duration-300';
                     } else {
-                        line.className = 'h-0.5 bg-slate-200 dark:bg-slate-800 flex-1 -mt-4 transition-all duration-300';
+        line.className = 'h-0.5 bg-slate-200 dark:bg-slate-800 flex-1 -mt-4 transition-all duration-300';
                     }
                 }
             }
@@ -873,20 +1020,14 @@
     function handleNextStep() {
         if (currentRegisterStep === 1) {
             // Validate Step 1 fields based on mode
-            const gender = document.getElementById('gender').value;
-            const phone = document.getElementById('phone').value.trim();
-
             if (registrationMode === 'standalone') {
+                const gender = document.getElementById('gender').value;
+                const phone = document.getElementById('phone').value.trim();
                 const first = document.getElementById('first_name').value.trim();
                 const last = document.getElementById('last_name').value.trim();
                 const dob = document.getElementById('date_of_birth').value;
                 if (!first || !last || !gender || !dob || !phone) {
                     alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
-                    return;
-                }
-            } else {
-                if (!gender || !phone) {
-                    alert('Please fill out Gender and Phone Number.');
                     return;
                 }
             }
@@ -896,9 +1037,6 @@
             // Validate Dependant details if in dependant mode
             if (registrationMode === 'dependant') {
                 const sponsor = document.getElementById('sponsor_service_number').value.trim();
-                const depFirst = document.getElementById('dep_first_name').value.trim();
-                const depDob = document.getElementById('dep_date_of_birth').value;
-
                 if (!sponsor) {
                     alert('Sponsor/Officer Service Number is required.');
                     return;
@@ -907,13 +1045,21 @@
                     alert('Please verify the Sponsor Service Number before proceeding.');
                     return;
                 }
-                if (!depFirst || !depDob) {
-                    alert('Please fill out Dependant First Name and Date of Birth.');
-                    return;
-                }
-                if (!validateDependantAge()) {
-                    alert('Sponsor dependants must be strictly under 18 years of age.');
-                    return;
+                
+                // Fallback: If they entered fields but did not click "Add Dependant", auto-add it!
+                const depFirst = document.getElementById('dep_first_name').value.trim();
+                const depDob = document.getElementById('dep_date_of_birth').value;
+                if (pendingDependants.length === 0) {
+                    if (depFirst || depDob) {
+                        handleAddDependantClick();
+                        // Verify if it was successfully added
+                        if (pendingDependants.length === 0) {
+                            return;
+                        }
+                    } else {
+                        alert('Please add at least one Dependant before proceeding.');
+                        return;
+                    }
                 }
             }
         }
@@ -950,19 +1096,23 @@
             const disability = document.getElementById('disability').value.trim() || 'None';
 
             const sponsor = document.getElementById('sponsor_service_number').value.trim();
-            const rel = document.getElementById('relationship_to_sponsor').value;
 
-            document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
-            document.getElementById('prev-gender-dob').innerText = `${gender} — DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
-            document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
-            document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
-            
-            const depRow = document.getElementById('prev-row-dependant');
-            if (registrationMode === 'dependant') {
-                depRow.classList.remove('hidden');
-                document.getElementById('prev-dependant').innerText = `Yes (${rel} of Sponsor: ${sponsor})`;
+            if (registrationMode === 'standalone') {
+                document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
+                document.getElementById('prev-gender-dob').innerText = `${gender} — DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
+                document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
+                document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
+                document.getElementById('prev-row-dependant').classList.add('hidden');
             } else {
-                depRow.classList.add('hidden');
+                // Dependant Mode Preview
+                const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor})`).join(', ');
+                document.getElementById('prev-name').innerText = depsStr;
+                document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
+                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '—'}`;
+                document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
+                
+                document.getElementById('prev-row-dependant').classList.remove('hidden');
+                document.getElementById('prev-dependant').innerText = `Yes (${pendingDependants.length} Dependant(s) under Sponsor: ${sponsor})`;
             }
 
             document.getElementById('prev-address').innerText = `${address}, ${lga}, ${state} State`;
@@ -1060,25 +1210,21 @@
         e.preventDefault();
 
         const isDep = (registrationMode === 'dependant');
-        let serviceNo = document.getElementById('immigration_service_number').value.trim();
-
-        if (isDep && !serviceNo) {
-            // Generate a unique dependant service code format
-            serviceNo = 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000);
+        
+        // Auto-add if they have filled the fields but list is empty
+        if (isDep && pendingDependants.length === 0) {
+            const depFirst = document.getElementById('dep_first_name').value.trim();
+            const depDob = document.getElementById('dep_date_of_birth').value;
+            if (depFirst || depDob) {
+                handleAddDependantClick();
+                if (pendingDependants.length === 0) return;
+            } else {
+                alert('Please add at least one Dependant.');
+                return;
+            }
         }
 
-        const payload = {
-            first_name: document.getElementById('first_name').value,
-            middle_name: document.getElementById('middle_name').value || null,
-            last_name: document.getElementById('last_name').value,
-            gender: document.getElementById('gender').value,
-            date_of_birth: document.getElementById('date_of_birth').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value || null,
-            immigration_service_number: serviceNo || null,
-            sponsor_service_number: isDep ? document.getElementById('sponsor_service_number').value.trim() : null,
-            relationship_to_sponsor: isDep ? document.getElementById('relationship_to_sponsor').value : null,
-            nin: document.getElementById('nin').value || null,
+        const commonPayload = {
             blood_group: document.getElementById('blood_group').value,
             genotype: document.getElementById('genotype').value,
             state: document.getElementById('state').value || null,
@@ -1089,18 +1235,52 @@
         };
 
         try {
-            const res = await api.post('/patients', payload);
-            const pat = res.patient;
-            
-            // Populate Success Modal Fields
-            document.getElementById('success-patient-name').innerText = pat.full_name;
-            document.getElementById('success-patient-code').innerText = pat.immigration_service_number;
-            
-            // Close register modal and open success modal
+            if (!isDep) {
+                let serviceNo = document.getElementById('immigration_service_number').value.trim();
+                const payload = {
+                    ...commonPayload,
+                    first_name: document.getElementById('first_name').value,
+                    middle_name: document.getElementById('middle_name').value || null,
+                    last_name: document.getElementById('last_name').value,
+                    gender: document.getElementById('gender').value,
+                    date_of_birth: document.getElementById('date_of_birth').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value || null,
+                    immigration_service_number: serviceNo || null,
+                    nin: document.getElementById('nin').value || null,
+                };
+                const res = await api.post('/patients', payload);
+                const pat = res.patient;
+                document.getElementById('success-patient-name').innerText = pat.full_name;
+                document.getElementById('success-patient-code').innerText = pat.immigration_service_number;
+            } else {
+                const registeredPats = [];
+                for (const dep of pendingDependants) {
+                    const serviceNo = 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000);
+                    const payload = {
+                        ...commonPayload,
+                        first_name: dep.first_name,
+                        middle_name: dep.middle_name,
+                        last_name: dep.last_name,
+                        gender: dep.gender,
+                        date_of_birth: dep.date_of_birth,
+                        phone: sponsorPhone || '—',
+                        email: null,
+                        immigration_service_number: serviceNo,
+                        sponsor_service_number: dep.sponsor_service_number,
+                        relationship_to_sponsor: dep.relationship_to_sponsor,
+                        nin: null
+                    };
+                    const res = await api.post('/patients', payload);
+                    registeredPats.push(res.patient);
+                }
+                
+                document.getElementById('success-patient-name').innerText = registeredPats.map(p => p.full_name).join(', ');
+                document.getElementById('success-patient-code').innerText = registeredPats.map(p => p.immigration_service_number).join(', ');
+            }
+
             closeRegisterModal();
             document.getElementById('success-modal').classList.remove('hidden');
-            
-            // Reload patient list
             loadPatients();
         } catch (err) {
             alert(err.message || 'Failed to register patient file.');
