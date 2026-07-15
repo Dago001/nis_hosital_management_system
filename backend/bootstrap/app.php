@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role_or_permission' => \App\Http\Middleware\CheckRoleOrPermission::class,
             'audit' => \App\Http\Middleware\LogAuditAction::class,
+            'session_timeout' => \App\Http\Middleware\CheckSessionTimeout::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -26,7 +26,7 @@ Route::post('/chat/send', [SupportChatController::class, 'sendVisitorMessage'])-
 Route::get('/external/sync-patients', [SettingController::class, 'syncPatients']);
 
 // Protected routes
-Route::middleware(['auth:sanctum', 'audit'])->group(function () {
+Route::middleware(['auth:sanctum', 'session_timeout', 'audit'])->group(function () {
     // Auth & Profile
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
