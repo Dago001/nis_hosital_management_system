@@ -137,7 +137,53 @@
             </div>
             <div>
                 <label class="ref-label">Receiving Facility <span class="text-red-500">*</span></label>
-                <input type="text" id="ref-facility" required placeholder="e.g. University College Hospital, Ibadan" class="ref-input w-full">
+                <select id="ref-facility" required class="ref-input w-full">
+                    <option value="">Select Receiving Facility</option>
+                    <option value="National Hospital, Abuja">National Hospital, Abuja</option>
+                    <option value="Federal Medical Centre, Abuja">Federal Medical Centre, Abuja</option>
+                    <option value="University College Hospital (UCH), Ibadan">University College Hospital (UCH), Ibadan</option>
+                    <option value="Lagos University Teaching Hospital (LUTH), Lagos">Lagos University Teaching Hospital (LUTH), Lagos</option>
+                    <option value="Federal Medical Centre, Ebute Metta, Lagos">Federal Medical Centre, Ebute Metta, Lagos</option>
+                    <option value="National Orthopaedic Hospital, Igbobi, Lagos">National Orthopaedic Hospital, Igbobi, Lagos</option>
+                    <option value="Ahmadu Bello University Teaching Hospital (ABUTH), Zaria">Ahmadu Bello University Teaching Hospital (ABUTH), Zaria</option>
+                    <option value="Aminu Kano Teaching Hospital (AKTH), Kano">Aminu Kano Teaching Hospital (AKTH), Kano</option>
+                    <option value="Orthopaedic Hospital, Dala, Kano">Orthopaedic Hospital, Dala, Kano</option>
+                    <option value="University of Nigeria Teaching Hospital (UNTH), Enugu">University of Nigeria Teaching Hospital (UNTH), Enugu</option>
+                    <option value="National Orthopaedic Hospital, Enugu">National Orthopaedic Hospital, Enugu</option>
+                    <option value="University of Benin Teaching Hospital (UBTH), Benin City">University of Benin Teaching Hospital (UBTH), Benin City</option>
+                    <option value="University of Port Harcourt Teaching Hospital (UPTH), Port Harcourt">University of Port Harcourt Teaching Hospital (UPTH), Port Harcourt</option>
+                    <option value="Jos University Teaching Hospital (JUTH), Jos">Jos University Teaching Hospital (JUTH), Jos</option>
+                    <option value="Nnamdi Azikiwe University Teaching Hospital (NAUTH), Nnewi">Nnamdi Azikiwe University Teaching Hospital (NAUTH), Nnewi</option>
+                    <option value="Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife">Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife</option>
+                    <option value="University of Ilorin Teaching Hospital (UITH), Ilorin">University of Ilorin Teaching Hospital (UITH), Ilorin</option>
+                    <option value="University of Calabar Teaching Hospital (UCTH), Calabar">University of Calabar Teaching Hospital (UCTH), Calabar</option>
+                    <option value="University of Uyo Teaching Hospital (UUTH), Uyo">University of Uyo Teaching Hospital (UUTH), Uyo</option>
+                    <option value="University of Maiduguri Teaching Hospital (UMTH), Maiduguri">University of Maiduguri Teaching Hospital (UMTH), Maiduguri</option>
+                    <option value="Usman Danfodiyo University Teaching Hospital (UDUTH), Sokoto">Usman Danfodiyo University Teaching Hospital (UDUTH), Sokoto</option>
+                    <option value="Federal Medical Centre, Abeokuta">Federal Medical Centre, Abeokuta</option>
+                    <option value="Federal Medical Centre, Asaba">Federal Medical Centre, Asaba</option>
+                    <option value="Federal Medical Centre, Bida">Federal Medical Centre, Bida</option>
+                    <option value="Federal Medical Centre, Lokoja">Federal Medical Centre, Lokoja</option>
+                    <option value="Federal Medical Centre, Makurdi">Federal Medical Centre, Makurdi</option>
+                    <option value="Federal Medical Centre, Owerri">Federal Medical Centre, Owerri</option>
+                    <option value="Federal Medical Centre, Owo">Federal Medical Centre, Owo</option>
+                    <option value="Federal Medical Centre, Katsina">Federal Medical Centre, Katsina</option>
+                    <option value="Federal Medical Centre, Gombe">Federal Medical Centre, Gombe</option>
+                    <option value="Federal Medical Centre, Keffi">Federal Medical Centre, Keffi</option>
+                    <option value="Federal Medical Centre, Yenagoa">Federal Medical Centre, Yenagoa</option>
+                    <option value="Federal Medical Centre, Birnin Kebbi">Federal Medical Centre, Birnin Kebbi</option>
+                    <option value="Federal Medical Centre, Jalingo">Federal Medical Centre, Jalingo</option>
+                    <option value="Federal Medical Centre, Gusau">Federal Medical Centre, Gusau</option>
+                    <option value="Federal Medical Centre, Umuahia">Federal Medical Centre, Umuahia</option>
+                    <option value="Federal Medical Centre, Azare">Federal Medical Centre, Azare</option>
+                    <option value="Federal Medical Centre, Nguru">Federal Medical Centre, Nguru</option>
+                    <option value="Federal Medical Centre, Yola">Federal Medical Centre, Yola</option>
+                    <option value="Federal Neuro-Psychiatric Hospital, Yaba, Lagos">Federal Neuro-Psychiatric Hospital, Yaba, Lagos</option>
+                    <option value="Federal Neuro-Psychiatric Hospital, Aro, Abeokuta">Federal Neuro-Psychiatric Hospital, Aro, Abeokuta</option>
+                    <option value="Federal Neuro-Psychiatric Hospital, Kaduna">Federal Neuro-Psychiatric Hospital, Kaduna</option>
+                    <option value="National Eye Centre, Kaduna">National Eye Centre, Kaduna</option>
+                    <option value="National Ear Care Centre, Kaduna">National Ear Care Centre, Kaduna</option>
+                </select>
             </div>
             <div>
                 <label class="ref-label">Receiving Doctor (optional)</label>
