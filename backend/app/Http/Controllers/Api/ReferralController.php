@@ -23,7 +23,7 @@ class ReferralController extends Controller
 
         $query = Referral::with([
             'patient:id,first_name,last_name,immigration_service_number,gender',
-            'referringDoctor:id,name',
+            'referringDoctor:id,first_name,last_name',
         ])->latest('referred_at');
 
         if ($type !== 'all') $query->where('referral_type', $type);

@@ -24,8 +24,8 @@ class EmergencyController extends Controller
 
         $query = Emergency::with([
             'patient:id,first_name,last_name,hospital_number,gender,date_of_birth,blood_group,phone',
-            'doctor:id,name',
-            'triageNurse:id,name',
+            'doctor:id,first_name,last_name',
+            'triageNurse:id,first_name,last_name',
         ]);
 
         if ($status === 'active') {

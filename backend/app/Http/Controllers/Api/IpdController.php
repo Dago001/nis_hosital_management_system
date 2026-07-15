@@ -59,7 +59,7 @@ class IpdController extends Controller
             'patient:id,first_name,last_name,immigration_service_number,gender,date_of_birth,phone',
             'bed:id,bed_number,ward_id',
             'bed.ward:id,name',
-            'doctor:id,name',
+            'doctor:id,first_name,last_name',
         ])
         ->where('status', $status);
 

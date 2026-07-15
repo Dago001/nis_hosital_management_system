@@ -225,7 +225,7 @@ class ReportController extends Controller
         [$start, $end] = $this->getPeriodDates($period);
 
         $doctors = Visit::whereBetween('created_at', [$start, $end])
-            ->with('doctor:id,name')
+            ->with('doctor:id,first_name,last_name')
             ->selectRaw('staff_id, count(*) as consultations')
             ->groupBy('staff_id')
             ->orderByDesc('consultations')
