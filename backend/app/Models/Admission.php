@@ -16,6 +16,15 @@ class Admission extends Model
         'discharged_at',
         'discharge_summary',
         'status',
+        'admission_type',
+        'diagnosis_on_admission',
+        'ward_notes',
+        'emergency_id',
+    ];
+
+    protected $casts = [
+        'admitted_at' => 'datetime',
+        'discharged_at' => 'datetime',
     ];
 
     public function patient(): BelongsTo
@@ -36,5 +45,10 @@ class Admission extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'staff_id');
+    }
+
+    public function emergency(): BelongsTo
+    {
+        return $this->belongsTo(Emergency::class);
     }
 }

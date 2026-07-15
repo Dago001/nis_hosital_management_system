@@ -11,12 +11,18 @@ use Illuminate\Support\Facades\Auth;
 
 class BillingController extends Controller
 {
-    public function getPendingInvoices()
+    public function getPendingInvoices(Request $request)
     {
-        $invoices = Invoice::with(['patient', 'items'])
-            ->whereIn('status', ['unpaid', 'partially_paid'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $status = $request->get('status', 'pending');
+        $query = Invoice::with(['patient', 'items']);
+
+        if ($status === 'pending') {
+            $query->whereIn('status', ['unpaid', 'partially_paid']);
+        } elseif ($status === 'paid') {
+            $query->where('status', 'paid');
+        }
+
+        $invoices = $query->orderBy('created_at', 'desc')->get();
 
         return response()->json(['invoices' => $invoices]);
     }

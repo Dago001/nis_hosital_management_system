@@ -478,5 +478,10 @@ class DatabaseSeeder extends Seeder
         foreach ($pharmacyItems as $item) {
             PharmacyItem::create($item);
         }
+
+        // 8. Seed Default System Settings
+        \App\Models\Setting::setVal('facility_name', 'NIS Medical Clinic HQ');
+        \App\Models\Setting::setVal('active_branch', 'Central command, Abuja');
+        \App\Models\Setting::setVal('maintenance_mode', '0');
     }
 }

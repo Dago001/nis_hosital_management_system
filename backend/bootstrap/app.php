@@ -13,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\SafeSecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\XssSanitizer::class);
         $middleware->alias([
             'role_or_permission' => \App\Http\Middleware\CheckRoleOrPermission::class,
             'audit' => \App\Http\Middleware\LogAuditAction::class,

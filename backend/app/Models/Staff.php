@@ -11,6 +11,8 @@ class Staff extends Model
 {
     use SoftDeletes;
 
+    protected $appends = ['full_name'];
+
     protected $fillable = [
         'user_id',
         'department_id',

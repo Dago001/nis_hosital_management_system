@@ -44,7 +44,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults()],
             'roles' => 'required|array',
             'roles.*' => 'exists:roles,name',
             
@@ -183,7 +183,7 @@ class UserController extends Controller
     public function resetPassword(Request $request, int $id)
     {
         $request->validate([
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required', 'string', \Illuminate\Validation\Rules\Password::defaults(), 'confirmed'],
         ]);
 
         $user = User::find($id);

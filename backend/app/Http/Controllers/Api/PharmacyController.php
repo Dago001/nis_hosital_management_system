@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\PharmacyItem;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -107,14 +109,99 @@ class PharmacyController extends Controller
     }
 
     /**
+     * Cost a prescription and forward to Cashier (generates an Invoice)
+     */
+    public function costPrescription(Request $request, $id)
+    {
+        $prescription = Prescription::with(['items', 'patient', 'visit'])->findOrFail($id);
+
+        if (in_array($prescription->status, ['costed', 'dispensed'])) {
+            return response()->json(['message' => 'Prescription is already costed or dispensed'], 400);
+        }
+
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.prescription_item_id' => 'required|exists:prescription_items,id',
+            'items.*.pharmacy_item_id' => 'required|exists:pharmacy_items,id',
+            'items.*.price_per_unit' => 'required|numeric|min:0',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $totalAmount = 0;
+            $invoiceItemsData = [];
+
+            foreach ($validated['items'] as $itemData) {
+                $pItem = PrescriptionItem::findOrFail($itemData['prescription_item_id']);
+                $pharmacyItem = PharmacyItem::findOrFail($itemData['pharmacy_item_id']);
+                
+                $itemTotal = (float)$itemData['price_per_unit'] * (int)$itemData['quantity'];
+                $totalAmount += $itemTotal;
+
+                $invoiceItemsData[] = [
+                    'item_name' => "Medication: " . $pharmacyItem->name . " (" . $pItem->dosage . ")",
+                    'quantity' => $itemData['quantity'],
+                    'unit_price' => $itemData['price_per_unit'],
+                    'total_price' => $itemTotal,
+                ];
+
+                $pItem->update([
+                    'quantity_dispensed' => $itemData['quantity']
+                ]);
+            }
+
+            // Create the Invoice
+            $invoice = Invoice::create([
+                'patient_id' => $prescription->patient_id,
+                'visit_id' => $prescription->visit_id,
+                'total_amount' => $totalAmount,
+                'discount_amount' => 0.00,
+                'paid_amount' => 0.00,
+                'status' => 'unpaid'
+            ]);
+
+            // Create the Invoice Items
+            foreach ($invoiceItemsData as $invItem) {
+                $invItem['invoice_id'] = $invoice->id;
+                InvoiceItem::create($invItem);
+            }
+
+            // Update the Prescription status & link the invoice
+            $prescription->update([
+                'status' => 'costed',
+                'invoice_id' => $invoice->id
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Prescription costed successfully and forwarded to cashier.',
+                'invoice' => $invoice,
+                'prescription' => $prescription
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
+
+    /**
      * Dispense a prescription
      */
     public function dispensePrescription(Request $request, $id)
     {
-        $prescription = Prescription::with('items')->findOrFail($id);
+        $prescription = Prescription::with(['items', 'invoice'])->findOrFail($id);
 
         if ($prescription->status === 'dispensed') {
             return response()->json(['message' => 'Prescription is already dispensed'], 400);
+        }
+
+        // Verify payment status!
+        if ($prescription->invoice_id && (!$prescription->invoice || $prescription->invoice->status !== 'paid')) {
+            return response()->json(['message' => 'Prescription cannot be dispensed until payment is verified by the cashier.'], 400);
         }
 
         // We expect an array of items to dispense with their corresponding inventory item IDs

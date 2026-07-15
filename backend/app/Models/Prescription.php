@@ -12,6 +12,7 @@ class Prescription extends Model
         'visit_id',
         'patient_id',
         'staff_id',
+        'invoice_id',
         'status',
     ];
 
@@ -28,6 +29,11 @@ class Prescription extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Staff::class, 'staff_id');
+    }
+
+    public function invoice(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
     }
 
     public function items(): HasMany

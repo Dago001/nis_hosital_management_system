@@ -16,9 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ClinicalController extends Controller
 {
-    /**
-     * Record vitals signs (usually done by Nurses)
-     */
     public function recordVitals(Request $request)
     {
         $validated = $request->validate([
@@ -30,17 +27,26 @@ class ClinicalController extends Controller
             'vitals_respiratory_rate' => 'nullable|integer',
             'vitals_weight' => 'nullable|numeric',
             'vitals_height' => 'nullable|numeric',
+            'doctor_id' => 'required|exists:staff,id', // Assigned doctor
         ]);
 
-        // Retrieve current authenticated staff ID (assuming it is a nurse)
-        $staff = Auth::user()->staff;
-        $validated['staff_id'] = $staff ? $staff->id : 1; // Fallback to 1 if no staff profile
+        // Save the assigned doctor as the staff_id for the visit
+        $validated['staff_id'] = $validated['doctor_id'];
+        unset($validated['doctor_id']);
 
-        // Create a new Visit record or find active check-in
-        $visit = Visit::create($validated);
+        // Find existing pending visit with null vitals for this patient
+        $visit = Visit::where('patient_id', $validated['patient_id'])
+            ->whereNull('vitals_blood_pressure')
+            ->first();
+
+        if ($visit) {
+            $visit->update($validated);
+        } else {
+            $visit = Visit::create($validated);
+        }
 
         return response()->json([
-            'message' => 'Vitals recorded successfully.',
+            'message' => 'Vitals recorded successfully and patient assigned to doctor.',
             'visit' => $visit
         ], 210);
     }
@@ -159,11 +165,17 @@ class ClinicalController extends Controller
             }
 
             // 5. Generate Billing Invoice automatically for GOPD Consultation Fee
+            $patient = $visit->patient;
+            $discount = 0.00;
+            if ($patient && $patient->isNhis()) {
+                $discount = 2000.00 * 0.15; // 15% discount
+            }
+
             $invoice = Invoice::create([
                 'patient_id' => $visit->patient_id,
                 'visit_id' => $visit->id,
                 'total_amount' => 2000.00, // Fixed Consultation Fee in NGN
-                'discount_amount' => 0.00,
+                'discount_amount' => $discount,
                 'paid_amount' => 0.00,
                 'status' => 'unpaid'
             ]);
@@ -180,6 +192,29 @@ class ClinicalController extends Controller
         return response()->json([
             'message' => 'Consultation completed and billing generated.',
             'visit' => $visit->load(['prescriptions', 'labRequests', 'radiologyRequests'])
+        ]);
+    }
+
+    /**
+     * Get active consult/triage visit for patient lookup
+     */
+    public function getActiveVisit(Request $request, $patientId)
+    {
+        $visit = Visit::with(['patient', 'doctor', 'department'])
+            ->where('patient_id', $patientId)
+            ->whereNotNull('vitals_blood_pressure')
+            ->whereNull('chief_complaint')
+            ->latest('created_at')
+            ->first();
+
+        if (!$visit) {
+            return response()->json([
+                'message' => 'No active waiting consult file found for this patient. Ensure triage vitals are recorded first.'
+            ], 404);
+        }
+
+        return response()->json([
+            'visit' => $visit
         ]);
     }
 }
