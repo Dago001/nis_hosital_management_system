@@ -175,6 +175,7 @@
                     <option value="Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife">Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife</option>
                     <option value="Orthopaedic Hospital, Dala, Kano">Orthopaedic Hospital, Dala, Kano</option>
                     <option value="University College Hospital (UCH), Ibadan">University College Hospital (UCH), Ibadan</option>
+                    <option value="University of Abuja Teaching Hospital (UATH), Gwagwalada">University of Abuja Teaching Hospital (UATH), Gwagwalada</option>
                     <option value="University of Benin Teaching Hospital (UBTH), Benin City">University of Benin Teaching Hospital (UBTH), Benin City</option>
                     <option value="University of Calabar Teaching Hospital (UCTH), Calabar">University of Calabar Teaching Hospital (UCTH), Calabar</option>
                     <option value="University of Ilorin Teaching Hospital (UITH), Ilorin">University of Ilorin Teaching Hospital (UITH), Ilorin</option>
