@@ -227,34 +227,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('reason') === 'expired') {
-                localStorage.removeItem('nis_hms_token');
-                localStorage.removeItem('nis_hms_user');
-                
-                const errorBanner = document.getElementById('error-banner');
-                const errorMessage = document.getElementById('error-message');
-                if (errorBanner && errorMessage) {
-                    errorBanner.classList.remove('hidden');
-                    // Style as warning
-                    errorBanner.classList.remove('bg-red-550/10', 'border-red-200');
-                    errorBanner.classList.add('bg-amber-500/10', 'border-amber-400/20', 'text-amber-850');
-                    errorMessage.classList.remove('text-red-600');
-                    errorMessage.classList.add('text-amber-800');
-                    errorMessage.innerText = "Your session has expired due to inactivity. Please log in again.";
-                    
-                    const icon = errorBanner.querySelector('i');
-                    if (icon) {
-                        icon.setAttribute('data-lucide', 'alert-triangle');
-                        icon.classList.remove('text-red-655');
-                        icon.classList.add('text-amber-600');
-                    }
-                }
-            } else {
-                const token = localStorage.getItem('nis_hms_token');
-                if (token) {
-                    window.location.href = '/dashboard';
-                }
+            const token = localStorage.getItem('nis_hms_token');
+            if (token) {
+                window.location.href = '/dashboard';
             }
             lucide.createIcons();
         });

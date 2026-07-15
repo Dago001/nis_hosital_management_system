@@ -260,17 +260,9 @@
                     const response = await fetch(url, options);
                     if (response.status === 401) {
                         // Unauthorized -> logout
-                        let isExpired = false;
-                        try {
-                            const data = await response.clone().json();
-                            if (data.message && data.message.includes('expired')) {
-                                isExpired = true;
-                            }
-                        } catch (e) {}
-
                         localStorage.removeItem('nis_hms_token');
                         localStorage.removeItem('nis_hms_user');
-                        window.location.href = isExpired ? '/login?reason=expired' : '/login';
+                        window.location.href = '/login';
                         throw new Error('Unauthorized');
                     }
                     const data = await response.json();
@@ -400,12 +392,12 @@
             }
         }
 
-        function handleLogout(reason = '') {
+        function handleLogout() {
             api.post('/logout', {}).catch(() => {}).finally(() => {
                 localStorage.removeItem('nis_hms_token');
                 localStorage.removeItem('nis_hms_user');
                 localStorage.removeItem('nis_hms_theme');
-                window.location.href = '/login' + (reason ? `?reason=${reason}` : '');
+                window.location.href = '/login';
             });
         }
 
@@ -596,37 +588,6 @@
             // Start real-time notification polling (every 30s)
             fetchNotifications();
             notifPoll = setInterval(fetchNotifications, 30000);
-
-            // ─── 30-Minute Inactivity Session Timeout ──────────────────────────────
-            const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-            const CHECK_INTERVAL = 10000; // 10 seconds
-
-            function updateActivity() {
-                localStorage.setItem('nis_hms_last_activity', Date.now().toString());
-            }
-
-            function checkInactivity() {
-                const lastActivity = localStorage.getItem('nis_hms_last_activity');
-                if (lastActivity) {
-                    const elapsed = Date.now() - parseInt(lastActivity, 10);
-                    if (elapsed >= INACTIVITY_TIMEOUT) {
-                        clearInterval(inactivityInterval);
-                        handleLogout('expired');
-                    }
-                } else {
-                    updateActivity();
-                }
-            }
-
-            // Set initial activity and register event listeners
-            updateActivity();
-            const activityEvents = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
-            activityEvents.forEach(event => {
-                window.addEventListener(event, updateActivity, { passive: true });
-            });
-
-            // Periodically check for inactivity
-            const inactivityInterval = setInterval(checkInactivity, CHECK_INTERVAL);
         });
     </script>
     @yield('scripts')

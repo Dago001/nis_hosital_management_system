@@ -9,7 +9,6 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 - **Monolithic Architecture Transition**: The system has been fully migrated from a separated React frontend to a high-performance **Laravel Blade + Tailwind CSS** monolithic architecture, improving load times and simplifying the deployment process.
 - **Enterprise Security Hardening**: Implemented advanced security measures including Strict API Rate Limiting, XSS Payload Sanitization (`XssSanitizer`), SafeSecurityHeaders middleware, encrypted session payloads, hardened Eloquent models, and strict hospital-code-only restrictions for patient lookups.
 - **Enhanced Clinical Workflows**: Integrated real-time "Diagnostic Reports" directly into the patient's comprehensive Clinical File History, allowing Doctors to securely view approved lab and radiology results independent of the active triage queue.
-- **30-Minute Inactivity Session Timeout**: Implemented client-side activity monitoring (mouse movements, clicks, keyboard events) combined with a custom backend middleware (`CheckSessionTimeout`) using Cache sliding windows. If a user is inactive for 30 minutes, they are safely signed out and redirected to login with an informational notice.
 - **Codebase Optimization**: Redundant development scratch files, boilerplate test scripts, and the entirely obsolete React codebase were purged to create a lightweight, production-ready environment.
 
 ---
