@@ -17,7 +17,7 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 
 ### Application Core (Monolith)
 - **Framework**: Laravel 12 + PHP 8.4
-- **Frontend UI**: Laravel Blade templating engine
+- **Frontend UI**: Laravel Blade templating engine with **Vanilla JavaScript (ES6+)** for reactive, DOM-based interactivity without virtual DOM overhead
 - **Styling**: Tailwind CSS v4 + Outfit Google Fonts
 - **Icons**: Lucide Icons for premium visual aesthetics
 
