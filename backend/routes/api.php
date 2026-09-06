@@ -193,6 +193,18 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
     Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
 
+    // Procurement (suppliers, purchase orders, goods-received notes)
+    Route::middleware('role_or_permission:super_admin,ict_admin,hospital_admin,procurement_officer,store_officer,account_officer')->group(function () {
+        Route::get('/procurement/suppliers', [App\Http\Controllers\Api\ProcurementController::class, 'suppliers']);
+        Route::post('/procurement/suppliers', [App\Http\Controllers\Api\ProcurementController::class, 'storeSupplier']);
+        Route::get('/procurement/catalogue-items', [App\Http\Controllers\Api\ProcurementController::class, 'catalogueItems']);
+        Route::get('/procurement/orders', [App\Http\Controllers\Api\ProcurementController::class, 'index']);
+        Route::post('/procurement/orders', [App\Http\Controllers\Api\ProcurementController::class, 'store']);
+        Route::get('/procurement/orders/{id}', [App\Http\Controllers\Api\ProcurementController::class, 'show']);
+        Route::post('/procurement/orders/{id}/approve', [App\Http\Controllers\Api\ProcurementController::class, 'approve']);
+        Route::post('/procurement/orders/{id}/receive', [App\Http\Controllers\Api\ProcurementController::class, 'receive']);
+    });
+
     // Service Tariffs (price catalogue)
     Route::get('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'index']);
     Route::post('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'store'])->middleware('role_or_permission:manage_settings');
