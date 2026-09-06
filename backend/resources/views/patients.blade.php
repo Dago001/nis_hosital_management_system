@@ -17,6 +17,32 @@
         </div>
     </div>
 
+    <!-- My Assigned Patients (doctors only) -->
+    <div id="assigned-panel" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600"><i data-lucide="stethoscope" class="w-4 h-4"></i></div>
+            <div>
+                <h3 class="text-xs font-bold text-slate-800 dark:text-white">My Assigned Patients</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">Patients you are the consulting clinician for. You can also call up any patient below.</p>
+            </div>
+            <span id="assigned-count" class="ml-auto text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full"></span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                        <th class="py-2.5 px-4 font-bold">Patient</th>
+                        <th class="py-2.5 px-4 font-bold">Hospital Code</th>
+                        <th class="py-2.5 px-4 font-bold">Encounters</th>
+                        <th class="py-2.5 px-4 font-bold">Last Seen</th>
+                        <th class="py-2.5 px-4 font-bold text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="assigned-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Hospital Code Search -->
     <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -1673,10 +1699,39 @@
     }
 
     // Initialize Register Patient button permissions
+    async function loadAssignedPatients() {
+        const panel = document.getElementById('assigned-panel');
+        const bodyEl = document.getElementById('assigned-body');
+        try {
+            const res = await api.get('/patients/assigned');
+            const list = res.patients || [];
+            if (!list.length) return; // hide panel entirely if no assigned patients
+            panel.classList.remove('hidden');
+            document.getElementById('assigned-count').innerText = (res.pagination?.total ?? list.length) + ' patient(s)';
+            bodyEl.innerHTML = list.map(p => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20">
+                    <td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">${p.full_name}
+                        <span class="text-[10px] text-slate-400 font-normal">${p.gender}${p.age != null ? ', ' + p.age + 'y' : ''}</span></td>
+                    <td class="py-2.5 px-4 font-mono">${p.immigration_service_number || '—'}</td>
+                    <td class="py-2.5 px-4">${p.encounters_count ?? 0}</td>
+                    <td class="py-2.5 px-4 text-slate-500">${p.last_seen_at || '—'}</td>
+                    <td class="py-2.5 px-4 text-right">
+                        <button onclick="handleShowDetails(${p.id})" class="text-emerald-600 hover:text-emerald-700 font-bold hover:underline cursor-pointer">Open File</button>
+                    </td>
+                </tr>`).join('');
+            lucide.createIcons();
+        } catch (e) { /* non-doctors get 403 — panel simply stays hidden */ }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const role = user.roles && user.roles[0] ? user.roles[0].name : '';
         if (['super_admin', 'records_officer', 'receptionist'].includes(role)) {
             document.getElementById('register-btn-container').classList.remove('hidden');
+        }
+
+        // Doctors/consultants see their assigned patients (and can still search any).
+        if (['doctor', 'consultant', 'dental_officer', 'eye_clinic_officer', 'physiotherapist'].includes(role)) {
+            loadAssignedPatients();
         }
 
         // Populate States list dynamically

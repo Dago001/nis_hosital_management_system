@@ -82,6 +82,7 @@ class DatabaseSeeder extends Seeder
             // Pharmacy & Stock
             ['name' => 'view_inventory', 'display_name' => 'View Inventory', 'module' => 'pharmacy'],
             ['name' => 'manage_inventory', 'display_name' => 'Manage Stock & Procurement', 'module' => 'pharmacy'],
+            ['name' => 'issue_stock', 'display_name' => 'Issue Stock to Pharmacy', 'module' => 'pharmacy'],
             ['name' => 'dispense_drugs', 'display_name' => 'Dispense Prescriptions', 'module' => 'pharmacy'],
             
             // Financials
@@ -156,7 +157,13 @@ class DatabaseSeeder extends Seeder
         
         // Store Officer, Inventory Officer, Procurement Officer permissions
         $roleModels['store_officer']->permissions()->sync([$permissionModels['view_inventory']->id]);
-        $roleModels['inventory_officer']->permissions()->sync([$permissionModels['view_inventory']->id, $permissionModels['manage_inventory']->id]);
+        // Inventory Officer runs the central store: views/manages stock and issues
+        // drugs, injections and consumables out to the pharmacy dispensary.
+        $roleModels['inventory_officer']->permissions()->sync([
+            $permissionModels['view_inventory']->id,
+            $permissionModels['manage_inventory']->id,
+            $permissionModels['issue_stock']->id,
+        ]);
         $roleModels['procurement_officer']->permissions()->sync([$permissionModels['view_inventory']->id, $permissionModels['manage_inventory']->id]);
 
         // Lab Scientist permissions
@@ -246,7 +253,7 @@ class DatabaseSeeder extends Seeder
         $accounts = [
             [
                 'name' => 'Admin Officer',
-                'email' => 'admin@nishms.gov.ng',
+                'email' => 'admin@immigration.gov.ng',
                 'role' => 'super_admin',
                 'dept' => 'ICT',
                 'first_name' => 'Yakubu',
@@ -256,7 +263,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Ibrahim Bello',
-                'email' => 'director@nishms.gov.ng',
+                'email' => 'director@immigration.gov.ng',
                 'role' => 'medical_director',
                 'dept' => 'ADMIN',
                 'first_name' => 'Ibrahim',
@@ -267,7 +274,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Dr. Chioma Nwachukwu',
-                'email' => 'doctor@nishms.gov.ng',
+                'email' => 'doctor@immigration.gov.ng',
                 'role' => 'doctor',
                 'dept' => 'GOPD',
                 'first_name' => 'Chioma',
@@ -278,7 +285,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Nurse Funmilayo Adebayo',
-                'email' => 'nurse@nishms.gov.ng',
+                'email' => 'nurse@immigration.gov.ng',
                 'role' => 'nurse',
                 'dept' => 'ER',
                 'first_name' => 'Funmilayo',
@@ -289,7 +296,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Pharmacist Aliyu Garba',
-                'email' => 'pharmacist@nishms.gov.ng',
+                'email' => 'pharmacist@immigration.gov.ng',
                 'role' => 'pharmacist',
                 'dept' => 'PHARM',
                 'first_name' => 'Aliyu',
@@ -300,7 +307,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Scientist Emeka Okafor',
-                'email' => 'lab@nishms.gov.ng',
+                'email' => 'lab@immigration.gov.ng',
                 'role' => 'lab_scientist',
                 'dept' => 'LAB',
                 'first_name' => 'Emeka',
@@ -311,7 +318,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Cashier Zainab Ahmed',
-                'email' => 'cashier@nishms.gov.ng',
+                'email' => 'cashier@immigration.gov.ng',
                 'role' => 'cashier',
                 'dept' => 'ADMIN',
                 'first_name' => 'Zainab',
@@ -321,13 +328,23 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'Records Officer John Danjuma',
-                'email' => 'records@nishms.gov.ng',
+                'email' => 'records@immigration.gov.ng',
                 'role' => 'records_officer',
                 'dept' => 'ADMIN',
                 'first_name' => 'John',
                 'last_name' => 'Danjuma',
                 'rank' => 'Assistant Inspector of Immigration (AII)',
                 'service_number' => 'NIS/2023/8912'
+            ],
+            [
+                'name' => 'Inventory Officer Sadiq Bala',
+                'email' => 'inventory@immigration.gov.ng',
+                'role' => 'inventory_officer',
+                'dept' => 'PHARM',
+                'first_name' => 'Sadiq',
+                'last_name' => 'Bala',
+                'rank' => 'Inspector of Immigration (II)',
+                'service_number' => 'NIS/2021/6014'
             ]
         ];
 

@@ -18,7 +18,7 @@ class MfaServiceTest extends TestCase
         $service = new MfaService();
         $user = new User();
         $user->id = 99;
-        $user->email = 'test@nishms.gov.ng';
+        $user->email = 'test@immigration.gov.ng';
 
         $otp = $service->generateOtp($user);
 

@@ -548,6 +548,7 @@
                 { path: '/referrals',    label: 'Referrals',        icon: 'arrow-right-left',  roles: ['super_admin', 'hospital_admin', 'medical_director', 'doctor', 'consultant', 'nurse'] },
                 { path: '/laboratory',   label: 'Laboratory',       icon: 'test-tube',         roles: ['super_admin', 'medical_director', 'lab_scientist', 'radiographer', 'doctor'] },
                 { path: '/pharmacy',     label: 'Pharmacy',         icon: 'pill',              roles: ['super_admin', 'medical_director', 'pharmacist', 'store_officer', 'inventory_officer', 'procurement_officer'] },
+                { path: '/inventory',    label: 'Store Issuance',   icon: 'package',           roles: ['super_admin', 'hospital_admin', 'ict_admin', 'inventory_officer', 'store_officer', 'procurement_officer', 'pharmacist'] },
                 { path: '/billing',      label: 'Billing & Cashier',icon: 'credit-card',       roles: ['super_admin', 'hospital_admin', 'medical_director', 'cashier', 'account_officer'] },
                 { path: '/reports',      label: 'Analytics',        icon: 'bar-chart',         roles: ['super_admin', 'hospital_admin', 'medical_director', 'chief_medical_officer', 'health_info_officer', 'records_officer'] },
                 { path: '/audit-trail',  label: 'Audit Trail',      icon: 'clipboard-list',    roles: ['super_admin', 'ict_admin', 'health_info_officer'] },

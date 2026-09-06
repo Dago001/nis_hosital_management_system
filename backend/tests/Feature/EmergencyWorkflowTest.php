@@ -29,7 +29,7 @@ class EmergencyWorkflowTest extends TestCase
 
     public function test_emergency_can_be_registered_without_triage_nurse()
     {
-        Sanctum::actingAs($this->nurse('ernurse@nishms.gov.ng'));
+        Sanctum::actingAs($this->nurse('ernurse@immigration.gov.ng'));
 
         // Regression: registering without 'triaged_by' must not raise
         // "Undefined array key" — it should succeed with triaged_at = null.
@@ -50,7 +50,7 @@ class EmergencyWorkflowTest extends TestCase
 
     public function test_emergency_registration_validates_triage_level()
     {
-        Sanctum::actingAs($this->nurse('ernurse2@nishms.gov.ng'));
+        Sanctum::actingAs($this->nurse('ernurse2@immigration.gov.ng'));
 
         $this->postJson('/api/emergencies', [
             'triage_level' => 'purple', // invalid
@@ -63,7 +63,7 @@ class EmergencyWorkflowTest extends TestCase
     {
         $user = User::create([
             'name' => 'Store Officer',
-            'email' => 'store@nishms.gov.ng',
+            'email' => 'store@immigration.gov.ng',
             'password' => bcrypt('Password123#'),
             'status' => 'active',
         ]);

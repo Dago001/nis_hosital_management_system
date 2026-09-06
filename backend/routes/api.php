@@ -40,8 +40,16 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // Patient Management — reading PHI requires a clinical/administrative need-to-know
     Route::get('/patients', [PatientController::class, 'index'])->middleware('role_or_permission:view_patients');
+    // Patients assigned to the authenticated doctor (must precede the {id} route)
+    Route::get('/patients/assigned', [PatientController::class, 'assignedToMe'])->middleware('role_or_permission:consult_patients');
     Route::post('/patients', [PatientController::class, 'store'])->middleware('role_or_permission:register_patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->middleware('role_or_permission:view_patients');
+
+    // Central Store / Inventory issuance (Inventory Officer -> Pharmacy)
+    Route::get('/inventory/items', [App\Http\Controllers\Api\InventoryController::class, 'items'])->middleware('role_or_permission:view_inventory');
+    Route::get('/inventory/pharmacists', [App\Http\Controllers\Api\InventoryController::class, 'pharmacists'])->middleware('role_or_permission:view_inventory');
+    Route::get('/inventory/issuances', [App\Http\Controllers\Api\InventoryController::class, 'issuances'])->middleware('role_or_permission:view_inventory');
+    Route::post('/inventory/issue', [App\Http\Controllers\Api\InventoryController::class, 'issue'])->middleware('role_or_permission:issue_stock');
 
     // Appointment Management
     Route::get('/appointments', [AppointmentController::class, 'index']);

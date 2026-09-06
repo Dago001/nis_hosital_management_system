@@ -150,7 +150,7 @@
                     <ul class="space-y-2 text-[10px] text-slate-500 font-sans">
                         <li>NIS HQ, Sauka, Airport Road, Abuja.</li>
                         <li>Phone: +234 (0) 9-234-5678</li>
-                        <li>Email: medical@nishms.gov.ng</li>
+                        <li>Email: medical@immigration.gov.ng</li>
                     </ul>
                 </div>
 

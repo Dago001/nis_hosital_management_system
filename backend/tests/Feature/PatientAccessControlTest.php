@@ -22,7 +22,7 @@ class PatientAccessControlTest extends TestCase
         }
         $user = User::create([
             'name' => $roleName,
-            'email' => $roleName . '@nishms.gov.ng',
+            'email' => $roleName . '@immigration.gov.ng',
             'password' => bcrypt('Password123#'),
             'status' => 'active',
         ]);

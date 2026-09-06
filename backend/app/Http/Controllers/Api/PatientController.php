@@ -55,6 +55,51 @@ class PatientController extends Controller
         ]);
     }
 
+    /**
+     * Patients assigned to the authenticated doctor (i.e. patients the doctor is
+     * the consulting clinician for). Doctors can also call up ANY patient record
+     * via search()/show() — this is their focused working list.
+     */
+    public function assignedToMe(Request $request)
+    {
+        $staff = $request->user()->staff;
+
+        $empty = [
+            'patients' => [],
+            'pagination' => ['total' => 0, 'per_page' => 15, 'current_page' => 1, 'last_page' => 1],
+        ];
+
+        if (! $staff) {
+            return response()->json($empty);
+        }
+
+        $staffId = $staff->id;
+
+        $patients = Patient::whereHas('visits', fn ($q) => $q->where('staff_id', $staffId))
+            ->withCount(['visits as encounters_count' => fn ($q) => $q->where('staff_id', $staffId)])
+            ->withMax(['visits as last_seen_at' => fn ($q) => $q->where('staff_id', $staffId)], 'created_at')
+            ->orderByDesc('last_seen_at')
+            ->paginate(15);
+
+        return response()->json([
+            'patients' => $patients->map(fn ($p) => [
+                'id' => $p->id,
+                'full_name' => $p->full_name,
+                'immigration_service_number' => $p->immigration_service_number,
+                'gender' => $p->gender,
+                'age' => $p->age,
+                'encounters_count' => $p->encounters_count,
+                'last_seen_at' => $p->last_seen_at ? \Illuminate\Support\Carbon::parse($p->last_seen_at)->toDateString() : null,
+            ]),
+            'pagination' => [
+                'total' => $patients->total(),
+                'per_page' => $patients->perPage(),
+                'current_page' => $patients->currentPage(),
+                'last_page' => $patients->lastPage(),
+            ],
+        ]);
+    }
+
     public function store(Request $request)
     {
         // Names: letters only (plus spaces, hyphens, apostrophes, periods).
