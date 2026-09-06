@@ -64,6 +64,10 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/appointments/doctors', [AppointmentController::class, 'getDoctors']);
     Route::post('/appointments/{id}/check-in', [AppointmentController::class, 'checkIn'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
     Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/{id}/no-show', [AppointmentController::class, 'markNoShow'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/{id}/reminder', [AppointmentController::class, 'sendReminder'])->middleware('role_or_permission:records_officer,receptionist,hospital_admin,super_admin');
+    Route::post('/appointments/reminders/send-due', [AppointmentController::class, 'sendDueReminders'])->middleware('role_or_permission:records_officer,receptionist,hospital_admin,super_admin');
+    Route::get('/appointments/attendance-stats', [AppointmentController::class, 'attendanceStats']);
     Route::get('/appointments/requests', [AppointmentController::class, 'listRequests']);
     Route::post('/appointments/requests/{id}/confirm', [AppointmentController::class, 'confirmRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
     Route::post('/appointments/requests/{id}/reject', [AppointmentController::class, 'rejectRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');

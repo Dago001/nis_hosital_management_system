@@ -16,6 +16,13 @@ class Appointment extends Model
         'queue_number',
         'status',
         'notes',
+        'reminder_sent_at',
+        'no_show_at',
+    ];
+
+    protected $casts = [
+        'reminder_sent_at' => 'datetime',
+        'no_show_at' => 'datetime',
     ];
 
     public function patient(): BelongsTo

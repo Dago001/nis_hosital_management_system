@@ -110,6 +110,99 @@ class AppointmentController extends Controller
         ]);
     }
 
+    /**
+     * Mark a booked appointment as a no-show (patient did not attend).
+     */
+    public function markNoShow(int $id)
+    {
+        $appointment = Appointment::find($id);
+        if (!$appointment) {
+            return response()->json(['message' => 'Appointment not found.'], 404);
+        }
+
+        if (in_array($appointment->status, ['checked_in', 'completed'])) {
+            return response()->json(['message' => 'This patient already attended; cannot mark as no-show.'], 422);
+        }
+
+        $appointment->status = 'no_show';
+        $appointment->no_show_at = now();
+        $appointment->save();
+
+        return response()->json(['message' => 'Appointment marked as no-show.', 'appointment' => $appointment]);
+    }
+
+    /**
+     * Record that a reminder was sent for a single appointment. (An SMS/email
+     * gateway can be plugged in here; for now we stamp the reminder time so the
+     * front desk can see who has already been reminded.)
+     */
+    public function sendReminder(int $id)
+    {
+        $appointment = Appointment::with(['patient', 'doctor'])->find($id);
+        if (!$appointment) {
+            return response()->json(['message' => 'Appointment not found.'], 404);
+        }
+
+        $appointment->reminder_sent_at = now();
+        $appointment->save();
+
+        return response()->json([
+            'message' => 'Reminder logged for ' . $appointment->patient?->full_name . '.',
+            'appointment' => $appointment,
+        ]);
+    }
+
+    /**
+     * Bulk-send reminders for all still-pending appointments on a target date
+     * (defaults to tomorrow) that have not already been reminded.
+     */
+    public function sendDueReminders(Request $request)
+    {
+        $date = $request->input('date', Carbon::tomorrow()->toDateString());
+
+        $due = Appointment::whereDate('appointment_date', $date)
+            ->where('status', 'pending')
+            ->whereNull('reminder_sent_at')
+            ->get();
+
+        foreach ($due as $appointment) {
+            $appointment->reminder_sent_at = now();
+            $appointment->save();
+        }
+
+        return response()->json([
+            'message' => "Reminders sent for {$due->count()} appointment(s) on {$date}.",
+            'count' => $due->count(),
+            'date' => $date,
+        ]);
+    }
+
+    /**
+     * No-show and reminder statistics for a date range (defaults to last 30 days).
+     */
+    public function attendanceStats(Request $request)
+    {
+        $from = $request->input('from', Carbon::today()->subDays(30)->toDateString());
+        $to = $request->input('to', Carbon::today()->toDateString());
+
+        $base = Appointment::whereBetween('appointment_date', [$from, $to]);
+
+        $total = (clone $base)->count();
+        $noShows = (clone $base)->where('status', 'no_show')->count();
+        $attended = (clone $base)->whereIn('status', ['checked_in', 'completed'])->count();
+        $cancelled = (clone $base)->where('status', 'cancelled')->count();
+
+        return response()->json([
+            'from' => $from,
+            'to' => $to,
+            'total' => $total,
+            'attended' => $attended,
+            'no_shows' => $noShows,
+            'cancelled' => $cancelled,
+            'no_show_rate' => $total > 0 ? round($noShows / $total * 100, 1) : 0,
+        ]);
+    }
+
     public function getDoctors()
     {
         // Get all staff who belong to clinical departments and have a doctor/consultant role
