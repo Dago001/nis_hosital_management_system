@@ -54,25 +54,41 @@ class PatientController extends Controller
 
     public function store(Request $request)
     {
+        // Names: letters only (plus spaces, hyphens, apostrophes, periods).
+        $nameRule = ['regex:/^[A-Za-z][A-Za-z\s\'.\-]*$/'];
+        // Phone: digits only, optional leading +, 7-15 digits (E.164-ish).
+        $phoneRule = ['regex:/^\+?[0-9]{7,15}$/'];
+
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => array_merge(['required', 'string', 'max:255'], $nameRule),
+            'middle_name' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'last_name' => array_merge(['required', 'string', 'max:255'], $nameRule),
             'gender' => 'required|string|in:Male,Female,Other',
-            'date_of_birth' => 'required|date',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-            'state' => 'nullable|string|max:255',
-            'lga' => 'nullable|string|max:255',
+            'date_of_birth' => 'required|date|before_or_equal:today',
+            'phone' => array_merge(['required', 'string'], $phoneRule),
+            'address' => 'required|string|max:500',
+            'state' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'lga' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'email' => 'nullable|email|max:255',
-            'immigration_service_number' => 'nullable|string|unique:patients,immigration_service_number',
-            'sponsor_service_number' => 'nullable|string|max:255',
-            'relationship_to_sponsor' => 'nullable|string|max:255',
-            'nin' => 'nullable|string|size:11|unique:patients,nin',
+            'immigration_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/', 'unique:patients,immigration_service_number'],
+            'sponsor_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/'],
+            'relationship_to_sponsor' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'nin' => ['nullable', 'string', 'regex:/^[0-9]{11}$/', 'unique:patients,nin'],
             'allergies' => 'nullable|string',
             'blood_group' => 'nullable|string|max:5',
             'genotype' => 'nullable|string|max:5',
             'disability' => 'nullable|string',
+        ], [
+            'first_name.regex' => 'First name may only contain letters.',
+            'middle_name.regex' => 'Middle name may only contain letters.',
+            'last_name.regex' => 'Last name may only contain letters.',
+            'state.regex' => 'State may only contain letters.',
+            'lga.regex' => 'LGA may only contain letters.',
+            'relationship_to_sponsor.regex' => 'Relationship may only contain letters.',
+            'phone.regex' => 'Phone number must contain digits only (7-15 digits, optional leading +).',
+            'nin.regex' => 'NIN must be exactly 11 digits.',
+            'immigration_service_number.regex' => 'Service number may only contain letters, numbers, / and -.',
+            'sponsor_service_number.regex' => 'Sponsor service number may only contain letters, numbers, / and -.',
         ]);
 
         $dto = RegisterPatientDTO::fromRequest($validated);

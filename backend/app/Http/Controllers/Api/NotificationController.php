@@ -16,7 +16,35 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        $user  = $request->user();
+        $user = $request->user();
+
+        $notifications = $this->buildNotifications($user);
+
+        // Apply persisted per-user read state.
+        $readKeys = DB::table('notification_reads')
+            ->where('user_id', $user->id)
+            ->pluck('notification_key')
+            ->flip();
+
+        $sorted = $notifications
+            ->map(function ($n) use ($readKeys) {
+                $n['is_read'] = isset($readKeys[$n['id']]);
+                return $n;
+            })
+            ->sortByDesc('created_at')
+            ->values();
+
+        return response()->json([
+            'notifications' => $sorted,
+            'unread_count'  => $sorted->where('is_read', false)->count(),
+        ]);
+    }
+
+    /**
+     * Aggregate the live notifications visible to the given user, based on role.
+     */
+    protected function buildNotifications($user): \Illuminate\Support\Collection
+    {
         $role  = $user->roles()->first()?->name ?? '';
         $since = Carbon::now()->subHours(48); // Show last 48h notifications
 
@@ -145,29 +173,45 @@ class NotificationController extends Controller
             }
         }
 
-        // Sort newest first
-        $sorted = $notifications->sortByDesc('created_at')->values();
-
-        return response()->json([
-            'notifications' => $sorted,
-            'unread_count'  => $sorted->where('is_read', false)->count(),
-        ]);
+        return $notifications;
     }
 
     /**
-     * Mark a single notification as read (client-side state – no DB required
-     * since notifications are aggregated; just return success).
+     * Persist a single notification as read for the current user.
      */
     public function markRead(Request $request, $id)
     {
+        DB::table('notification_reads')->updateOrInsert(
+            ['user_id' => $request->user()->id, 'notification_key' => (string) $id],
+            ['read_at' => now(), 'updated_at' => now(), 'created_at' => now()]
+        );
+
         return response()->json(['success' => true]);
     }
 
     /**
-     * Mark all notifications as read.
+     * Persist all currently visible notifications as read for the current user.
      */
     public function markAllRead(Request $request)
     {
-        return response()->json(['success' => true]);
+        $user = $request->user();
+        $now = now();
+
+        $rows = $this->buildNotifications($user)->map(fn ($n) => [
+            'user_id' => $user->id,
+            'notification_key' => (string) $n['id'],
+            'read_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ])->all();
+
+        foreach ($rows as $row) {
+            DB::table('notification_reads')->updateOrInsert(
+                ['user_id' => $row['user_id'], 'notification_key' => $row['notification_key']],
+                ['read_at' => $row['read_at'], 'updated_at' => $row['updated_at'], 'created_at' => $row['created_at']]
+            );
+        }
+
+        return response()->json(['success' => true, 'marked' => count($rows)]);
     }
 }

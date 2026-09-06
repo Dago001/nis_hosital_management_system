@@ -145,15 +145,15 @@
                     <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                            <input type="text" id="first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="first_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                            <input type="text" id="middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="middle_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Last Name</label>
-                            <input type="text" id="last_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="last_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
 
@@ -173,7 +173,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
-                            <input type="text" id="phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="phone" required inputmode="numeric" data-filter="phone" maxLength="15" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
@@ -181,11 +181,11 @@
                         </div>
                         <div id="standalone-service-group">
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
-                            <input type="text" id="immigration_service_number" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="immigration_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
-                            <input type="text" id="nin" maxLength="11" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="nin" maxLength="11" inputmode="numeric" data-filter="digits" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
                     <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
                         <div class="flex-grow">
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
-                            <input type="text" id="sponsor_service_number" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
                             <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
@@ -243,11 +243,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                            <input type="text" id="dep_first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_first_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                            <input type="text" id="dep_middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_middle_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Gender</label>
@@ -574,6 +574,33 @@
 
 @section('scripts')
 <script>
+    // ── Live input filtering (numbers stay numbers, letters stay letters) ──
+    // Delegated so it also covers dynamically shown dependant fields.
+    document.addEventListener('input', (e) => {
+        const el = e.target;
+        const kind = el?.dataset?.filter;
+        if (!kind) return;
+        const before = el.value;
+        let after = before;
+        if (kind === 'letters') {
+            // Letters, spaces, hyphen, apostrophe, period only.
+            after = before.replace(/[^A-Za-z\s'.\-]/g, '');
+        } else if (kind === 'digits') {
+            after = before.replace(/\D/g, '');
+        } else if (kind === 'phone') {
+            // Digits with a single optional leading +.
+            after = before.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+        } else if (kind === 'code') {
+            // Service/hospital codes: letters, digits, slash, hyphen; upper-cased.
+            after = before.replace(/[^A-Za-z0-9\/\-]/g, '').toUpperCase();
+        }
+        if (after !== before) {
+            const pos = el.selectionStart - (before.length - after.length);
+            el.value = after;
+            try { el.setSelectionRange(pos, pos); } catch (_) {}
+        }
+    });
+
     let searchTimeout = null;
 
     async function loadPatients(query = '') {

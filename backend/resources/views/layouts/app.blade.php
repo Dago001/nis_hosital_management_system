@@ -395,16 +395,31 @@
             document.getElementById('profile-dropdown').classList.add('hidden');
         }
 
-        function clearNotifications() {
-            notifData = [];
+        async function clearNotifications() {
+            try {
+                await api.post('/notifications/read-all', {});
+                notifData = notifData.map(n => ({ ...n, is_read: true }));
+                renderNotifications();
+                fetchNotifications();
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        async function markNotificationRead(id) {
+            const n = notifData.find(x => x.id === id);
+            if (!n || n.is_read) return;
+            n.is_read = true;
             renderNotifications();
+            try { await api.post(`/notifications/${encodeURIComponent(id)}/read`, {}); } catch (e) {}
         }
 
         async function fetchNotifications() {
             try {
                 const res = await api.get('/notifications');
                 const items = res.notifications || [];
-                if (items.length !== notifData.length) {
+                // Re-render whenever the set or read-state changes.
+                if (JSON.stringify(items) !== JSON.stringify(notifData)) {
                     notifData = items;
                     renderNotifications();
                 }
@@ -449,7 +464,7 @@
                 const cfg = iconMap[n.type] || iconMap.general;
                 const timeAgo = n.created_at ? formatTimeAgo(n.created_at) : '';
                 return `
-                    <div class="flex gap-3 items-start px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition ${n.is_read ? 'opacity-60' : ''} cursor-pointer">
+                    <div onclick="markNotificationRead('${(n.id + '').replace(/'/g, "")}')" class="flex gap-3 items-start px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition ${n.is_read ? 'opacity-60' : ''} cursor-pointer">
                         <div class="shrink-0 p-2 rounded-xl ${cfg.color}">
                             <i data-lucide="${cfg.icon}" class="w-3.5 h-3.5"></i>
                         </div>
