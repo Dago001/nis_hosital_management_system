@@ -24,6 +24,7 @@ Route::post('/chat/session/init', [SupportChatController::class, 'initSession'])
 Route::get('/chat/messages', [SupportChatController::class, 'getVisitorMessages']);
 Route::post('/chat/send', [SupportChatController::class, 'sendVisitorMessage'])->middleware('throttle:60,1');
 Route::get('/external/sync-patients', [SettingController::class, 'syncPatients']);
+Route::post('/chatbot', [App\Http\Controllers\Api\ChatbotController::class, 'chat'])->middleware('throttle:60,1');
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'audit'])->group(function () {

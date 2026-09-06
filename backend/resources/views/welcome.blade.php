@@ -478,6 +478,127 @@
         });
     </script>
     <script src="/assets/support-chat.js"></script>
+
+    <!-- ═══════════ MediBot: AI Assistant (bottom-left) ═══════════ -->
+    <div id="medibot" class="fixed bottom-6 left-6 z-[9998] font-sans">
+        <!-- Launcher button -->
+        <button id="medibot-toggle" onclick="mediBotToggle()"
+                class="group flex items-center gap-2 bg-nigGreen-600 hover:bg-nigGreen-700 text-white pl-3 pr-4 py-3 rounded-full shadow-xl shadow-nigGreen-900/20 transition-all">
+            <span class="relative flex h-6 w-6 items-center justify-center">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+            </span>
+            <span class="text-xs font-bold">Ask MediBot</span>
+        </button>
+
+        <!-- Chat panel -->
+        <div id="medibot-panel" class="hidden absolute bottom-16 left-0 w-[calc(100vw-3rem)] max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height:min(70vh,560px);">
+            <!-- Header -->
+            <div class="bg-nigGreen-600 text-white px-4 py-3 flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-sm font-bold leading-tight">MediBot Assistant</p>
+                    <p class="text-[10px] text-emerald-100 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Online · answers &amp; bookings
+                    </p>
+                </div>
+                <button onclick="mediBotToggle()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <!-- Messages -->
+            <div id="medibot-messages" class="flex-grow overflow-y-auto p-4 space-y-3 bg-slate-50 text-xs"></div>
+            <!-- Quick chips -->
+            <div id="medibot-chips" class="px-3 pt-2 flex flex-wrap gap-1.5 shrink-0 bg-white border-t border-slate-100">
+                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-semibold bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
+                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
+                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
+            </div>
+            <!-- Input -->
+            <form onsubmit="mediBotSubmit(event)" class="p-3 flex items-center gap-2 shrink-0 bg-white border-t border-slate-100">
+                <input id="medibot-input" type="text" autocomplete="off" placeholder="Type your message…"
+                       class="flex-grow bg-slate-100 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-nigGreen-500">
+                <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let mediBotState = {};
+        let mediBotOpened = false;
+
+        function mediBotToggle() {
+            const panel = document.getElementById('medibot-panel');
+            const open = panel.classList.toggle('hidden');
+            if (!open && !mediBotOpened) {
+                mediBotOpened = true;
+                mediBotAppend('bot', "Hello! 👋 I'm **MediBot**. I can answer questions about our services and **book an appointment** for you. How can I help?");
+            }
+            if (!open) setTimeout(() => document.getElementById('medibot-input')?.focus(), 100);
+            lucide.createIcons();
+        }
+
+        function mediBotFormat(text) {
+            const esc = (text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        function mediBotAppend(who, text) {
+            const box = document.getElementById('medibot-messages');
+            const wrap = document.createElement('div');
+            wrap.className = who === 'user' ? 'flex justify-end' : 'flex justify-start';
+            wrap.innerHTML = who === 'user'
+                ? `<div class="bg-nigGreen-600 text-white rounded-2xl rounded-br-sm px-3 py-2 max-w-[85%] leading-relaxed">${mediBotFormat(text)}</div>`
+                : `<div class="bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-bl-sm px-3 py-2 max-w-[90%] leading-relaxed">${mediBotFormat(text)}</div>`;
+            box.appendChild(wrap);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function mediBotTyping(on) {
+            const box = document.getElementById('medibot-messages');
+            let t = document.getElementById('medibot-typing');
+            if (on && !t) {
+                t = document.createElement('div');
+                t.id = 'medibot-typing';
+                t.className = 'flex justify-start';
+                t.innerHTML = `<div class="bg-white border border-slate-200 text-slate-400 rounded-2xl px-3 py-2">…</div>`;
+                box.appendChild(t); box.scrollTop = box.scrollHeight;
+            } else if (!on && t) { t.remove(); }
+        }
+
+        async function mediBotSend(message) {
+            if (!message || !message.trim()) return;
+            mediBotAppend('user', message);
+            mediBotTyping(true);
+            try {
+                const res = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ message, state: mediBotState })
+                });
+                const data = await res.json();
+                mediBotTyping(false);
+                if (res.ok) {
+                    mediBotState = data.state || {};
+                    mediBotAppend('bot', data.reply);
+                } else {
+                    mediBotAppend('bot', data.message || "Sorry, I couldn't process that. Please try again.");
+                }
+            } catch (e) {
+                mediBotTyping(false);
+                mediBotAppend('bot', "I'm having trouble connecting right now. Please try again shortly.");
+            }
+        }
+
+        function mediBotSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('medibot-input');
+            const msg = input.value;
+            input.value = '';
+            mediBotSend(msg);
+        }
+    </script>
 @endif
 </body>
 </html>
