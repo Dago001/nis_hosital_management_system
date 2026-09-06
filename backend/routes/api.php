@@ -133,6 +133,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/ipd/beds', [App\Http\Controllers\Api\IpdController::class, 'createBed'])->middleware('role_or_permission:ward_manager,medical_director,hospital_admin');
     Route::put('/ipd/beds/{id}/status', [App\Http\Controllers\Api\IpdController::class, 'updateBedStatus'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
 
+    // Inpatient bedside care: observations + Medication Administration Record
+    Route::get('/ipd/admissions/{id}/care', [App\Http\Controllers\Api\AdmissionCareController::class, 'show'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
+    Route::post('/ipd/admissions/{id}/observations', [App\Http\Controllers\Api\AdmissionCareController::class, 'storeObservation'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager');
+    Route::post('/ipd/admissions/{id}/medications', [App\Http\Controllers\Api\AdmissionCareController::class, 'storeMedication'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager');
+
 
     // === Reports & Analytics ===
     Route::get('/reports', [App\Http\Controllers\Api\ReportController::class, 'executive']);

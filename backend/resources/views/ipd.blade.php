@@ -172,6 +172,83 @@
         </div>
     </div>
 </div>
+
+<!-- Ward Care Modal (observations + MAR) -->
+<div id="care-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-start justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-3xl shadow-2xl my-8">
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between">
+            <div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white" id="care-patient">Ward Care</h3>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400" id="care-meta"></p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="printDischargeSummary()" id="care-print-btn" class="hidden text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50">Print Discharge Summary</button>
+                <button onclick="closeCareModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+        <div id="care-allergy" class="hidden mx-5 mt-4 p-2.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-[11px] font-bold flex items-center gap-2"></div>
+
+        <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-5 max-h-[70vh] overflow-y-auto">
+            <!-- Observations -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wide">Observations</h4>
+                    <button onclick="toggleObsForm()" id="obs-toggle" class="text-[10px] font-bold text-emerald-600 hover:underline">+ Record</button>
+                </div>
+                <form id="obs-form" onsubmit="submitObs(event)" class="hidden bg-slate-50 dark:bg-slate-950/40 rounded-xl p-3 mb-3 space-y-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input id="ob-bp" placeholder="BP" class="ipd-input">
+                        <input id="ob-temp" type="number" step="0.1" placeholder="Temp °C" class="ipd-input">
+                        <input id="ob-pulse" type="number" placeholder="Pulse" class="ipd-input">
+                        <input id="ob-resp" type="number" placeholder="Resp" class="ipd-input">
+                        <input id="ob-spo2" type="number" placeholder="SpO₂ %" class="ipd-input">
+                        <input id="ob-news" type="number" placeholder="NEWS" class="ipd-input">
+                    </div>
+                    <textarea id="ob-notes" rows="2" placeholder="Nursing notes…" class="ipd-input resize-none"></textarea>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-2 rounded-lg">Save Observation</button>
+                </form>
+                <div id="obs-list" class="space-y-2 text-[11px]"></div>
+            </div>
+
+            <!-- MAR -->
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <h4 class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wide">Medication Administration (MAR)</h4>
+                    <button onclick="toggleMarForm()" id="mar-toggle" class="text-[10px] font-bold text-emerald-600 hover:underline">+ Administer</button>
+                </div>
+                <form id="mar-form" onsubmit="submitMar(event)" class="hidden bg-slate-50 dark:bg-slate-950/40 rounded-xl p-3 mb-3 space-y-2">
+                    <select id="mar-drug" class="ipd-input"><option value="">Select prescribed drug or type below…</option></select>
+                    <input id="mar-drug-manual" placeholder="Drug name (if not listed)" class="ipd-input">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input id="mar-dose" placeholder="Dose" class="ipd-input">
+                        <input id="mar-route" placeholder="Route (IV/Oral)" class="ipd-input">
+                        <select id="mar-status" class="ipd-input">
+                            <option value="given">Given</option>
+                            <option value="missed">Missed</option>
+                            <option value="held">Held</option>
+                            <option value="refused">Refused</option>
+                        </select>
+                    </div>
+                    <textarea id="mar-notes" rows="1" placeholder="Notes…" class="ipd-input resize-none"></textarea>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-2 rounded-lg">Record Administration</button>
+                </form>
+                <div id="mar-list" class="space-y-2 text-[11px]"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden printable discharge summary -->
+<div id="discharge-print" class="print-only" style="display:none;padding:24px;color:#0f172a;">
+    <div style="text-align:center;border-bottom:1px solid #cbd5e1;padding-bottom:10px;margin-bottom:14px;">
+        <img src="/images/nis_logo.jpg" style="height:60px;width:60px;object-fit:contain;margin:0 auto 6px;">
+        <h2 style="font-weight:800;text-transform:uppercase;">Nigeria Immigration Service</h2>
+        <p style="font-size:12px;color:#475569;">Hospital Medical Services Portal, Abuja | Discharge Summary</p>
+    </div>
+    <div id="discharge-print-body" style="font-size:13px;line-height:1.7;"></div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -180,6 +257,12 @@
     .dark .ipd-input { border-color:#334155; background:#020617; color:#e2e8f0; }
     .ipd-input:focus { border-color:#10b981; box-shadow:0 0 0 1px #10b981; }
     .ipd-label { display:block; font-size:.625rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#475569; margin-bottom:.25rem; }
+    @media print {
+        body * { visibility: hidden !important; }
+        #discharge-print, #discharge-print * { visibility: visible !important; }
+        #discharge-print { display:block !important; position:absolute; left:0; top:0; width:100%; }
+        @page { margin: 12mm; }
+    }
     .dark .ipd-label { color:#94a3b8; }
 </style>
 <script>
@@ -262,14 +345,20 @@
                         <span class="px-2 py-1 rounded-full text-[10px] font-bold ${admTypeColors[a.admission_type] || 'bg-slate-100 text-slate-600'}">${a.admission_type}</span>
                     </td>
                     <td class="px-4 py-3">
-                        ${a.status === 'active'
-                            ? `<button class="discharge-btn text-red-500 hover:text-red-700 text-[10px] font-bold underline underline-offset-2" data-id="${a.id}">Discharge</button>`
-                            : '<span class="text-[10px] text-slate-400">Discharged</span>'}
+                        <div class="flex items-center gap-3">
+                            <button class="care-btn text-emerald-600 hover:text-emerald-700 text-[10px] font-bold underline underline-offset-2" data-id="${a.id}">Ward Care</button>
+                            ${a.status === 'active'
+                                ? `<button class="discharge-btn text-red-500 hover:text-red-700 text-[10px] font-bold underline underline-offset-2" data-id="${a.id}">Discharge</button>`
+                                : '<span class="text-[10px] text-slate-400">Discharged</span>'}
+                        </div>
                     </td>
                 </tr>`).join('');
 
             tbody.querySelectorAll('.discharge-btn').forEach(btn => {
                 btn.addEventListener('click', () => openDischargeModal(btn.dataset.id));
+            });
+            tbody.querySelectorAll('.care-btn').forEach(btn => {
+                btn.addEventListener('click', () => openCareModal(btn.dataset.id));
             });
             if (typeof lucide !== 'undefined') lucide.createIcons();
         } catch (e) {
@@ -506,6 +595,130 @@
         loadAdmissions();
         loadWardFilter();
     });
+
+    /* ── Ward Care (observations + MAR) ─────────────── */
+    let careAdmissionId = null;
+    let careData = null;
+
+    window.openCareModal = async function (id) {
+        careAdmissionId = id;
+        document.getElementById('care-modal').classList.remove('hidden');
+        document.getElementById('obs-list').innerHTML = '<p class="text-slate-400">Loading…</p>';
+        document.getElementById('mar-list').innerHTML = '';
+        try {
+            careData = await window.api.get(`/ipd/admissions/${id}/care`);
+            renderCare();
+        } catch (e) {
+            document.getElementById('obs-list').innerHTML = `<p class="text-red-500">${e.message}</p>`;
+        }
+    };
+    window.closeCareModal = function () {
+        document.getElementById('care-modal').classList.add('hidden');
+        document.getElementById('obs-form').classList.add('hidden');
+        document.getElementById('mar-form').classList.add('hidden');
+    };
+    window.toggleObsForm = () => document.getElementById('obs-form').classList.toggle('hidden');
+    window.toggleMarForm = () => document.getElementById('mar-form').classList.toggle('hidden');
+
+    function renderCare() {
+        const a = careData.admission;
+        document.getElementById('care-patient').innerText = `${a.patient_name} · ${a.hospital_code || ''}`;
+        document.getElementById('care-meta').innerText = `${a.ward || ''} · Bed ${a.bed || ''} · Dr. ${a.doctor || '—'} · ${a.diagnosis || ''} · Admitted ${a.admitted_at || ''}`;
+        const allergy = document.getElementById('care-allergy');
+        if (a.allergies && a.allergies.toLowerCase() !== 'none' && a.allergies.trim() !== '') {
+            allergy.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4"></i> ALLERGIES: ${a.allergies}`;
+            allergy.classList.remove('hidden');
+        } else { allergy.classList.add('hidden'); }
+
+        // discharged admissions are read-only
+        const active = a.status === 'active';
+        document.getElementById('obs-toggle').style.display = active ? '' : 'none';
+        document.getElementById('mar-toggle').style.display = active ? '' : 'none';
+        document.getElementById('care-print-btn').classList.toggle('hidden', !a.discharge_summary);
+
+        // prescribed drug picker
+        const drugSel = document.getElementById('mar-drug');
+        drugSel.innerHTML = '<option value="">Select prescribed drug or type below…</option>' +
+            (careData.prescribed_drugs || []).map(d => `<option value="${d.drug_name}" data-id="${d.prescription_item_id}">${d.drug_name} — ${d.dosage} ${d.frequency}</option>`).join('');
+
+        document.getElementById('obs-list').innerHTML = (careData.observations || []).length
+            ? careData.observations.map(o => `
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-2.5">
+                    <div class="flex justify-between"><span class="font-bold text-slate-800 dark:text-white">${o.recorded_at}</span>
+                    ${o.news_score != null ? `<span class="px-1.5 rounded ${o.news_score>=5?'bg-red-100 text-red-700':o.news_score>=3?'bg-amber-100 text-amber-700':'bg-emerald-100 text-emerald-700'} text-[10px] font-bold">NEWS ${o.news_score}</span>` : ''}</div>
+                    <div class="text-slate-600 dark:text-slate-300 mt-1">BP ${o.blood_pressure||'—'} · T ${o.temperature||'—'}°C · P ${o.pulse_rate||'—'} · R ${o.respiratory_rate||'—'} · SpO₂ ${o.spo2||'—'}%</div>
+                    ${o.notes ? `<div class="text-slate-500 mt-1 italic">${o.notes}</div>` : ''}
+                    <div class="text-[9px] text-slate-400 mt-1">by ${o.recorded_by}</div>
+                </div>`).join('')
+            : '<p class="text-slate-400">No observations recorded yet.</p>';
+
+        const statusColors = {given:'bg-emerald-100 text-emerald-700',missed:'bg-red-100 text-red-700',held:'bg-amber-100 text-amber-700',refused:'bg-slate-200 text-slate-700'};
+        document.getElementById('mar-list').innerHTML = (careData.medications || []).length
+            ? careData.medications.map(m => `
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 flex justify-between items-start">
+                    <div><span class="font-bold text-slate-800 dark:text-white">${m.drug_name}</span> <span class="text-slate-500">${m.dose||''} ${m.route||''}</span>
+                    ${m.notes?`<div class="text-slate-500 italic">${m.notes}</div>`:''}
+                    <div class="text-[9px] text-slate-400 mt-0.5">${m.administered_at} · ${m.administered_by}</div></div>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${statusColors[m.status]||'bg-slate-100'}">${m.status}</span>
+                </div>`).join('')
+            : '<p class="text-slate-400">No medications administered yet.</p>';
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.submitObs = async function (e) {
+        e.preventDefault();
+        const payload = {
+            blood_pressure: document.getElementById('ob-bp').value || null,
+            temperature: parseFloat(document.getElementById('ob-temp').value) || null,
+            pulse_rate: parseInt(document.getElementById('ob-pulse').value) || null,
+            respiratory_rate: parseInt(document.getElementById('ob-resp').value) || null,
+            spo2: parseInt(document.getElementById('ob-spo2').value) || null,
+            news_score: document.getElementById('ob-news').value !== '' ? parseInt(document.getElementById('ob-news').value) : null,
+            notes: document.getElementById('ob-notes').value || null,
+        };
+        try {
+            await window.api.post(`/ipd/admissions/${careAdmissionId}/observations`, payload);
+            document.getElementById('obs-form').reset();
+            document.getElementById('obs-form').classList.add('hidden');
+            openCareModal(careAdmissionId);
+        } catch (err) { alert(err.message); }
+    };
+
+    window.submitMar = async function (e) {
+        e.preventDefault();
+        const drug = document.getElementById('mar-drug-manual').value.trim() || document.getElementById('mar-drug').value;
+        if (!drug) { alert('Select or type a drug name.'); return; }
+        const opt = document.getElementById('mar-drug').selectedOptions[0];
+        const payload = {
+            prescription_item_id: (opt && opt.dataset.id) ? parseInt(opt.dataset.id) : null,
+            drug_name: drug,
+            dose: document.getElementById('mar-dose').value || null,
+            route: document.getElementById('mar-route').value || null,
+            status: document.getElementById('mar-status').value,
+            notes: document.getElementById('mar-notes').value || null,
+        };
+        try {
+            await window.api.post(`/ipd/admissions/${careAdmissionId}/medications`, payload);
+            document.getElementById('mar-form').reset();
+            document.getElementById('mar-form').classList.add('hidden');
+            openCareModal(careAdmissionId);
+        } catch (err) { alert(err.message); }
+    };
+
+    window.printDischargeSummary = function () {
+        if (!careData) return;
+        const a = careData.admission;
+        document.getElementById('discharge-print-body').innerHTML = `
+            <p><b>Patient:</b> ${a.patient_name} (${a.hospital_code || ''})</p>
+            <p><b>Ward / Bed:</b> ${a.ward || ''} / ${a.bed || ''}</p>
+            <p><b>Attending Doctor:</b> ${a.doctor || '—'}</p>
+            <p><b>Diagnosis on Admission:</b> ${a.diagnosis || '—'}</p>
+            <p><b>Admitted:</b> ${a.admitted_at || '—'} &nbsp; <b>Discharged:</b> ${a.discharged_at || '—'}</p>
+            <hr style="margin:10px 0;border-color:#e2e8f0;">
+            <p><b>Discharge Summary</b></p><p>${(a.discharge_summary || '—').replace(/</g,'&lt;')}</p>`;
+        window.print();
+    };
 })();
 </script>
 @endsection

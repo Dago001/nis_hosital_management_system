@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Admission extends Model
 {
@@ -50,5 +51,15 @@ class Admission extends Model
     public function emergency(): BelongsTo
     {
         return $this->belongsTo(Emergency::class);
+    }
+
+    public function observations(): HasMany
+    {
+        return $this->hasMany(AdmissionObservation::class)->latest('recorded_at');
+    }
+
+    public function medicationAdministrations(): HasMany
+    {
+        return $this->hasMany(MedicationAdministration::class)->latest('administered_at');
     }
 }
