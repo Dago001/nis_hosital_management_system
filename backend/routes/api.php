@@ -193,6 +193,13 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
     Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
 
+    // Theatre / surgery scheduling
+    Route::get('/theatre/theatres', [App\Http\Controllers\Api\TheatreController::class, 'theatres']);
+    Route::get('/theatre/surgeons', [App\Http\Controllers\Api\TheatreController::class, 'surgeons']);
+    Route::get('/theatre/surgeries', [App\Http\Controllers\Api\TheatreController::class, 'index']);
+    Route::post('/theatre/surgeries', [App\Http\Controllers\Api\TheatreController::class, 'store'])->middleware('role_or_permission:super_admin,hospital_admin,medical_director,doctor,consultant,theatre_manager,nurse');
+    Route::post('/theatre/surgeries/{id}/status', [App\Http\Controllers\Api\TheatreController::class, 'updateStatus'])->middleware('role_or_permission:super_admin,hospital_admin,medical_director,doctor,consultant,theatre_manager,nurse');
+
     // Procurement (suppliers, purchase orders, goods-received notes)
     Route::middleware('role_or_permission:super_admin,ict_admin,hospital_admin,procurement_officer,store_officer,account_officer')->group(function () {
         Route::get('/procurement/suppliers', [App\Http\Controllers\Api\ProcurementController::class, 'suppliers']);
