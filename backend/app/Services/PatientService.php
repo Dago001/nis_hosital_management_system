@@ -47,6 +47,11 @@ class PatientService
                 $data['immigration_service_number'] = $this->generateHospitalCode();
             }
 
+            // Attribute the record to a facility (defaults to the HQ facility).
+            if (empty($data['facility_id'])) {
+                $data['facility_id'] = (int) (request('facility_id') ?? 1);
+            }
+
             // Mocking barcode and QR code data for NIS HMS Patient Cards
             $data['qr_code_data'] = 'NISHMS-PAT-' . time() . '-' . rand(1000, 9999);
             $data['barcode_data'] = 'NIS' . rand(100000, 999999);

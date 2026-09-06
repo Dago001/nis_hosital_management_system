@@ -197,6 +197,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
     Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
 
+    // Facilities registry (multi-facility scoping)
+    Route::get('/facilities', [App\Http\Controllers\Api\FacilityController::class, 'index']);
+    Route::post('/facilities', [App\Http\Controllers\Api\FacilityController::class, 'store'])->middleware('role_or_permission:super_admin,ict_admin,hospital_admin');
+    Route::put('/facilities/{id}', [App\Http\Controllers\Api\FacilityController::class, 'update'])->middleware('role_or_permission:super_admin,ict_admin,hospital_admin');
+
     // DHIS2 aggregate export
     Route::middleware('role_or_permission:super_admin,hospital_admin,medical_director,health_info_officer')->group(function () {
         Route::get('/dhis2/indicators', [App\Http\Controllers\Api\Dhis2Controller::class, 'indicators']);

@@ -11,6 +11,7 @@ class Patient extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'facility_id',
         'first_name',
         'middle_name',
         'last_name',
@@ -42,6 +43,11 @@ class Patient extends Model
         'genotype',
         'disability',
     ];
+
+    public function facility(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Facility::class);
+    }
 
     public function appointments(): HasMany
     {

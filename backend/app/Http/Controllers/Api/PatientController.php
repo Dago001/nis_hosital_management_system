@@ -43,6 +43,7 @@ class PatientController extends Controller
             }
             $q->orWhereRaw("LOWER(first_name || ' ' || last_name) LIKE ?", [$like]);
         })
+            ->when($request->filled('facility_id'), fn ($q) => $q->where('facility_id', $request->facility_id))
             ->latest('created_at')
             ->paginate(15);
 
@@ -137,6 +138,7 @@ class PatientController extends Controller
             'blood_group' => 'nullable|string|max:5',
             'genotype' => 'nullable|string|max:5',
             'disability' => 'nullable|string',
+            'facility_id' => 'nullable|exists:facilities,id',
         ], [
             'first_name.regex' => 'First name may only contain letters.',
             'middle_name.regex' => 'Middle name may only contain letters.',
