@@ -164,6 +164,10 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/reports/diagnoses', [App\Http\Controllers\Api\ReportController::class, 'diagnoses']);
     Route::get('/reports/bed-occupancy', [App\Http\Controllers\Api\ReportController::class, 'bedOccupancy']);
     Route::get('/reports/staff-performance', [App\Http\Controllers\Api\ReportController::class, 'staffPerformance']);
+    // Finance report depth
+    Route::get('/reports/cash-reconciliation', [App\Http\Controllers\Api\ReportController::class, 'cashReconciliation']);
+    Route::get('/reports/revenue-by-department', [App\Http\Controllers\Api\ReportController::class, 'revenueByDepartment']);
+    Route::get('/reports/debtor-aging', [App\Http\Controllers\Api\ReportController::class, 'debtorAging']);
 
 
 

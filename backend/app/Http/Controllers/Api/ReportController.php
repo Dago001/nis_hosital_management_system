@@ -280,6 +280,111 @@ class ReportController extends Controller
     }
 
     // --- Helpers ---
+    /**
+     * Daily cash reconciliation: payments taken on a date, broken down by
+     * method and by cashier, for end-of-day cash-up.
+     */
+    public function cashReconciliation(Request $request)
+    {
+        $date = $request->get('date', Carbon::today()->toDateString());
+        $start = Carbon::parse($date)->startOfDay();
+        $end = Carbon::parse($date)->endOfDay();
+
+        $byMethod = Payment::whereBetween('payments.created_at', [$start, $end])
+            ->selectRaw('payment_method, count(*) as count, sum(amount) as total')
+            ->groupBy('payment_method')
+            ->orderByDesc('total')
+            ->get();
+
+        $byCashier = Payment::whereBetween('payments.created_at', [$start, $end])
+            ->leftJoin('staff', 'payments.cashier_id', '=', 'staff.id')
+            ->selectRaw("COALESCE(staff.first_name || ' ' || staff.last_name, 'Unattributed') as cashier, count(*) as count, sum(amount) as total")
+            ->groupBy('cashier')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json([
+            'date' => $date,
+            'total_collected' => (float) Payment::whereBetween('created_at', [$start, $end])->sum('amount'),
+            'transactions' => Payment::whereBetween('created_at', [$start, $end])->count(),
+            'by_method' => $byMethod,
+            'by_cashier' => $byCashier,
+        ]);
+    }
+
+    /**
+     * Revenue by clinical department for a period (payments attributed through
+     * invoice -> visit -> department; invoices with no visit fall under
+     * "Registration / Other").
+     */
+    public function revenueByDepartment(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        [$start, $end] = $this->getPeriodDates($period);
+
+        $rows = Payment::whereBetween('payments.created_at', [$start, $end])
+            ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
+            ->leftJoin('visits', 'invoices.visit_id', '=', 'visits.id')
+            ->leftJoin('departments', 'visits.department_id', '=', 'departments.id')
+            ->selectRaw("COALESCE(departments.name, 'Registration / Other') as department, sum(payments.amount) as total, count(*) as count")
+            ->groupBy('department')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json([
+            'period' => $period,
+            'departments' => $rows,
+            'total' => (float) $rows->sum('total'),
+        ]);
+    }
+
+    /**
+     * Debtor aging: outstanding balances on unpaid / part-paid invoices,
+     * bucketed by how long they have been outstanding.
+     */
+    public function debtorAging()
+    {
+        $invoices = Invoice::with('patient:id,first_name,last_name,immigration_service_number')
+            ->whereIn('status', ['unpaid', 'partially_paid'])
+            ->get();
+
+        $buckets = ['0-30' => 0.0, '31-60' => 0.0, '61-90' => 0.0, '90+' => 0.0];
+        $debtors = [];
+
+        foreach ($invoices as $inv) {
+            $outstanding = (float) $inv->total_amount - (float) $inv->discount_amount - (float) $inv->paid_amount;
+            if ($outstanding <= 0) {
+                continue;
+            }
+
+            $ageDays = $inv->created_at->diffInDays(now());
+            $bucket = $ageDays <= 30 ? '0-30' : ($ageDays <= 60 ? '31-60' : ($ageDays <= 90 ? '61-90' : '90+'));
+            $buckets[$bucket] += $outstanding;
+
+            $pid = $inv->patient_id;
+            if (!isset($debtors[$pid])) {
+                $debtors[$pid] = [
+                    'patient' => trim($inv->patient?->first_name . ' ' . $inv->patient?->last_name),
+                    'hospital_code' => $inv->patient?->immigration_service_number,
+                    'outstanding' => 0.0,
+                    'invoices' => 0,
+                    'oldest_days' => 0,
+                ];
+            }
+            $debtors[$pid]['outstanding'] += $outstanding;
+            $debtors[$pid]['invoices']++;
+            $debtors[$pid]['oldest_days'] = max($debtors[$pid]['oldest_days'], $ageDays);
+        }
+
+        usort($debtors, fn ($a, $b) => $b['outstanding'] <=> $a['outstanding']);
+
+        return response()->json([
+            'buckets' => $buckets,
+            'total_outstanding' => array_sum($buckets),
+            'debtors' => array_slice(array_values($debtors), 0, 30),
+        ]);
+    }
+
     private function getPeriodDates(string $period): array
     {
         return match($period) {

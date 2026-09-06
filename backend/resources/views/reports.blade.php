@@ -109,6 +109,51 @@
             <p class="text-3xl font-black text-amber-700 dark:text-amber-400" id="revenue-pending">–</p>
         </div>
     </div>
+
+    <!-- ── Finance depth ─────────────────────────────────────────── -->
+    <div class="pt-2">
+        <h2 class="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="wallet" class="text-emerald-600 w-5 h-5"></i> Finance Reports</h2>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Daily cash reconciliation -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-bold text-slate-800 dark:text-white">Daily Cash Reconciliation</h3>
+                <input type="date" id="cash-date" onchange="loadCashRecon()" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 text-xs">
+            </div>
+            <p class="text-2xl font-black text-emerald-600" id="cash-total">₦0</p>
+            <p class="text-[10px] text-slate-500 mb-3"><span id="cash-txns">0</span> transactions</p>
+            <div class="text-xs">
+                <div class="font-bold text-slate-500 uppercase text-[9px] tracking-wide mb-1">By Method</div>
+                <div id="cash-methods" class="space-y-1"></div>
+                <div class="font-bold text-slate-500 uppercase text-[9px] tracking-wide mt-3 mb-1">By Cashier</div>
+                <div id="cash-cashiers" class="space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- Revenue by department -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3">Revenue by Department (this month)</h3>
+            <div id="rev-dept" class="space-y-2 text-xs"></div>
+        </div>
+    </div>
+
+    <!-- Debtor aging -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5">
+        <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-3">Debtor Aging</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4" id="aging-buckets"></div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300"><tr>
+                    <th class="py-2 px-3 font-bold">Patient</th><th class="py-2 px-3 font-bold">Code</th>
+                    <th class="py-2 px-3 font-bold">Invoices</th><th class="py-2 px-3 font-bold">Oldest (days)</th>
+                    <th class="py-2 px-3 font-bold text-right">Outstanding</th>
+                </tr></thead>
+                <tbody id="debtors-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -272,9 +317,59 @@
         });
     }
 
+    const naira = (v) => '₦' + Number(v || 0).toLocaleString();
+
+    async function loadCashRecon() {
+        const date = document.getElementById('cash-date').value;
+        try {
+            const res = await window.api.get('/reports/cash-reconciliation' + (date ? `?date=${date}` : ''));
+            document.getElementById('cash-total').innerText = naira(res.total_collected);
+            document.getElementById('cash-txns').innerText = res.transactions;
+            const row = (label, r) => `<div class="flex justify-between"><span class="text-slate-600 dark:text-slate-300">${label} <span class="text-slate-400">(${r.count})</span></span><b class="text-slate-800 dark:text-white">${naira(r.total)}</b></div>`;
+            document.getElementById('cash-methods').innerHTML = (res.by_method||[]).map(m => row(m.payment_method, m)).join('') || '<span class="text-slate-400">No payments.</span>';
+            document.getElementById('cash-cashiers').innerHTML = (res.by_cashier||[]).map(c => row(c.cashier, c)).join('') || '<span class="text-slate-400">—</span>';
+        } catch (e) {}
+    }
+
+    async function loadRevenueByDept() {
+        try {
+            const res = await window.api.get('/reports/revenue-by-department?period=month');
+            const max = Math.max(1, ...(res.departments||[]).map(d => Number(d.total)));
+            document.getElementById('rev-dept').innerHTML = (res.departments||[]).map(d => `
+                <div>
+                    <div class="flex justify-between mb-0.5"><span class="text-slate-700 dark:text-slate-300">${d.department}</span><b class="text-slate-800 dark:text-white">${naira(d.total)}</b></div>
+                    <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-1.5 rounded-full bg-emerald-500" style="width:${(Number(d.total)/max*100).toFixed(0)}%"></div></div>
+                </div>`).join('') || '<span class="text-slate-400">No revenue this month.</span>';
+        } catch (e) {}
+    }
+
+    async function loadDebtorAging() {
+        try {
+            const res = await window.api.get('/reports/debtor-aging');
+            const b = res.buckets || {};
+            const colors = {'0-30':'emerald','31-60':'blue','61-90':'amber','90+':'red'};
+            document.getElementById('aging-buckets').innerHTML = Object.keys(b).map(k => `
+                <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-3">
+                    <div class="text-base font-black text-${colors[k]}-600">${naira(b[k])}</div>
+                    <div class="text-[9px] text-slate-500 uppercase font-semibold">${k} days</div>
+                </div>`).join('');
+            document.getElementById('debtors-body').innerHTML = (res.debtors||[]).length ? res.debtors.map(d => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                    <td class="py-2 px-3 font-semibold text-slate-800 dark:text-white">${d.patient}</td>
+                    <td class="py-2 px-3 font-mono">${d.hospital_code||'—'}</td>
+                    <td class="py-2 px-3">${d.invoices}</td>
+                    <td class="py-2 px-3">${d.oldest_days}</td>
+                    <td class="py-2 px-3 text-right font-bold text-red-600">${naira(d.outstanding)}</td>
+                </tr>`).join('') : '<tr><td colspan="5" class="py-4 text-center text-slate-400">No outstanding debtors.</td></tr>';
+        } catch (e) {}
+    }
+
     function loadAll() {
         loadExecutive();
         loadPatientFlow();
+        loadCashRecon();
+        loadRevenueByDept();
+        loadDebtorAging();
     }
 
     document.addEventListener('DOMContentLoaded', loadAll);
