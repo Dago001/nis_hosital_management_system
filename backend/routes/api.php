@@ -170,6 +170,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
 
 
+    // Service Tariffs (price catalogue)
+    Route::get('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'index']);
+    Route::post('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'store'])->middleware('role_or_permission:manage_settings');
+    Route::put('/tariffs/{id}', [App\Http\Controllers\Api\TariffController::class, 'update'])->middleware('role_or_permission:manage_settings');
+
     // System Settings
     Route::get('/settings', [SettingController::class, 'index'])->middleware('role_or_permission:manage_settings');
     Route::post('/settings', [SettingController::class, 'update'])->middleware('role_or_permission:manage_settings');

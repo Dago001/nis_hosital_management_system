@@ -187,16 +187,18 @@ class ClinicalController extends Controller
             }
 
             // 5. Generate Billing Invoice automatically for GOPD Consultation Fee
+            //    (price comes from the configurable service tariff catalogue).
             $patient = $visit->patient;
+            $consultFee = \App\Models\ServiceTariff::priceFor('CONSULT_GOPD', 2000.00);
             $discount = 0.00;
             if ($patient && $patient->isNhis()) {
-                $discount = 2000.00 * 0.15; // 15% discount
+                $discount = $consultFee * 0.15; // 15% NHIS discount
             }
 
             $invoice = Invoice::create([
                 'patient_id' => $visit->patient_id,
                 'visit_id' => $visit->id,
-                'total_amount' => 2000.00, // Fixed Consultation Fee in NGN
+                'total_amount' => $consultFee,
                 'discount_amount' => $discount,
                 'paid_amount' => 0.00,
                 'status' => 'unpaid'
@@ -206,8 +208,8 @@ class ClinicalController extends Controller
                 'invoice_id' => $invoice->id,
                 'item_name' => 'General Medical Consultation',
                 'quantity' => 1,
-                'unit_price' => 2000.00,
-                'total_price' => 2000.00
+                'unit_price' => $consultFee,
+                'total_price' => $consultFee
             ]);
         });
 

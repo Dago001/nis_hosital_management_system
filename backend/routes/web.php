@@ -70,6 +70,10 @@ Route::get('/settings', function () {
     return view('settings');
 });
 
+Route::get('/tariffs', function () {
+    return view('tariffs');
+});
+
 // New Feature Web Routes
 Route::get('/queue', function () { return view('queue'); });
 Route::get('/ipd', function () { return view('ipd'); });

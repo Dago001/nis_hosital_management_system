@@ -56,10 +56,11 @@ class PatientService
             // Generate registration fee invoice for new Cash/Civilian (non-NHIS) patient
             $isNhis = !empty($patient->sponsor_service_number) || (!empty($dto->immigration_service_number) && !str_contains($dto->immigration_service_number, '/PAT/'));
             if (!$isNhis) {
+                $regFee = \App\Models\ServiceTariff::priceFor('REG_NEW', 5000.00);
                 $invoice = \App\Models\Invoice::create([
                     'patient_id' => $patient->id,
                     'visit_id' => null,
-                    'total_amount' => 5000.00,
+                    'total_amount' => $regFee,
                     'discount_amount' => 0.00,
                     'paid_amount' => 0.00,
                     'status' => 'unpaid'
@@ -69,8 +70,8 @@ class PatientService
                     'invoice_id' => $invoice->id,
                     'item_name' => 'New Patient Registration Fee (Civilian/Cash)',
                     'quantity' => 1,
-                    'unit_price' => 5000.00,
-                    'total_price' => 5000.00
+                    'unit_price' => $regFee,
+                    'total_price' => $regFee
                 ]);
             }
 

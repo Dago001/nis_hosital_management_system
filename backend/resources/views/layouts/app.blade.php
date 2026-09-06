@@ -554,6 +554,7 @@
                 { path: '/audit-trail',  label: 'Audit Trail',      icon: 'clipboard-list',    roles: ['super_admin', 'ict_admin', 'health_info_officer'] },
                 { path: '/support-chats',label: 'Support Chats',    icon: 'message-circle',    roles: ['super_admin', 'hospital_admin', 'ict_admin', 'receptionist', 'records_officer', 'staff'] },
                 { path: '/admin/users',  label: 'User Accounts',    icon: 'user-cog',          roles: ['super_admin', 'ict_admin', 'hr_officer', 'hospital_admin'] },
+                { path: '/tariffs',      label: 'Service Tariffs',  icon: 'tags',              roles: ['super_admin', 'ict_admin', 'hospital_admin', 'medical_director', 'cashier', 'account_officer'] },
                 { path: '/settings',     label: 'System Settings',  icon: 'settings',          roles: ['super_admin', 'ict_admin', 'hospital_admin'] },
             ];
 
