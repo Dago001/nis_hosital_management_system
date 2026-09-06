@@ -34,9 +34,12 @@ class ClinicalController extends Controller
         $validated['staff_id'] = $validated['doctor_id'];
         unset($validated['doctor_id']);
 
-        // Find existing pending visit with null vitals for this patient
+        // Find an existing pending visit awaiting triage for this patient.
+        // Scope to the most recent same-day visit so we never attach vitals to a stale file.
         $visit = Visit::where('patient_id', $validated['patient_id'])
             ->whereNull('vitals_blood_pressure')
+            ->whereDate('created_at', now()->toDateString())
+            ->latest('created_at')
             ->first();
 
         if ($visit) {
@@ -48,7 +51,7 @@ class ClinicalController extends Controller
         return response()->json([
             'message' => 'Vitals recorded successfully and patient assigned to doctor.',
             'visit' => $visit
-        ], 210);
+        ], 201);
     }
 
     /**

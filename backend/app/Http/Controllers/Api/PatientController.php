@@ -28,7 +28,17 @@ class PatientController extends Controller
         }
 
         $search = trim($request->search);
-        $patients = Patient::where('immigration_service_number', 'like', "%$search%")
+        $patients = Patient::where(function ($q) use ($search) {
+            $q->where('immigration_service_number', 'like', "%{$search}%")
+                ->orWhere('sponsor_service_number', 'like', "%{$search}%")
+                ->orWhere('nin', 'like', "%{$search}%")
+                ->orWhere('phone', 'like', "%{$search}%")
+                ->orWhere('first_name', 'like', "%{$search}%")
+                ->orWhere('middle_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhereRaw("CONCAT(first_name, ' ', last_name) ILIKE ?", ["%{$search}%"]);
+        })
+            ->latest('created_at')
             ->paginate(15);
 
         return response()->json([
@@ -71,7 +81,7 @@ class PatientController extends Controller
         return response()->json([
             'message' => 'Patient registered successfully.',
             'patient' => new PatientResource($patient)
-        ], 210); // 201 Created
+        ], 201); // 201 Created
     }
 
     public function show(int $id)
