@@ -116,26 +116,29 @@ ANTHROPIC_MODEL=claude-opus-5
 The database seeder pre-populates the following credentials for immediate system exploration:
 
 - **Super Administrator (ICT Admin)**:
-  - Email: `admin@nishms.gov.ng`
+  - Email: `admin@immigration.gov.ng`
   - Password: `Password123#`
 - **Medical Director (Executive)**:
-  - Email: `director@nishms.gov.ng`
+  - Email: `director@immigration.gov.ng`
   - Password: `Password123#`
 - **Doctor (Clinical)**:
-  - Email: `doctor@nishms.gov.ng`
+  - Email: `doctor@immigration.gov.ng`
   - Password: `Password123#`
 - **Nurse (Triage)**:
-  - Email: `nurse@nishms.gov.ng`
+  - Email: `nurse@immigration.gov.ng`
   - Password: `Password123#`
 - **Pharmacist (Medicine)**:
-  - Email: `pharmacist@nishms.gov.ng`
+  - Email: `pharmacist@immigration.gov.ng`
   - Password: `Password123#`
 - **Laboratory Scientist (Diagnostics)**:
-  - Email: `lab@nishms.gov.ng`
+  - Email: `lab@immigration.gov.ng`
   - Password: `Password123#`
 - **Cashier (Accounts)**:
-  - Email: `cashier@nishms.gov.ng`
+  - Email: `cashier@immigration.gov.ng`
   - Password: `Password123#`
 - **Medical Records Officer (Demographics)**:
-  - Email: `records@nishms.gov.ng`
+  - Email: `records@immigration.gov.ng`
+  - Password: `Password123#`
+- **Inventory Officer (Central Store / Drug Issuance)**:
+  - Email: `inventory@immigration.gov.ng`
   - Password: `Password123#`

@@ -70,7 +70,7 @@
                             Staff Email Address
                         </label>
                         <div class="relative">
-                            <input type="email" id="email" required placeholder="admin@nishms.gov.ng"
+                            <input type="email" id="email" required placeholder="admin@immigration.gov.ng"
                                    class="w-full bg-slate-50/65 border border-slate-200 rounded-xl py-3 pl-10 pr-4 text-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-nigGreen-600 focus:bg-white transition-all">
                             <i data-lucide="mail" class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-450 w-4 h-4"></i>
                         </div>

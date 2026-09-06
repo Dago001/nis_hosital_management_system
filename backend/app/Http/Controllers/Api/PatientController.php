@@ -8,14 +8,17 @@ use App\DTOs\RegisterPatientDTO;
 use App\Services\PatientService;
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
+use App\Repositories\Contracts\AuditLogRepositoryInterface;
 
 class PatientController extends Controller
 {
     protected PatientService $patientService;
+    protected AuditLogRepositoryInterface $auditLog;
 
-    public function __construct(PatientService $patientService)
+    public function __construct(PatientService $patientService, AuditLogRepositoryInterface $auditLog)
     {
         $this->patientService = $patientService;
+        $this->auditLog = $auditLog;
     }
 
     public function index(Request $request)
@@ -52,6 +55,51 @@ class PatientController extends Controller
         ]);
     }
 
+    /**
+     * Patients assigned to the authenticated doctor (i.e. patients the doctor is
+     * the consulting clinician for). Doctors can also call up ANY patient record
+     * via search()/show() — this is their focused working list.
+     */
+    public function assignedToMe(Request $request)
+    {
+        $staff = $request->user()->staff;
+
+        $empty = [
+            'patients' => [],
+            'pagination' => ['total' => 0, 'per_page' => 15, 'current_page' => 1, 'last_page' => 1],
+        ];
+
+        if (! $staff) {
+            return response()->json($empty);
+        }
+
+        $staffId = $staff->id;
+
+        $patients = Patient::whereHas('visits', fn ($q) => $q->where('staff_id', $staffId))
+            ->withCount(['visits as encounters_count' => fn ($q) => $q->where('staff_id', $staffId)])
+            ->withMax(['visits as last_seen_at' => fn ($q) => $q->where('staff_id', $staffId)], 'created_at')
+            ->orderByDesc('last_seen_at')
+            ->paginate(15);
+
+        return response()->json([
+            'patients' => $patients->map(fn ($p) => [
+                'id' => $p->id,
+                'full_name' => $p->full_name,
+                'immigration_service_number' => $p->immigration_service_number,
+                'gender' => $p->gender,
+                'age' => $p->age,
+                'encounters_count' => $p->encounters_count,
+                'last_seen_at' => $p->last_seen_at ? \Illuminate\Support\Carbon::parse($p->last_seen_at)->toDateString() : null,
+            ]),
+            'pagination' => [
+                'total' => $patients->total(),
+                'per_page' => $patients->perPage(),
+                'current_page' => $patients->currentPage(),
+                'last_page' => $patients->lastPage(),
+            ],
+        ]);
+    }
+
     public function store(Request $request)
     {
         // Names: letters only (plus spaces, hyphens, apostrophes, periods).
@@ -64,11 +112,20 @@ class PatientController extends Controller
             'middle_name' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'last_name' => array_merge(['required', 'string', 'max:255'], $nameRule),
             'gender' => 'required|string|in:Male,Female,Other',
+            'marital_status' => 'required|string|in:Single,Married,Divorced,Widowed,Separated',
+            'occupation' => 'nullable|string|max:255',
+            'religion' => 'nullable|string|in:Christianity,Islam,Traditional,Other',
+            'place_of_birth' => 'nullable|string|max:255',
+            'tribe' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'date_of_birth' => 'required|date|before_or_equal:today',
             'phone' => array_merge(['required', 'string'], $phoneRule),
             'address' => 'required|string|max:500',
             'state' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'lga' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'city' => 'nullable|string|max:255',
+            'next_of_kin_name' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'next_of_kin_relationship' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'next_of_kin_address' => 'nullable|string|max:500',
             'email' => 'nullable|email|max:255',
             'immigration_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/', 'unique:patients,immigration_service_number'],
             'sponsor_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/'],
@@ -100,7 +157,7 @@ class PatientController extends Controller
         ], 201); // 201 Created
     }
 
-    public function show(int $id)
+    public function show(Request $request, int $id)
     {
         $patient = Patient::with([
             'appointments.doctor', 
@@ -120,6 +177,17 @@ class PatientController extends Controller
         if (!$patient) {
             return response()->json(['message' => 'Patient not found.'], 404);
         }
+
+        // Accountability: record every access to a patient's confidential file (PHI).
+        $this->auditLog->log(
+            userId: $request->user()?->id,
+            action: 'view_patient_record',
+            auditableType: Patient::class,
+            auditableId: $patient->id,
+            payload: ['hospital_code' => $patient->immigration_service_number],
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent()
+        );
 
         // Build a structured historical clinical timeline for the patient card view
         $timeline = [];

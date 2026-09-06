@@ -17,6 +17,32 @@
         </div>
     </div>
 
+    <!-- My Assigned Patients (doctors only) -->
+    <div id="assigned-panel" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <div class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600"><i data-lucide="stethoscope" class="w-4 h-4"></i></div>
+            <div>
+                <h3 class="text-xs font-bold text-slate-800 dark:text-white">My Assigned Patients</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400">Patients you are the consulting clinician for. You can also call up any patient below.</p>
+            </div>
+            <span id="assigned-count" class="ml-auto text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full"></span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800">
+                    <tr>
+                        <th class="py-2.5 px-4 font-bold">Patient</th>
+                        <th class="py-2.5 px-4 font-bold">Hospital Code</th>
+                        <th class="py-2.5 px-4 font-bold">Encounters</th>
+                        <th class="py-2.5 px-4 font-bold">Last Seen</th>
+                        <th class="py-2.5 px-4 font-bold text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="assigned-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300"></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Hospital Code Search -->
     <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 shadow-sm">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -168,8 +194,8 @@
                         </div>
                         <!-- Standalone DOB -->
                         <div id="standalone-dob-group">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth</label>
-                            <input type="date" id="date_of_birth" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth <span id="age-badge" class="hidden ml-1 normal-case text-emerald-600 dark:text-emerald-400 font-bold"></span></label>
+                            <input type="date" id="date_of_birth" oninput="updateAgeDisplay()" onchange="updateAgeDisplay()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
@@ -189,6 +215,43 @@
                         </div>
                     </div>
                 </div>
+                <!-- Additional bio-data -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Marital Status <span class="text-red-500">*</span></label>
+                        <select id="marital_status" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select…</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Separated">Separated</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Religion</label>
+                        <select id="religion" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select…</option>
+                            <option value="Christianity">Christianity</option>
+                            <option value="Islam">Islam</option>
+                            <option value="Traditional">Traditional</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Occupation <span class="normal-case text-slate-400">(for non-officers)</span></label>
+                        <input type="text" id="occupation" maxLength="100" placeholder="e.g. Teacher, Trader" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Place of Birth</label>
+                        <input type="text" id="place_of_birth" maxLength="100" placeholder="e.g. Kaduna" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Tribe / Ethnicity</label>
+                        <input type="text" id="tribe" data-filter="letters" maxLength="60" placeholder="e.g. Hausa, Igbo, Yoruba" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                </div>
+
                 <!-- Dependant Mode notice in Step 1 -->
                 <div id="dependant-mode-notice" class="hidden p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold">
                     <div class="flex items-center gap-2">
@@ -313,9 +376,34 @@
                             <option value="">Select LGA</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">City / Town of Residence</label>
+                        <input type="text" id="city" maxLength="100" placeholder="e.g. Abuja" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Street Address</label>
-                        <textarea id="address" required placeholder="House number, street name, block, etc." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="3"></textarea>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Home Address (House No. / Street)</label>
+                        <textarea id="address" required placeholder="House number, street name, block, etc." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Next of Kin -->
+                <div class="mt-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-emerald-600"></i> Next of Kin
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Name of Next of Kin</label>
+                            <input type="text" id="next_of_kin_name" data-filter="letters" maxLength="120" placeholder="Full name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Relationship with Next of Kin</label>
+                            <input type="text" id="next_of_kin_relationship" data-filter="letters" maxLength="60" placeholder="e.g. Spouse, Parent, Sibling" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Address of Next of Kin</label>
+                            <textarea id="next_of_kin_address" placeholder="Next of kin residential address" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -729,6 +817,20 @@
         return age;
     }
 
+    // Live age readout next to the Date of Birth field.
+    function updateAgeDisplay() {
+        const dob = document.getElementById('date_of_birth')?.value;
+        const badge = document.getElementById('age-badge');
+        if (!badge) return;
+        if (dob) {
+            const age = calculateAge(dob);
+            badge.textContent = `(Age: ${age} yr${age === 1 ? '' : 's'})`;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
     function validateDependantAge() {
         const dobInput = document.getElementById('dep_date_of_birth');
         if (!dobInput) return true;
@@ -1063,8 +1165,13 @@
                 const first = document.getElementById('first_name').value.trim();
                 const last = document.getElementById('last_name').value.trim();
                 const dob = document.getElementById('date_of_birth').value;
+                const marital = document.getElementById('marital_status').value;
                 if (!first || !last || !gender || !dob || !phone) {
                     alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
+                    return;
+                }
+                if (!marital) {
+                    alert('Please select a Marital Status.');
                     return;
                 }
             }
@@ -1261,12 +1368,17 @@
             }
         }
 
+        const val = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
         const commonPayload = {
             blood_group: document.getElementById('blood_group').value,
             genotype: document.getElementById('genotype').value,
-            state: document.getElementById('state').value || null,
-            lga: document.getElementById('lga').value || null,
+            state: val('state') || null,
+            lga: val('lga') || null,
+            city: val('city') || null,
             address: document.getElementById('address').value,
+            next_of_kin_name: val('next_of_kin_name') || null,
+            next_of_kin_relationship: val('next_of_kin_relationship') || null,
+            next_of_kin_address: val('next_of_kin_address') || null,
             allergies: document.getElementById('allergies').value || null,
             disability: document.getElementById('disability').value || 'None'
         };
@@ -1280,6 +1392,11 @@
                     middle_name: document.getElementById('middle_name').value || null,
                     last_name: document.getElementById('last_name').value,
                     gender: document.getElementById('gender').value,
+                    marital_status: val('marital_status') || null,
+                    occupation: val('occupation') || null,
+                    religion: val('religion') || null,
+                    place_of_birth: val('place_of_birth') || null,
+                    tribe: val('tribe') || null,
                     date_of_birth: document.getElementById('date_of_birth').value,
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value || null,
@@ -1300,8 +1417,9 @@
                         middle_name: dep.middle_name,
                         last_name: dep.last_name,
                         gender: dep.gender,
+                        marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
                         date_of_birth: dep.date_of_birth,
-                        phone: sponsorPhone || '·',
+                        phone: (sponsorPhone && /^\+?\d{7,15}$/.test(sponsorPhone)) ? sponsorPhone : '00000000000',
                         email: null,
                         immigration_service_number: serviceNo,
                         sponsor_service_number: dep.sponsor_service_number,
@@ -1581,10 +1699,39 @@
     }
 
     // Initialize Register Patient button permissions
+    async function loadAssignedPatients() {
+        const panel = document.getElementById('assigned-panel');
+        const bodyEl = document.getElementById('assigned-body');
+        try {
+            const res = await api.get('/patients/assigned');
+            const list = res.patients || [];
+            if (!list.length) return; // hide panel entirely if no assigned patients
+            panel.classList.remove('hidden');
+            document.getElementById('assigned-count').innerText = (res.pagination?.total ?? list.length) + ' patient(s)';
+            bodyEl.innerHTML = list.map(p => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20">
+                    <td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white">${p.full_name}
+                        <span class="text-[10px] text-slate-400 font-normal">${p.gender}${p.age != null ? ', ' + p.age + 'y' : ''}</span></td>
+                    <td class="py-2.5 px-4 font-mono">${p.immigration_service_number || '—'}</td>
+                    <td class="py-2.5 px-4">${p.encounters_count ?? 0}</td>
+                    <td class="py-2.5 px-4 text-slate-500">${p.last_seen_at || '—'}</td>
+                    <td class="py-2.5 px-4 text-right">
+                        <button onclick="handleShowDetails(${p.id})" class="text-emerald-600 hover:text-emerald-700 font-bold hover:underline cursor-pointer">Open File</button>
+                    </td>
+                </tr>`).join('');
+            lucide.createIcons();
+        } catch (e) { /* non-doctors get 403 — panel simply stays hidden */ }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const role = user.roles && user.roles[0] ? user.roles[0].name : '';
         if (['super_admin', 'records_officer', 'receptionist'].includes(role)) {
             document.getElementById('register-btn-container').classList.remove('hidden');
+        }
+
+        // Doctors/consultants see their assigned patients (and can still search any).
+        if (['doctor', 'consultant', 'dental_officer', 'eye_clinic_officer', 'physiotherapist'].includes(role)) {
+            loadAssignedPatients();
         }
 
         // Populate States list dynamically
