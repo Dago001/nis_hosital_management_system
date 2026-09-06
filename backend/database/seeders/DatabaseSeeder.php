@@ -145,8 +145,9 @@ class DatabaseSeeder extends Seeder
             $permissionModels['ward_observations']->id,
         ]);
 
-        // Pharmacist permissions
+        // Pharmacist permissions (needs patient lookup to verify allergies before dispensing)
         $pharmacistPermissions = [
+            $permissionModels['view_patients']->id,
             $permissionModels['view_inventory']->id,
             $permissionModels['dispense_drugs']->id,
             $permissionModels['manage_inventory']->id,
@@ -172,8 +173,9 @@ class DatabaseSeeder extends Seeder
             $permissionModels['approve_diagnostics']->id,
         ]);
 
-        // Cashier & Account Officer permissions
+        // Cashier & Account Officer permissions (needs patient lookup to bill correctly)
         $cashierPermissions = [
+            $permissionModels['view_patients']->id,
             $permissionModels['create_invoices']->id,
             $permissionModels['collect_payments']->id,
             $permissionModels['view_revenue_reports']->id,

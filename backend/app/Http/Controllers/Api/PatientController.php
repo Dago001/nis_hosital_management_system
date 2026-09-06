@@ -8,14 +8,17 @@ use App\DTOs\RegisterPatientDTO;
 use App\Services\PatientService;
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
+use App\Repositories\Contracts\AuditLogRepositoryInterface;
 
 class PatientController extends Controller
 {
     protected PatientService $patientService;
+    protected AuditLogRepositoryInterface $auditLog;
 
-    public function __construct(PatientService $patientService)
+    public function __construct(PatientService $patientService, AuditLogRepositoryInterface $auditLog)
     {
         $this->patientService = $patientService;
+        $this->auditLog = $auditLog;
     }
 
     public function index(Request $request)
@@ -109,7 +112,7 @@ class PatientController extends Controller
         ], 201); // 201 Created
     }
 
-    public function show(int $id)
+    public function show(Request $request, int $id)
     {
         $patient = Patient::with([
             'appointments.doctor', 
@@ -129,6 +132,17 @@ class PatientController extends Controller
         if (!$patient) {
             return response()->json(['message' => 'Patient not found.'], 404);
         }
+
+        // Accountability: record every access to a patient's confidential file (PHI).
+        $this->auditLog->log(
+            userId: $request->user()?->id,
+            action: 'view_patient_record',
+            auditableType: Patient::class,
+            auditableId: $patient->id,
+            payload: ['hospital_code' => $patient->immigration_service_number],
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent()
+        );
 
         // Build a structured historical clinical timeline for the patient card view
         $timeline = [];
