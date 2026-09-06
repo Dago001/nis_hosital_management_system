@@ -76,11 +76,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // Pharmacy & Dispensary
     Route::get('/pharmacy/inventory', [PharmacyController::class, 'getInventory']);
-    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory']);
-    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory']);
+    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory'])->middleware('role_or_permission:manage_inventory');
+    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory'])->middleware('role_or_permission:manage_inventory');
     Route::get('/pharmacy/prescriptions', [PharmacyController::class, 'getPrescriptions']);
-    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription']);
-    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription']);
+    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription'])->middleware('role_or_permission:dispense_drugs');
+    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription'])->middleware('role_or_permission:dispense_drugs');
 
     // Administrative / Audit Logs & Users
     Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])->middleware('role_or_permission:view_audit_logs');
