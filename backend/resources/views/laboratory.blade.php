@@ -119,6 +119,7 @@
         <h3 class="text-base font-bold text-slate-800 dark:text-white mb-4">Input Laboratory Diagnostics Values</h3>
         
         <form id="result-form" onsubmit="handleResultSubmit(event)" class="space-y-4">
+            <p id="catalogue-hint" class="hidden text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg px-3 py-2"></p>
             <div>
                 <label class="block text-[10px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1">Result Value *</label>
                 <input type="text" id="result_value" required placeholder="e.g. 5.4 or Negative" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
@@ -229,6 +230,30 @@
 <script>
     let activeRequest = null;
     let labWorklist = [];
+    let labCatalogue = {}; // keyed by lowercased test name AND code
+
+    const FLAG_META = {
+        low:           { label: 'LOW',  cls: 'bg-amber-100 text-amber-700 border border-amber-300' },
+        high:          { label: 'HIGH', cls: 'bg-amber-100 text-amber-700 border border-amber-300' },
+        critical_low:  { label: 'CRITICAL LOW',  cls: 'bg-red-600 text-white' },
+        critical_high: { label: 'CRITICAL HIGH', cls: 'bg-red-600 text-white' },
+        normal:        { label: 'NORMAL', cls: 'bg-emerald-100 text-emerald-700 border border-emerald-300' },
+    };
+    function flagBadge(flag) {
+        const m = FLAG_META[flag];
+        if (!m) return '';
+        return `<span class="ml-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${m.cls}">${m.label}</span>`;
+    }
+
+    async function loadLabCatalogue() {
+        try {
+            const res = await api.get('/lab-tests');
+            (res.tests || []).forEach(t => {
+                labCatalogue[(t.name || '').toLowerCase()] = t;
+                labCatalogue[(t.code || '').toLowerCase()] = t;
+            });
+        } catch (e) { /* catalogue is optional; entry still works manually */ }
+    }
 
     async function loadLabQueue() {
         try {
@@ -307,7 +332,7 @@
                             <div class="text-[9px] text-slate-500">Code: ${req.patient.immigration_service_number}</div>
                         </td>
                         <td class="py-3.5 px-6">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">${req.test_name}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">${req.test_name}</span>${flagBadge(req.flag)}
                             <div class="text-[9px] text-slate-500">Ordered by: Dr. ${req.doctor?.full_name || 'Staff'}</div>
                         </td>
                         <td class="py-3.5 px-6 text-slate-800 dark:text-slate-200">${new Date(req.created_at).toLocaleDateString()}</td>
@@ -339,6 +364,23 @@
     function openResultModal(req) {
         activeRequest = req;
         document.getElementById('result-form').reset();
+
+        // Auto-fill reference range + unit from the catalogue when the ordered
+        // test matches a catalogue entry. Values remain editable by the scientist.
+        const cat = labCatalogue[(req.test_name || '').toLowerCase()];
+        const hint = document.getElementById('catalogue-hint');
+        if (cat) {
+            if (cat.ref_low !== null && cat.ref_low !== undefined) document.getElementById('normal_range_min').value = cat.ref_low;
+            if (cat.ref_high !== null && cat.ref_high !== undefined) document.getElementById('normal_range_max').value = cat.ref_high;
+            if (cat.unit) document.getElementById('unit').value = cat.unit;
+            if (hint) {
+                hint.classList.remove('hidden');
+                hint.innerText = `Catalogue: ${cat.name} — range ${cat.ref_low ?? '–'} to ${cat.ref_high ?? '–'} ${cat.unit || ''}. Values auto-flag on submit.`;
+            }
+        } else if (hint) {
+            hint.classList.add('hidden');
+        }
+
         document.getElementById('result-modal').classList.remove('hidden');
     }
 
@@ -387,7 +429,8 @@
         document.getElementById('rep-date').innerText = new Date(req.updated_at || req.created_at).toLocaleString();
 
         document.getElementById('rep-test-name').innerText = req.test_name;
-        document.getElementById('rep-value').innerText = req.result_value || 'Pending';
+        const flagTxt = (FLAG_META[req.flag] && req.flag !== 'normal') ? `  [${FLAG_META[req.flag].label}]` : '';
+        document.getElementById('rep-value').innerText = (req.result_value || 'Pending') + flagTxt;
         document.getElementById('rep-range').innerText = (req.normal_range_min || req.normal_range_max) 
             ? `${req.normal_range_min || '0'} - ${req.normal_range_max || '∞'}` 
             : 'N/A';
@@ -408,6 +451,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        loadLabCatalogue();
         loadLabQueue();
     });
 </script>

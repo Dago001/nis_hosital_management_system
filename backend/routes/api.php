@@ -81,6 +81,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/diagnostics/lab/submit-result/{requestId}', [DiagnosticsController::class, 'submitLabResult'])->middleware('role_or_permission:fill_lab_results');
     Route::post('/diagnostics/lab/approve-result/{requestId}', [DiagnosticsController::class, 'approveLabResult'])->middleware('role_or_permission:approve_diagnostics');
 
+    // Laboratory test catalogue (reference ranges + auto-flagging)
+    Route::get('/lab-tests', [App\Http\Controllers\Api\LabTestController::class, 'index']);
+    Route::post('/lab-tests', [App\Http\Controllers\Api\LabTestController::class, 'store'])->middleware('role_or_permission:manage_settings');
+    Route::put('/lab-tests/{id}', [App\Http\Controllers\Api\LabTestController::class, 'update'])->middleware('role_or_permission:manage_settings');
+
     // Diagnostics - Radiology
     Route::get('/diagnostics/radiology/queue', [DiagnosticsController::class, 'getRadiologyQueue']);
     Route::post('/diagnostics/radiology/submit-result/{requestId}', [DiagnosticsController::class, 'submitRadiologyResult'])->middleware('role_or_permission:fill_radiology_results');

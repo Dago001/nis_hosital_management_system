@@ -547,8 +547,11 @@
                 { path: '/ipd',          label: 'IPD / Ward Beds',  icon: 'building-2',        roles: ['super_admin', 'hospital_admin', 'medical_director', 'doctor', 'nurse', 'ward_manager'] },
                 { path: '/referrals',    label: 'Referrals',        icon: 'arrow-right-left',  roles: ['super_admin', 'hospital_admin', 'medical_director', 'doctor', 'consultant', 'nurse'] },
                 { path: '/laboratory',   label: 'Laboratory',       icon: 'test-tube',         roles: ['super_admin', 'medical_director', 'lab_scientist', 'radiographer', 'doctor'] },
+                { path: '/lab-catalogue',label: 'Lab Catalogue',    icon: 'flask-conical',     roles: ['super_admin', 'ict_admin', 'medical_director', 'lab_scientist'] },
+                { path: '/theatre',      label: 'Theatre Schedule', icon: 'scissors',          roles: ['super_admin', 'hospital_admin', 'medical_director', 'doctor', 'consultant', 'nurse', 'theatre_manager'] },
                 { path: '/pharmacy',     label: 'Pharmacy',         icon: 'pill',              roles: ['super_admin', 'medical_director', 'pharmacist', 'store_officer', 'inventory_officer', 'procurement_officer'] },
                 { path: '/inventory',    label: 'Store Issuance',   icon: 'package',           roles: ['super_admin', 'hospital_admin', 'ict_admin', 'inventory_officer', 'store_officer', 'procurement_officer', 'pharmacist'] },
+                { path: '/procurement',  label: 'Procurement',      icon: 'truck',             roles: ['super_admin', 'hospital_admin', 'ict_admin', 'procurement_officer', 'store_officer', 'account_officer'] },
                 { path: '/billing',      label: 'Billing & Cashier',icon: 'credit-card',       roles: ['super_admin', 'hospital_admin', 'medical_director', 'cashier', 'account_officer'] },
                 { path: '/claims',       label: 'NHIS Claims',      icon: 'file-check-2',      roles: ['super_admin', 'hospital_admin', 'medical_director', 'cashier', 'account_officer'] },
                 { path: '/reports',      label: 'Analytics',        icon: 'bar-chart',         roles: ['super_admin', 'hospital_admin', 'medical_director', 'chief_medical_officer', 'health_info_officer', 'records_officer'] },
@@ -556,6 +559,9 @@
                 { path: '/support-chats',label: 'Support Chats',    icon: 'message-circle',    roles: ['super_admin', 'hospital_admin', 'ict_admin', 'receptionist', 'records_officer', 'staff'] },
                 { path: '/admin/users',  label: 'User Accounts',    icon: 'user-cog',          roles: ['super_admin', 'ict_admin', 'hr_officer', 'hospital_admin'] },
                 { path: '/tariffs',      label: 'Service Tariffs',  icon: 'tags',              roles: ['super_admin', 'ict_admin', 'hospital_admin', 'medical_director', 'cashier', 'account_officer'] },
+                { path: '/dhis2',        label: 'DHIS2 Export',     icon: 'globe',             roles: ['super_admin', 'hospital_admin', 'medical_director', 'health_info_officer'] },
+                { path: '/facilities',   label: 'Facilities',       icon: 'hospital',          roles: ['super_admin', 'ict_admin', 'hospital_admin'] },
+                { path: '/admin/roles',  label: 'Roles & Access',   icon: 'shield-check',      roles: ['super_admin', 'ict_admin'] },
                 { path: '/settings',     label: 'System Settings',  icon: 'settings',          roles: ['super_admin', 'ict_admin', 'hospital_admin'] },
             ];
 

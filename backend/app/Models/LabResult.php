@@ -14,6 +14,7 @@ class LabResult extends Model
         'normal_range_min',
         'normal_range_max',
         'unit',
+        'flag',
         'status',
         'remarks',
         'approved_at',
