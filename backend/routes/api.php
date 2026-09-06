@@ -197,6 +197,14 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
     Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
 
+    // Roles & permissions administration
+    Route::middleware('role_or_permission:super_admin,ict_admin')->group(function () {
+        Route::get('/roles', [App\Http\Controllers\Api\RoleController::class, 'index']);
+        Route::get('/roles/permissions', [App\Http\Controllers\Api\RoleController::class, 'permissions']);
+        Route::get('/roles/{id}', [App\Http\Controllers\Api\RoleController::class, 'show']);
+        Route::put('/roles/{id}/permissions', [App\Http\Controllers\Api\RoleController::class, 'syncPermissions']);
+    });
+
     // Theatre / surgery scheduling
     Route::get('/theatre/theatres', [App\Http\Controllers\Api\TheatreController::class, 'theatres']);
     Route::get('/theatre/surgeons', [App\Http\Controllers\Api\TheatreController::class, 'surgeons']);
