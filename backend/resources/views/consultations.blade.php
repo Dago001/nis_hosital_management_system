@@ -527,10 +527,32 @@
     }
 
     // Form submit
+    async function runDrugSafetyCheck(patientId) {
+        if (!prescribedDrugs.length || !patientId) return true;
+        try {
+            const res = await api.post('/clinical/drug-safety-check', {
+                patient_id: patientId,
+                drugs: prescribedDrugs.map(d => d.drug_name),
+            });
+            if (!res.has_alerts) return true;
+            const lines = [];
+            (res.allergy_alerts || []).forEach(a => lines.push('⚠ ALLERGY: ' + a.message));
+            (res.interaction_alerts || []).forEach(i => lines.push('⚠ INTERACTION (' + i.severity + '): ' + i.message));
+            return confirm('DRUG SAFETY ALERTS\n\n' + lines.join('\n\n') + '\n\nProceed with prescription anyway?');
+        } catch (e) {
+            return true; // never block on a check failure
+        }
+    }
+
     async function handleConsultSubmit(e) {
         e.preventDefault();
         const visitId = document.getElementById('visit-selector').value;
         if (!visitId) return;
+
+        // Advisory drug-safety check before saving the prescription.
+        const visit = activeVisits.find(v => v.id === parseInt(visitId));
+        const proceed = await runDrugSafetyCheck(visit?.patient_id);
+        if (!proceed) return;
 
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = true;

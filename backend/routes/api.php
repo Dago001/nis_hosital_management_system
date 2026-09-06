@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/clinical/vitals', [ClinicalController::class, 'recordVitals'])->middleware('role_or_permission:nursing_vitals');
     Route::get('/clinical/active-visit/{patientId}', [ClinicalController::class, 'getActiveVisit'])->middleware('role_or_permission:consult_patients');
     Route::post('/clinical/consult/{visitId}', [ClinicalController::class, 'consult'])->middleware('role_or_permission:consult_patients');
+    Route::post('/clinical/drug-safety-check', [ClinicalController::class, 'drugSafetyCheck'])->middleware('role_or_permission:consult_patients');
     Route::post('/clinical/ai-chat', [ClinicalAiController::class, 'consult']);
 
     // Diagnostics - Laboratory

@@ -11,11 +11,30 @@ use App\Models\LabRequest;
 use App\Models\RadiologyRequest;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Patient;
+use App\Services\DrugSafetyService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ClinicalController extends Controller
 {
+    /**
+     * Advisory drug-safety check (allergy conflicts + interactions) the
+     * consultation UI calls as the doctor builds a prescription.
+     */
+    public function drugSafetyCheck(Request $request, DrugSafetyService $safety)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'drugs' => 'required|array|min:1',
+            'drugs.*' => 'required|string|max:255',
+        ]);
+
+        $patient = Patient::find($validated['patient_id']);
+
+        return response()->json($safety->check($patient, $validated['drugs']));
+    }
+
     public function recordVitals(Request $request)
     {
         $validated = $request->validate([
@@ -192,8 +211,16 @@ class ClinicalController extends Controller
             ]);
         });
 
+        // Advisory drug-safety alerts on the prescribed drugs (recorded for the UI).
+        $safetyAlerts = ['allergy_alerts' => [], 'interaction_alerts' => [], 'has_alerts' => false];
+        if (!empty($validated['prescriptions'])) {
+            $drugNames = array_map(fn ($p) => $p['drug_name'], $validated['prescriptions']);
+            $safetyAlerts = app(DrugSafetyService::class)->check($visit->patient, $drugNames);
+        }
+
         return response()->json([
             'message' => 'Consultation completed and billing generated.',
+            'safety_alerts' => $safetyAlerts,
             'visit' => $visit->load(['prescriptions', 'labRequests', 'radiologyRequests'])
         ]);
     }
