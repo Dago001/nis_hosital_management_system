@@ -5,7 +5,7 @@
 @section('content')
 <div class="space-y-6">
     <!-- Title & Action -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white font-sans font-black">Appointments & Scheduling Board</h1>
             <p class="text-xs text-slate-500 dark:text-slate-400">Book outpatient consults, verify online booking requests, and dispatch email notices.</p>

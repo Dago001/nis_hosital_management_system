@@ -25,18 +25,18 @@
                     <i data-lucide="search" class="w-4 h-4"></i>
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-800 dark:text-white">Hospital Code Lookup</h3>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Search patients by their unique Hospital Code only</p>
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-white">Patient Lookup</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Search by Hospital Code, name, NIN or phone number</p>
                 </div>
             </div>
             <div class="relative flex-grow max-w-md">
-                <input type="text" id="search-input" oninput="handleSearch(this.value)" 
-                       placeholder="Enter Hospital Code e.g. NIS/PAT/000001" 
-                       class="w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-all font-mono tracking-wide">
+                <input type="text" id="search-input" oninput="handleSearch(this.value)"
+                       placeholder="Search by code, name, NIN or phone…"
+                       class="w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-all tracking-wide">
                 <i data-lucide="badge-check" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500 w-4 h-4"></i>
             </div>
             <div class="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-bold shrink-0 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-3 py-2 rounded-xl">
-                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Hospital Code Required
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Min. 3 characters
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
                     <tr><td colspan="6" class="py-12 text-center">
                         <div class="flex flex-col items-center gap-2 text-slate-500">
                             <i data-lucide="search" class="w-8 h-8 text-slate-300"></i>
-                            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Enter a Hospital Code to search</p>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Search for a patient to begin</p>
                             <p class="text-xs text-slate-400">Patient records are protected and require a valid Hospital Code to access.</p>
                         </div>
                     </td></tr>
@@ -574,7 +574,7 @@
             tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center">
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <i data-lucide="search" class="w-8 h-8 text-slate-300"></i>
-                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Enter a Hospital Code to search</p>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Search for a patient to begin</p>
                     <p class="text-xs text-slate-400">Patient records are protected and require a valid Hospital Code to access.</p>
                 </div>
             </td></tr>`;

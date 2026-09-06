@@ -11,7 +11,7 @@
             <h1 class="text-xl font-bold text-slate-800 dark:text-white">Analytics & Reports</h1>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Executive intelligence dashboard — KPIs, trends & clinical metrics</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
             <select id="period-filter" onchange="loadAll()" class="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                 <option value="today">Today</option>
                 <option value="week">This Week</option>

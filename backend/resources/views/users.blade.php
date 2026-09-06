@@ -5,14 +5,14 @@
 @section('content')
 <div class="space-y-6">
     <!-- Title & Action -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <i data-lucide="users" class="text-emerald-600"></i> Staff User Accounts Management
+                <i data-lucide="users" class="text-emerald-600 shrink-0"></i> Staff User Accounts Management
             </h1>
             <p class="text-xs text-slate-800 dark:text-slate-200">System Administrator portal to onboard medical staff, assign RBAC permissions, suspend accounts, and reset passcodes</p>
         </div>
-        <button onclick="handleOpenCreateModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-650/10 transition cursor-pointer">
+        <button onclick="handleOpenCreateModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-650/10 transition cursor-pointer self-start sm:self-auto shrink-0 whitespace-nowrap">
             <i data-lucide="user-plus" class="w-4 h-4"></i> Create User Account
         </button>
     </div>

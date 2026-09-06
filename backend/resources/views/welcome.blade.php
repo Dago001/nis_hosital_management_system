@@ -144,9 +144,62 @@
             </div>
         </div>
 
+        <!-- Trust / Statistics Band -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @foreach([
+                    ['icon'=>'users','value'=>'50,000+','label'=>'Patients Served'],
+                    ['icon'=>'stethoscope','value'=>'120+','label'=>'Medical Officers'],
+                    ['icon'=>'building-2','value'=>'12','label'=>'Clinical Departments'],
+                    ['icon'=>'clock','value'=>'24/7','label'=>'Emergency Response'],
+                ] as $stat)
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div class="p-3 rounded-xl bg-nigGreen-50 text-nigGreen-600 shrink-0">
+                            <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none">{{ $stat['value'] }}</div>
+                            <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Clinical Services Highlights -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
+                    <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
+                    <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey — from registration and triage to diagnostics, pharmacy and billing.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach([
+                    ['icon'=>'user-plus','title'=>'Patient Registration','desc'=>'Fast, secure enrolment of officers, dependants and civilians with unique hospital codes and biometric markers.'],
+                    ['icon'=>'activity','title'=>'Nursing Triage & Vitals','desc'=>'Structured vital-sign capture and priority triage routing directly into the physician consultation queue.'],
+                    ['icon'=>'stethoscope','title'=>'Physician Consultation','desc'=>'SOAP-based clinical notes, ICD-10 diagnosis coding and AI-assisted clinical decision support.'],
+                    ['icon'=>'test-tube','title'=>'Laboratory & Radiology','desc'=>'End-to-end diagnostic worklists with sample tracking, result entry and consultant approval.'],
+                    ['icon'=>'pill','title'=>'Pharmacy & Dispensary','desc'=>'Prescription costing, dispensing and real-time drug inventory with reorder-level alerts.'],
+                    ['icon'=>'credit-card','title'=>'Billing & Cashiering','desc'=>'Automated invoicing, NHIS discounting and multi-channel payment collection with receipts.'],
+                ] as $svc)
+                    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-nigGreen-200 transition-all group">
+                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 group-hover:bg-nigGreen-600 group-hover:text-white transition-colors">
+                            <i data-lucide="{{ $svc['icon'] }}" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">{{ $svc['desc'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Appointment Booking Form Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-8 lg:p-12 space-y-6">
+            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
                 <div class="space-y-2">
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <i data-lucide="calendar" class="text-nigGreen-600"></i> Book an Outpatient Appointment
@@ -187,7 +240,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
-                        <textarea id="apt-notes" rows="1" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none"></textarea>
+                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
