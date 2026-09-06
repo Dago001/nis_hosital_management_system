@@ -170,6 +170,13 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
 
 
+    // NHIS / HMO Claims
+    Route::get('/claims', [App\Http\Controllers\Api\ClaimController::class, 'index'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::get('/claims/eligible', [App\Http\Controllers\Api\ClaimController::class, 'eligible'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::get('/claims/{id}', [App\Http\Controllers\Api\ClaimController::class, 'show'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
+    Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
+
     // Service Tariffs (price catalogue)
     Route::get('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'index']);
     Route::post('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'store'])->middleware('role_or_permission:manage_settings');

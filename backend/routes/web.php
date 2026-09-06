@@ -58,6 +58,10 @@ Route::get('/billing', function () {
     return view('billing');
 });
 
+Route::get('/claims', function () {
+    return view('claims');
+});
+
 Route::get('/audit-trail', function () {
     return view('audit-trail');
 });
