@@ -168,8 +168,8 @@
                         </div>
                         <!-- Standalone DOB -->
                         <div id="standalone-dob-group">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth</label>
-                            <input type="date" id="date_of_birth" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Date of Birth <span id="age-badge" class="hidden ml-1 normal-case text-emerald-600 dark:text-emerald-400 font-bold"></span></label>
+                            <input type="date" id="date_of_birth" oninput="updateAgeDisplay()" onchange="updateAgeDisplay()" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-850 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
@@ -189,6 +189,43 @@
                         </div>
                     </div>
                 </div>
+                <!-- Additional bio-data -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Marital Status <span class="text-red-500">*</span></label>
+                        <select id="marital_status" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select…</option>
+                            <option value="Single">Single</option>
+                            <option value="Married">Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                            <option value="Separated">Separated</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Religion</label>
+                        <select id="religion" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <option value="">Select…</option>
+                            <option value="Christianity">Christianity</option>
+                            <option value="Islam">Islam</option>
+                            <option value="Traditional">Traditional</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Occupation <span class="normal-case text-slate-400">(for non-officers)</span></label>
+                        <input type="text" id="occupation" maxLength="100" placeholder="e.g. Teacher, Trader" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Place of Birth</label>
+                        <input type="text" id="place_of_birth" maxLength="100" placeholder="e.g. Kaduna" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Tribe / Ethnicity</label>
+                        <input type="text" id="tribe" data-filter="letters" maxLength="60" placeholder="e.g. Hausa, Igbo, Yoruba" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
+                </div>
+
                 <!-- Dependant Mode notice in Step 1 -->
                 <div id="dependant-mode-notice" class="hidden p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold">
                     <div class="flex items-center gap-2">
@@ -313,9 +350,34 @@
                             <option value="">Select LGA</option>
                         </select>
                     </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">City / Town of Residence</label>
+                        <input type="text" id="city" maxLength="100" placeholder="e.g. Abuja" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Street Address</label>
-                        <textarea id="address" required placeholder="House number, street name, block, etc." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="3"></textarea>
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Home Address (House No. / Street)</label>
+                        <textarea id="address" required placeholder="House number, street name, block, etc." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Next of Kin -->
+                <div class="mt-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h4 class="text-[11px] font-black text-slate-800 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-emerald-600"></i> Next of Kin
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Name of Next of Kin</label>
+                            <input type="text" id="next_of_kin_name" data-filter="letters" maxLength="120" placeholder="Full name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Relationship with Next of Kin</label>
+                            <input type="text" id="next_of_kin_relationship" data-filter="letters" maxLength="60" placeholder="e.g. Spouse, Parent, Sibling" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Address of Next of Kin</label>
+                            <textarea id="next_of_kin_address" placeholder="Next of kin residential address" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500" rows="2"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -729,6 +791,20 @@
         return age;
     }
 
+    // Live age readout next to the Date of Birth field.
+    function updateAgeDisplay() {
+        const dob = document.getElementById('date_of_birth')?.value;
+        const badge = document.getElementById('age-badge');
+        if (!badge) return;
+        if (dob) {
+            const age = calculateAge(dob);
+            badge.textContent = `(Age: ${age} yr${age === 1 ? '' : 's'})`;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
     function validateDependantAge() {
         const dobInput = document.getElementById('dep_date_of_birth');
         if (!dobInput) return true;
@@ -1063,8 +1139,13 @@
                 const first = document.getElementById('first_name').value.trim();
                 const last = document.getElementById('last_name').value.trim();
                 const dob = document.getElementById('date_of_birth').value;
+                const marital = document.getElementById('marital_status').value;
                 if (!first || !last || !gender || !dob || !phone) {
                     alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
+                    return;
+                }
+                if (!marital) {
+                    alert('Please select a Marital Status.');
                     return;
                 }
             }
@@ -1261,12 +1342,17 @@
             }
         }
 
+        const val = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
         const commonPayload = {
             blood_group: document.getElementById('blood_group').value,
             genotype: document.getElementById('genotype').value,
-            state: document.getElementById('state').value || null,
-            lga: document.getElementById('lga').value || null,
+            state: val('state') || null,
+            lga: val('lga') || null,
+            city: val('city') || null,
             address: document.getElementById('address').value,
+            next_of_kin_name: val('next_of_kin_name') || null,
+            next_of_kin_relationship: val('next_of_kin_relationship') || null,
+            next_of_kin_address: val('next_of_kin_address') || null,
             allergies: document.getElementById('allergies').value || null,
             disability: document.getElementById('disability').value || 'None'
         };
@@ -1280,6 +1366,11 @@
                     middle_name: document.getElementById('middle_name').value || null,
                     last_name: document.getElementById('last_name').value,
                     gender: document.getElementById('gender').value,
+                    marital_status: val('marital_status') || null,
+                    occupation: val('occupation') || null,
+                    religion: val('religion') || null,
+                    place_of_birth: val('place_of_birth') || null,
+                    tribe: val('tribe') || null,
                     date_of_birth: document.getElementById('date_of_birth').value,
                     phone: document.getElementById('phone').value,
                     email: document.getElementById('email').value || null,
@@ -1300,8 +1391,9 @@
                         middle_name: dep.middle_name,
                         last_name: dep.last_name,
                         gender: dep.gender,
+                        marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
                         date_of_birth: dep.date_of_birth,
-                        phone: sponsorPhone || '·',
+                        phone: (sponsorPhone && /^\+?\d{7,15}$/.test(sponsorPhone)) ? sponsorPhone : '00000000000',
                         email: null,
                         immigration_service_number: serviceNo,
                         sponsor_service_number: dep.sponsor_service_number,
