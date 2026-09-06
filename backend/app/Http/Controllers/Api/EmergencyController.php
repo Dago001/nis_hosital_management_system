@@ -118,7 +118,7 @@ class EmergencyController extends Controller
             ...$validated,
             'status' => 'waiting',
             'arrived_at' => now(),
-            'triaged_at' => $validated['triaged_by'] ? now() : null,
+            'triaged_at' => !empty($validated['triaged_by']) ? now() : null,
         ]);
 
         return response()->json([
