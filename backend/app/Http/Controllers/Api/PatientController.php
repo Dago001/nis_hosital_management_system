@@ -9,6 +9,8 @@ use App\Services\PatientService;
 use App\Http\Resources\PatientResource;
 use App\Models\Patient;
 use App\Repositories\Contracts\AuditLogRepositoryInterface;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\SvgWriter;
 
 class PatientController extends Controller
 {
@@ -299,6 +301,60 @@ class PatientController extends Controller
             'patient' => new PatientResource($patient),
             'timeline' => $timeline,
             'diagnostics' => $diagnostics
+        ]);
+    }
+
+    /**
+     * Printable hospital ID card payload: demographics + a scannable QR code
+     * (rendered as an inline SVG data-URI so it needs no external service).
+     */
+    public function idCard(Request $request, int $id)
+    {
+        $patient = Patient::find($id);
+        if (! $patient) {
+            return response()->json(['message' => 'Patient not found.'], 404);
+        }
+
+        $this->auditLog->log(
+            userId: $request->user()?->id,
+            action: 'generate_id_card',
+            auditableType: Patient::class,
+            auditableId: $patient->id,
+            payload: ['hospital_code' => $patient->immigration_service_number],
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent()
+        );
+
+        // What a scanner reads: a compact verification payload keyed to the file.
+        $payload = implode('|', [
+            'NISHMS',
+            'CODE:' . ($patient->immigration_service_number ?? ''),
+            'NAME:' . $patient->full_name,
+            'DOB:' . ($patient->date_of_birth ?? ''),
+            'REF:' . ($patient->qr_code_data ?? ('PAT-' . $patient->id)),
+        ]);
+
+        $qr = new QrCode(data: $payload, size: 240, margin: 8);
+        $svg = (new SvgWriter())->write($qr)->getString();
+        $qrDataUri = 'data:image/svg+xml;base64,' . base64_encode($svg);
+
+        return response()->json([
+            'card' => [
+                'full_name' => $patient->full_name,
+                'hospital_code' => $patient->immigration_service_number,
+                'barcode' => $patient->barcode_data,
+                'date_of_birth' => $patient->date_of_birth,
+                'age' => $patient->age,
+                'gender' => $patient->gender,
+                'blood_group' => $patient->blood_group,
+                'genotype' => $patient->genotype,
+                'phone' => $patient->phone,
+                'allergies' => $patient->allergies,
+                'nhis' => $patient->isNhis(),
+                'photo_url' => $patient->passport_photograph_path ? asset('storage/' . $patient->passport_photograph_path) : null,
+                'issued_on' => now()->toDateString(),
+            ],
+            'qr' => $qrDataUri,
         ]);
     }
 

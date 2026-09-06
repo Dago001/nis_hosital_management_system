@@ -44,6 +44,13 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/patients/assigned', [PatientController::class, 'assignedToMe'])->middleware('role_or_permission:consult_patients');
     Route::post('/patients', [PatientController::class, 'store'])->middleware('role_or_permission:register_patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->middleware('role_or_permission:view_patients');
+    // Printable patient ID card (QR)
+    Route::get('/patients/{id}/id-card', [PatientController::class, 'idCard'])->middleware('role_or_permission:view_patients');
+    // Patient document attachments (PHI — private storage, streamed downloads)
+    Route::get('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'index'])->middleware('role_or_permission:view_patients');
+    Route::post('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'store'])->middleware('role_or_permission:register_patients,view_patients');
+    Route::get('/patient-documents/{documentId}/download', [App\Http\Controllers\Api\PatientDocumentController::class, 'download'])->middleware('role_or_permission:view_patients');
+    Route::delete('/patient-documents/{documentId}', [App\Http\Controllers\Api\PatientDocumentController::class, 'destroy'])->middleware('role_or_permission:register_patients');
 
     // Central Store / Inventory issuance (Inventory Officer -> Pharmacy)
     Route::get('/inventory/items', [App\Http\Controllers\Api\InventoryController::class, 'items'])->middleware('role_or_permission:view_inventory');

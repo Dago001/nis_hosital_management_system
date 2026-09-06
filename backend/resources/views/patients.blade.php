@@ -634,6 +634,9 @@
                     <button type="button" onclick="switchDetailsTab('diagnostics')" id="tab-btn-diagnostics" class="border-b-2 border-transparent px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 focus:outline-none transition-all">
                         Diagnostic Reports
                     </button>
+                    <button type="button" onclick="switchDetailsTab('documents')" id="tab-btn-documents" class="border-b-2 border-transparent px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 focus:outline-none transition-all">
+                        Documents
+                    </button>
                 </div>
 
                 <!-- Tab 1: Timeline -->
@@ -650,11 +653,99 @@
                 <div class="max-h-72 overflow-y-auto space-y-3 pr-2 hidden" id="det-diagnostics">
                     <!-- Diagnostics list Injected dynamically -->
                 </div>
+
+                <!-- Tab 4: Documents -->
+                <div class="hidden" id="det-documents">
+                    <form id="doc-upload-form" onsubmit="uploadDocument(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 mb-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
+                        <input id="doc-title" required placeholder="Document title" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs">
+                        <select id="doc-category" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs">
+                            <option value="referral">Referral letter</option>
+                            <option value="consent">Consent form</option>
+                            <option value="id_copy">ID copy</option>
+                            <option value="lab_report">External lab/report</option>
+                            <option value="insurance">Insurance / NHIS card</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                        <input id="doc-file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs sm:col-span-1">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg">Upload</button>
+                        <p class="text-[9px] text-slate-400 sm:col-span-2">PDF / image / Word, up to 10&nbsp;MB. Files are stored privately and access is audit-logged.</p>
+                    </form>
+                    <div class="max-h-56 overflow-y-auto space-y-2 pr-1" id="det-documents-list">
+                        <p class="text-xs text-slate-400">Loading…</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="flex justify-end gap-3 pt-6 border-t border-slate-150 dark:border-slate-800/80 mt-6">
+            <button onclick="openIdCard()" class="px-5 py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition flex items-center gap-2">
+                <i data-lucide="id-card" class="w-4 h-4"></i> ID Card
+            </button>
             <button onclick="closeDetailsModal()" class="px-5 py-2.5 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 rounded-xl transition">Close File</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    #idcard-print .idcard { width: 100%; }
+    @media print {
+        body * { visibility: hidden !important; }
+        #idcard-print, #idcard-print * { visibility: visible !important; }
+        #idcard-print { position: fixed; inset: 0; margin: 24px auto; width: 340px; }
+        #idcard-print .idcard { box-shadow: none; border: 1px solid #94a3b8; }
+        .no-print { display: none !important; }
+    }
+</style>
+
+<!-- Patient ID Card Modal (printable) -->
+<div id="idcard-modal" class="hidden fixed inset-0 z-[60] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="id-card" class="text-emerald-600 w-5 h-5"></i> Patient ID Card</h3>
+            <button onclick="closeIdCard()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- The card itself (this is what prints) -->
+        <div id="idcard-print">
+            <div class="idcard border border-slate-300 rounded-2xl overflow-hidden bg-white text-slate-900">
+                <div class="idcard-head flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white">
+                    <i data-lucide="shield-plus" class="w-5 h-5 shrink-0"></i>
+                    <div class="leading-tight">
+                        <div class="text-[11px] font-black uppercase tracking-wide">Nigeria Immigration Service</div>
+                        <div class="text-[9px] opacity-90">Medical Services — Patient Identification Card</div>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-4">
+                    <div class="shrink-0 text-center">
+                        <img id="idc-photo" alt="" class="w-20 h-24 object-cover rounded-lg border border-slate-300 bg-slate-100 hidden">
+                        <div id="idc-photo-ph" class="w-20 h-24 rounded-lg border border-slate-300 bg-slate-100 flex items-center justify-center text-slate-400"><i data-lucide="user" class="w-8 h-8"></i></div>
+                    </div>
+                    <div class="min-w-0 flex-1 text-[11px] leading-snug">
+                        <div id="idc-name" class="text-sm font-black text-slate-900 truncate">—</div>
+                        <div id="idc-code" class="font-mono text-emerald-700 font-bold text-[11px] mb-1">—</div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-0.5">
+                            <div><span class="text-slate-500">DOB:</span> <b id="idc-dob">—</b></div>
+                            <div><span class="text-slate-500">Sex:</span> <b id="idc-gender">—</b></div>
+                            <div><span class="text-slate-500">Blood:</span> <b id="idc-blood">—</b></div>
+                            <div><span class="text-slate-500">Geno:</span> <b id="idc-geno">—</b></div>
+                        </div>
+                        <div id="idc-nhis" class="mt-1 inline-block text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 hidden">NHIS Covered</div>
+                    </div>
+                    <div class="shrink-0 text-center">
+                        <img id="idc-qr" alt="QR" class="w-24 h-24">
+                        <div id="idc-barcode" class="font-mono text-[8px] text-slate-500 mt-0.5">—</div>
+                    </div>
+                </div>
+                <div class="px-4 pb-2 flex items-center justify-between text-[8px] text-slate-500 border-t border-slate-200 pt-1">
+                    <span>Issued: <b id="idc-issued">—</b></span>
+                    <span class="italic">Property of NIS Medical Services. If found, return to nearest facility.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4 no-print">
+            <button onclick="closeIdCard()" class="px-4 py-2 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl">Close</button>
+            <button onclick="printIdCard()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Print</button>
         </div>
     </div>
 </div>
@@ -1450,9 +1541,11 @@
         const tabBtnTimeline = document.getElementById('tab-btn-timeline');
         const tabBtnMedications = document.getElementById('tab-btn-medications');
         const tabBtnDiagnostics = document.getElementById('tab-btn-diagnostics');
+        const tabBtnDocuments = document.getElementById('tab-btn-documents');
         const detTimeline = document.getElementById('det-timeline');
         const detMedications = document.getElementById('det-medications');
         const detDiagnostics = document.getElementById('det-diagnostics');
+        const detDocuments = document.getElementById('det-documents');
 
         if (!tabBtnTimeline || !tabBtnMedications || !detTimeline || !detMedications) return;
 
@@ -1463,10 +1556,12 @@
         tabBtnTimeline.className = inactiveBtnClass;
         tabBtnMedications.className = inactiveBtnClass;
         if (tabBtnDiagnostics) tabBtnDiagnostics.className = inactiveBtnClass;
+        if (tabBtnDocuments) tabBtnDocuments.className = inactiveBtnClass;
 
         detTimeline.classList.add('hidden');
         detMedications.classList.add('hidden');
         if (detDiagnostics) detDiagnostics.classList.add('hidden');
+        if (detDocuments) detDocuments.classList.add('hidden');
 
         // Activate selected
         if (tabName === 'timeline') {
@@ -1478,6 +1573,10 @@
         } else if (tabName === 'diagnostics') {
             if (tabBtnDiagnostics) tabBtnDiagnostics.className = activeBtnClass;
             if (detDiagnostics) detDiagnostics.classList.remove('hidden');
+        } else if (tabName === 'documents') {
+            if (tabBtnDocuments) tabBtnDocuments.className = activeBtnClass;
+            if (detDocuments) detDocuments.classList.remove('hidden');
+            loadDocuments();
         }
     }
 
@@ -1486,6 +1585,10 @@
             const res = await api.get(`/patients/${id}`);
             const pat = res.patient;
             const timeline = res.timeline;
+
+            // Remember which file is open (used by ID card + documents).
+            window.__currentPatient = pat;
+            window.__currentPatientId = id;
 
             // Reset tabs to timeline default view
             switchDetailsTab('timeline');
@@ -1696,6 +1799,105 @@
 
     function closeDetailsModal() {
         document.getElementById('details-modal').classList.add('hidden');
+    }
+
+    // ─── Patient ID Card ───────────────────────────────────────────────
+    async function openIdCard() {
+        const id = window.__currentPatientId;
+        if (!id) return;
+        try {
+            const res = await api.get(`/patients/${id}/id-card`);
+            const c = res.card;
+            document.getElementById('idc-name').innerText = c.full_name;
+            document.getElementById('idc-code').innerText = c.hospital_code || '—';
+            document.getElementById('idc-dob').innerText = c.date_of_birth || '—';
+            document.getElementById('idc-gender').innerText = c.gender || '—';
+            document.getElementById('idc-blood').innerText = c.blood_group || '—';
+            document.getElementById('idc-geno').innerText = c.genotype || '—';
+            document.getElementById('idc-issued').innerText = c.issued_on;
+            document.getElementById('idc-barcode').innerText = c.barcode || '';
+            document.getElementById('idc-qr').src = res.qr;
+
+            const nhis = document.getElementById('idc-nhis');
+            nhis.classList.toggle('hidden', !c.nhis);
+
+            const photo = document.getElementById('idc-photo');
+            const ph = document.getElementById('idc-photo-ph');
+            if (c.photo_url) {
+                photo.src = c.photo_url; photo.classList.remove('hidden'); ph.classList.add('hidden');
+            } else {
+                photo.classList.add('hidden'); ph.classList.remove('hidden');
+            }
+
+            document.getElementById('idcard-modal').classList.remove('hidden');
+            lucide.createIcons();
+        } catch (e) { alert(e.message || 'Failed to build ID card.'); }
+    }
+    function closeIdCard() { document.getElementById('idcard-modal').classList.add('hidden'); }
+    function printIdCard() { window.print(); }
+
+    // ─── Patient Documents ─────────────────────────────────────────────
+    const docCategoryLabels = { referral:'Referral', consent:'Consent', id_copy:'ID copy', lab_report:'External report', insurance:'Insurance', other:'Other' };
+
+    async function loadDocuments() {
+        const id = window.__currentPatientId;
+        const box = document.getElementById('det-documents-list');
+        if (!id || !box) return;
+        box.innerHTML = '<p class="text-xs text-slate-400">Loading…</p>';
+        try {
+            const res = await api.get(`/patients/${id}/documents`);
+            const list = res.documents || [];
+            box.innerHTML = list.length ? list.map(d => `
+                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px]">
+                    <div class="min-w-0">
+                        <b class="text-slate-800 dark:text-white block truncate">${d.title}</b>
+                        <span class="text-slate-500 block truncate">${docCategoryLabels[d.category]||d.category} · ${d.original_name} · ${d.size_kb} KB</span>
+                        <span class="text-slate-400 text-[9px] block">${d.uploaded_by ? 'by '+d.uploaded_by+' · ' : ''}${d.created_at}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="downloadDocument(${d.id},'${(d.original_name||'file').replace(/'/g,"\\'")}')" class="text-emerald-600 hover:underline font-bold">Download</button>
+                        <button onclick="deleteDocument(${d.id})" class="text-red-500 hover:underline font-bold">Delete</button>
+                    </div>
+                </div>`).join('') : '<p class="text-xs text-slate-400">No documents attached to this file.</p>';
+        } catch (e) { box.innerHTML = '<p class="text-xs text-red-500">Failed to load documents.</p>'; }
+    }
+
+    async function uploadDocument(ev) {
+        ev.preventDefault();
+        const id = window.__currentPatientId;
+        const fileEl = document.getElementById('doc-file');
+        if (!id || !fileEl.files.length) return;
+        const fd = new FormData();
+        fd.append('title', document.getElementById('doc-title').value);
+        fd.append('category', document.getElementById('doc-category').value);
+        fd.append('file', fileEl.files[0]);
+        try {
+            await api.post(`/patients/${id}/documents`, fd);
+            document.getElementById('doc-upload-form').reset();
+            loadDocuments();
+        } catch (e) { alert(e.message || 'Upload failed.'); }
+    }
+
+    async function downloadDocument(docId, name) {
+        try {
+            const token = localStorage.getItem('nis_hms_token');
+            const res = await fetch(`${api.baseUrl}/patient-documents/${docId}/download`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Download failed');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = name || 'document';
+            document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) { alert('Could not download the document.'); }
+    }
+
+    async function deleteDocument(docId) {
+        if (!confirm('Delete this document permanently?')) return;
+        try { await api.delete(`/patient-documents/${docId}`); loadDocuments(); }
+        catch (e) { alert(e.message || 'Delete failed.'); }
     }
 
     // Initialize Register Patient button permissions
