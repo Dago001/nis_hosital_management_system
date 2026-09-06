@@ -7,6 +7,8 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/jpeg" href="/images/nis_logo.jpg">
+    <link rel="apple-touch-icon" href="/images/nis_logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Locally bundled Tailwind CSS + Lucide icons -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -20,7 +22,7 @@
     <header class="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
+                <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
                     <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
@@ -116,7 +118,7 @@
                 <!-- Column 1: Command Title -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
+                        <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
                         <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
@@ -159,7 +161,7 @@
 
             <!-- Footer Bottom -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500 font-sans">
-                <span>&copy; 2026 Nigeria Immigration Service. Integrated Clinic Registry Operations System.</span>
+                <span>&copy; 2026 All Right Reserved | Nigeria Immigration Service</span>
             </div>
         </div>
     </footer>

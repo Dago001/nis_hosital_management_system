@@ -106,7 +106,7 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="book-pat-name">John Doe</h4>
-                        <p class="text-[9px] text-slate-500 dark:text-slate-400"><span id="book-pat-gender">Male</span> — DOB: <span id="book-pat-dob">1990-01-01</span></p>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400"><span id="book-pat-gender">Male</span> · DOB: <span id="book-pat-dob">1990-01-01</span></p>
                     </div>
                 </div>
                 <span class="text-[8px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
@@ -250,7 +250,7 @@
                     } else if (apt.status === 'checked_in') {
                         actionHTML = `<span class="text-slate-800 dark:text-slate-200 font-semibold text-[10px]">Triage Queue</span>`;
                     } else {
-                        actionHTML = `<span class="text-slate-800 dark:text-slate-200 text-[10px]">—</span>`;
+                        actionHTML = `<span class="text-slate-800 dark:text-slate-200 text-[10px]">·</span>`;
                     }
 
                     return `

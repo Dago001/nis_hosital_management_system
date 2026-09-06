@@ -7,6 +7,8 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" type="image/jpeg" href="/images/nis_logo.jpg">
+    <link rel="apple-touch-icon" href="/images/nis_logo.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Locally bundled Tailwind CSS + Lucide icons -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -26,7 +28,7 @@
             <div class="max-w-xl w-full text-center space-y-8 bg-white border border-slate-200/80 p-8 rounded-3xl shadow-2xl">
                 <!-- Logo & Icon Header -->
                 <div class="flex flex-col items-center justify-center gap-3">
-                    <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain bg-white rounded-2xl p-1 border border-slate-200/80 shadow-md">
+                    <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain bg-white rounded-2xl p-1 border border-slate-200/80 shadow-md">
                    
                 </div>
 
@@ -67,7 +69,7 @@
 
         <!-- Footer -->
         <footer class="py-6 border-t border-white/10 text-center text-[10px] text-slate-300 font-sans relative z-10">
-            &copy; 2026 Nigeria Immigration Service Medical Unit. All rights reserved.
+            &copy; 2026 All Right Reserved | Nigeria Immigration Service
         </footer>
     </div>
 @else
@@ -78,7 +80,7 @@
     <header class="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
+                <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
                     <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
@@ -175,7 +177,7 @@
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
                 </div>
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
-                <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey — from registration and triage to diagnostics, pharmacy and billing.</p>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey · from registration and triage to diagnostics, pharmacy and billing.</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach([
@@ -304,7 +306,7 @@
                 <!-- Column 1: Command Title -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
+                        <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
                         <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
@@ -347,7 +349,7 @@
 
             <!-- Footer Bottom -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500 font-sans">
-                <span>&copy; 2026 Nigeria Immigration Service- All rights reserved.</span>
+                <span>&copy; 2026 All Right Reserved | Nigeria Immigration Service</span>
             </div>
         </div>
     </footer>

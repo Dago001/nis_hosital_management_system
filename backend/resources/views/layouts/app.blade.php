@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'NIS Medical Services Portal')</title>
+    <link rel="icon" type="image/jpeg" href="/images/nis_logo.jpg">
+    <link rel="apple-touch-icon" href="/images/nis_logo.jpg">
     <!-- Google Fonts (progressive enhancement; falls back to system fonts offline) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,7 +42,7 @@
             <!-- Brand logo (fixed at top) -->
             <div class="p-4 flex items-center gap-3 border-b border-emerald-900/20 shrink-0">
                 <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-sm">
-                    <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Crest" onerror="this.src='/favicon.svg'" class="w-8 h-8 object-contain" />
+                    <img src="/images/nis_logo.jpg" alt="NIS Crest" onerror="this.src='/favicon.svg'" class="w-8 h-8 object-contain" />
                 </div>
                 <div class="flex flex-col">
                     <span class="font-bold text-sm leading-tight tracking-wider">NIS HOSPITALS</span>
@@ -152,7 +154,7 @@
                 <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 mt-auto shrink-0">
                     <div class="flex items-center justify-center gap-1.5 text-[9px] text-slate-400 dark:text-slate-500 font-semibold">
                         <i data-lucide="shield-check" class="w-3 h-3 text-emerald-500 shrink-0"></i>
-                        <span>&copy; <span id="footer-year"></span> NIS Hospital &mdash; All rights reserved</span>
+                        <span>&copy; <span id="footer-year"></span> All Right Reserved | Nigeria Immigration Service</span>
                     </div>
                 </footer>
             </main>

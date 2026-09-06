@@ -71,12 +71,22 @@
 
 <!-- Register Patient Modal -->
 <div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-black text-slate-805 dark:text-white uppercase tracking-wider">Register Patient File</h3>
-            <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-655 dark:hover:text-slate-250 transition focus:outline-none">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden">
+        <!-- Branded building-image banner header -->
+        <div class="-mx-6 -mt-6 mb-5 relative h-24 bg-cover bg-center" style="background-image:url('/images/nis_building_day.jpg');">
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-800/70"></div>
+            <div class="relative h-full flex items-center gap-3 px-6">
+                <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center p-1 shadow-md shrink-0">
+                    <img src="/images/nis_logo.jpg" alt="NIS" class="w-9 h-9 object-contain">
+                </div>
+                <div class="text-white">
+                    <h3 class="text-base font-black uppercase tracking-wider leading-tight">Register Patient File</h3>
+                    <p class="text-[10px] text-emerald-100 font-semibold">Nigeria Immigration Service Hospital</p>
+                </div>
+                <button onclick="closeRegisterModal()" class="ml-auto text-white/80 hover:text-white transition focus:outline-none">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Step Progress Indicator (Form Breaker) -->
@@ -599,7 +609,7 @@
                                 ${pat.immigration_service_number}
                             </span>
                         </td>
-                        <td class="py-3.5 px-6 font-mono text-slate-800 dark:text-slate-200">${pat.nin || '—'}</td>
+                        <td class="py-3.5 px-6 font-mono text-slate-800 dark:text-slate-200">${pat.nin || '·'}</td>
                         <td class="py-3.5 px-6">${pat.phone}</td>
                         <td class="py-3.5 px-6 text-right">
                             <button onclick="handleShowDetails(${pat.id})" class="text-emerald-600 hover:text-emerald-700 font-bold hover:underline cursor-pointer">
@@ -893,7 +903,7 @@
                         ${dep.relationship_to_sponsor}
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
-                    <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} — DOB: ${dep.date_of_birth})</span>
+                    <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1084,9 +1094,9 @@
             const gender = document.getElementById('gender').value;
             const dob = document.getElementById('date_of_birth').value;
             const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim() || '—';
-            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '—';
-            const nin = document.getElementById('nin').value.trim() || '—';
+            const email = document.getElementById('email').value.trim() || '·';
+            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '·';
+            const nin = document.getElementById('nin').value.trim() || '·';
             const blood = document.getElementById('blood_group').value;
             const genotypeVal = document.getElementById('genotype').value;
             const state = document.getElementById('state').value;
@@ -1099,7 +1109,7 @@
 
             if (registrationMode === 'standalone') {
                 document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
-                document.getElementById('prev-gender-dob').innerText = `${gender} — DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
+                document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
                 document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
                 document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
                 document.getElementById('prev-row-dependant').classList.add('hidden');
@@ -1108,7 +1118,7 @@
                 const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor})`).join(', ');
                 document.getElementById('prev-name').innerText = depsStr;
                 document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
-                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '—'}`;
+                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '·'}`;
                 document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
                 
                 document.getElementById('prev-row-dependant').classList.remove('hidden');
@@ -1264,7 +1274,7 @@
                         last_name: dep.last_name,
                         gender: dep.gender,
                         date_of_birth: dep.date_of_birth,
-                        phone: sponsorPhone || '—',
+                        phone: sponsorPhone || '·',
                         email: null,
                         immigration_service_number: serviceNo,
                         sponsor_service_number: dep.sponsor_service_number,
@@ -1341,12 +1351,12 @@
             document.getElementById('det-dob').innerText = pat.date_of_birth;
             document.getElementById('det-gender').innerText = pat.gender;
             document.getElementById('det-phone').innerText = pat.phone;
-            document.getElementById('det-nin').innerText = pat.nin || '—';
-            document.getElementById('det-blood').innerText = pat.blood_group || '—';
-            document.getElementById('det-genotype').innerText = pat.genotype || '—';
-            document.getElementById('det-state').innerText = pat.state || '—';
-            document.getElementById('det-lga').innerText = pat.lga || '—';
-            document.getElementById('det-address').innerText = pat.address || '—';
+            document.getElementById('det-nin').innerText = pat.nin || '·';
+            document.getElementById('det-blood').innerText = pat.blood_group || '·';
+            document.getElementById('det-genotype').innerText = pat.genotype || '·';
+            document.getElementById('det-state').innerText = pat.state || '·';
+            document.getElementById('det-lga').innerText = pat.lga || '·';
+            document.getElementById('det-address').innerText = pat.address || '·';
             document.getElementById('det-allergies').innerText = pat.allergies || 'None';
             document.getElementById('det-disability').innerText = pat.disability || 'None';
 
