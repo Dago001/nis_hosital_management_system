@@ -4,56 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'NIS Medical Services Portal')</title>
-    <!-- Google Fonts -->
+    <!-- Google Fonts (progressive enhancement; falls back to system fonts offline) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#008000',
-                        secondary: '#1e293b',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* Modern light-mode white-theme overrides */
-        html:not(.dark) body {
-            background-color: #f8fafc;
-            color: #0f172a;
-        }
-        html.dark body {
-            background-color: #0f172a;
-            color: #f8fafc;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-    </style>
+    <!-- Locally bundled Tailwind CSS + Lucide icons (works on restricted networks) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('styles')
 </head>
 <body class="h-full font-sans transition-colors duration-200">
@@ -76,8 +32,11 @@
     </script>
 
     <div class="flex h-screen overflow-hidden">
+        <!-- Mobile sidebar overlay -->
+        <div id="sidebar-overlay" onclick="closeSidebar()" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 lg:hidden"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-emerald-800 text-white flex flex-col flex-shrink-0 border-r border-emerald-900/20 z-20 h-screen">
+        <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 w-64 max-w-[80%] bg-emerald-800 text-white flex flex-col flex-shrink-0 border-r border-emerald-900/20 z-40 h-screen transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
             <!-- Brand logo (fixed at top) -->
             <div class="p-4 flex items-center gap-3 border-b border-emerald-900/20 shrink-0">
                 <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-sm">
@@ -87,6 +46,9 @@
                     <span class="font-bold text-sm leading-tight tracking-wider">NIS HOSPITALS</span>
                     <span class="text-[10px] text-emerald-300 font-semibold tracking-wide">NIS Medical Services Portal</span>
                 </div>
+                <button onclick="closeSidebar()" class="ml-auto p-1.5 rounded-lg hover:bg-emerald-700/40 lg:hidden" aria-label="Close menu">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
 
             <!-- Navigation menu (scrollable) -->
@@ -107,12 +69,16 @@
         <!-- Main Content Area -->
         <div class="flex flex-col flex-1 overflow-hidden">
             <!-- Header Navbar -->
-            <header class="h-16 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex items-center justify-between px-6 z-10 shrink-0">
-                <!-- Left: empty spacer -->
-                <div></div>
+            <header class="h-16 border-b border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex items-center justify-between px-3 sm:px-6 z-10 shrink-0">
+                <!-- Left: hamburger (mobile only) -->
+                <div>
+                    <button onclick="openSidebar()" class="p-2 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all lg:hidden" aria-label="Open menu">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
 
                 <!-- Right Tools -->
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 sm:gap-2">
 
                     <!-- Theme Toggle -->
                     <button onclick="toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all" title="Toggle Theme">
@@ -127,7 +93,7 @@
                         </button>
 
                         <!-- Notification Dropdown -->
-                        <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-40 overflow-hidden">
+                        <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-xs sm:w-80 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-40 overflow-hidden">
                             <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                                 <span class="text-xs font-black text-slate-800 dark:text-white uppercase tracking-wide">Notifications</span>
                                 <button onclick="clearNotifications()" class="text-[10px] text-emerald-600 font-bold hover:underline">Mark all read</button>
@@ -178,7 +144,7 @@
 
             <!-- Page Body Content -->
             <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950/40 flex flex-col">
-                <div class="flex-grow p-6">
+                <div class="flex-grow p-4 sm:p-6">
                     @yield('content')
                 </div>
 
@@ -298,6 +264,22 @@
                 return this.request(endpoint, { method: 'DELETE' });
             }
         };
+
+        // ─── Responsive Sidebar (mobile off-canvas drawer) ───────────────────
+        function openSidebar() {
+            document.getElementById('app-sidebar')?.classList.remove('-translate-x-full');
+            document.getElementById('sidebar-overlay')?.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            document.getElementById('app-sidebar')?.classList.add('-translate-x-full');
+            document.getElementById('sidebar-overlay')?.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        // Reset drawer state when crossing the desktop breakpoint.
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) closeSidebar();
+        });
 
         // Theme controls
         function updateThemeIcon() {

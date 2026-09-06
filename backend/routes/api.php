@@ -130,6 +130,9 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/reports/patient-flow', [App\Http\Controllers\Api\ReportController::class, 'patientFlow']);
     Route::get('/reports/revenue', [App\Http\Controllers\Api\ReportController::class, 'revenue']);
     Route::get('/reports/clinical', [App\Http\Controllers\Api\ReportController::class, 'clinical']);
+    Route::get('/reports/diagnoses', [App\Http\Controllers\Api\ReportController::class, 'diagnoses']);
+    Route::get('/reports/bed-occupancy', [App\Http\Controllers\Api\ReportController::class, 'bedOccupancy']);
+    Route::get('/reports/staff-performance', [App\Http\Controllers\Api\ReportController::class, 'staffPerformance']);
 
 
 

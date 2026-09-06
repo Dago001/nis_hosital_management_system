@@ -27,7 +27,7 @@ class NotificationController extends Controller
             'super_admin', 'hospital_admin', 'receptionist', 'records_officer',
             'medical_director', 'chief_medical_officer'
         ])) {
-            $appointments = DB::table('appointments')
+            $appointments = DB::table('appointment_requests')
                 ->where('created_at', '>=', $since)
                 ->where('status', 'pending')
                 ->orderByDesc('created_at')
@@ -35,12 +35,13 @@ class NotificationController extends Controller
                 ->get();
 
             foreach ($appointments as $appt) {
+                $patientName = trim(($appt->first_name ?? '') . ' ' . ($appt->last_name ?? '')) ?: 'A patient';
                 $notifications->push([
                     'id'         => 'appt_' . $appt->id,
                     'type'       => 'appointment',
                     'title'      => 'New Appointment Request',
-                    'message'    => ($appt->patient_name ?? 'A patient') . ' requested an appointment' .
-                                   ($appt->preferred_date ? ' for ' . Carbon::parse($appt->preferred_date)->format('M d') : ''),
+                    'message'    => $patientName . ' requested an appointment' .
+                                   ($appt->appointment_date ? ' for ' . Carbon::parse($appt->appointment_date)->format('M d') : ''),
                     'is_read'    => false,
                     'created_at' => $appt->created_at,
                 ]);
@@ -53,10 +54,10 @@ class NotificationController extends Controller
             'medical_director', 'chief_medical_officer', 'ict_admin'
         ])) {
             $chatMessages = DB::table('chat_messages')
-                ->join('chat_sessions', 'chat_messages.session_id', '=', 'chat_sessions.id')
+                ->join('chat_sessions', 'chat_messages.chat_session_id', '=', 'chat_sessions.id')
                 ->where('chat_messages.created_at', '>=', $since)
-                ->where('chat_messages.sender_type', 'visitor')
-                ->whereNull('chat_messages.read_at')
+                ->where('chat_messages.sender', 'visitor')
+                ->where('chat_messages.is_read', false)
                 ->orderByDesc('chat_messages.created_at')
                 ->limit(5)
                 ->select('chat_messages.*', 'chat_sessions.visitor_name')
@@ -78,10 +79,12 @@ class NotificationController extends Controller
         if (in_array($role, ['doctor', 'consultant', 'nurse', 'ward_manager',
             'dental_officer', 'eye_clinic_officer', 'physiotherapist', 'theatre_manager'])) {
 
+            // A visit "waiting" for a doctor = triage vitals captured but no consultation yet.
             $visits = DB::table('visits')
                 ->join('patients', 'visits.patient_id', '=', 'patients.id')
                 ->where('visits.created_at', '>=', $since)
-                ->where('visits.status', 'waiting')
+                ->whereNotNull('visits.vitals_blood_pressure')
+                ->whereNull('visits.chief_complaint')
                 ->orderByDesc('visits.created_at')
                 ->limit(5)
                 ->select('visits.id', 'visits.created_at', 'patients.first_name', 'patients.last_name', 'patients.immigration_service_number')
@@ -124,7 +127,7 @@ class NotificationController extends Controller
         if (in_array($role, [
             'super_admin', 'pharmacist', 'store_officer', 'inventory_officer', 'procurement_officer'
         ])) {
-            $lowStock = DB::table('medicine_inventories')
+            $lowStock = DB::table('pharmacy_items')
                 ->whereColumn('quantity_in_stock', '<=', 'reorder_level')
                 ->where('quantity_in_stock', '>', 0)
                 ->limit(5)

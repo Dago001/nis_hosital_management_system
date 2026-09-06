@@ -28,15 +28,15 @@ class PatientController extends Controller
         }
 
         $search = trim($request->search);
-        $patients = Patient::where(function ($q) use ($search) {
-            $q->where('immigration_service_number', 'like', "%{$search}%")
-                ->orWhere('sponsor_service_number', 'like', "%{$search}%")
-                ->orWhere('nin', 'like', "%{$search}%")
-                ->orWhere('phone', 'like', "%{$search}%")
-                ->orWhere('first_name', 'like', "%{$search}%")
-                ->orWhere('middle_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%")
-                ->orWhereRaw("CONCAT(first_name, ' ', last_name) ILIKE ?", ["%{$search}%"]);
+        $like = '%' . mb_strtolower($search) . '%';
+        $patients = Patient::where(function ($q) use ($like) {
+            // LOWER(...) LIKE gives case-insensitive matching consistently across
+            // PostgreSQL (case-sensitive LIKE), MySQL and SQLite.
+            foreach (['immigration_service_number', 'sponsor_service_number', 'nin', 'phone', 'first_name', 'middle_name', 'last_name'] as $i => $col) {
+                $method = $i === 0 ? 'whereRaw' : 'orWhereRaw';
+                $q->{$method}("LOWER($col) LIKE ?", [$like]);
+            }
+            $q->orWhereRaw("LOWER(first_name || ' ' || last_name) LIKE ?", [$like]);
         })
             ->latest('created_at')
             ->paginate(15);
