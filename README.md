@@ -16,7 +16,7 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 ## 🚀 Technologies Stack
 
 ### Application Core (Monolith)
-- **Framework**: Laravel 12 + PHP 8.4
+- **Framework**: Laravel 13 + PHP 8.4
 - **Frontend UI**: Laravel Blade templating engine with **Vanilla JavaScript (ES6+)** for reactive, DOM-based interactivity without virtual DOM overhead
 - **Styling**: Tailwind CSS v4 + Outfit Google Fonts
 - **Icons**: Lucide Icons for premium visual aesthetics
@@ -37,7 +37,7 @@ An enterprise-grade, world-class Hospital Management System designed for the **N
 
 ```
 nis_hospital_management_system/
-├── backend/                  # Laravel 12 Monolithic Codebase
+├── backend/                  # Laravel 13 Monolithic Codebase
 │   ├── app/
 │   │   ├── Http/Controllers/ # Web and API endpoints controllers
 │   │   ├── Http/Middleware/  # RBAC, Security Headers, XSS and Audit logging middlewares
@@ -71,19 +71,42 @@ nis_hospital_management_system/
 
 ## ⚡ Quick Start Command Guides
 
-### 1. Start the Application Server
-Since the system is now a streamlined monolith, you only need to run the Laravel development server.
+### 1. Install dependencies & build front-end assets
+Tailwind CSS and Lucide icons are **bundled locally** (no runtime CDN dependency),
+so the front-end assets must be built before serving.
 
+```bash
+cd backend
+composer install
+cp .env.example .env && php artisan key:generate
+php artisan migrate --seed
+npm install && npm run build     # compiles resources/ into public/build
+```
+
+> The compiled `public/build/` assets are committed so the app renders even
+> where Node is unavailable at deploy time. Re-run `npm run build` after
+> changing any Blade/CSS/JS. During active development use `npm run dev`.
+
+### 2. Start the Application Server
 ```bash
 cd backend
 php artisan serve
 ```
 Running on: `http://127.0.0.1:8000`.
 
-### 2. Run Automated Tests
+### 3. Run Automated Tests
 ```bash
 cd backend
 php artisan test
+```
+
+### 4. (Optional) Enable the live Clinical AI Advisor
+The Clinical AI Advisor works offline out of the box using a built-in clinical
+knowledge base. To power it with Anthropic Claude, set in `.env`:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-...      # leave empty to use the offline knowledge base
+ANTHROPIC_MODEL=claude-opus-5
 ```
 
 ---
