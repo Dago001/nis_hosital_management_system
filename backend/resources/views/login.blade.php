@@ -7,34 +7,11 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        nigGreen: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            450: '#008751',
-                            600: '#006633',
-                            700: '#14532d',
-                            900: '#064e3b',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/jpeg" href="/images/nis_logo.jpg">
+    <link rel="apple-touch-icon" href="/images/nis_logo.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Locally bundled Tailwind CSS + Lucide icons -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* Smooth fade up entry */
         @keyframes floatIn {
@@ -69,7 +46,7 @@
             
             <div class="text-center mb-6 pt-2">
                 <div class="flex justify-center mb-4">
-                    <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain rounded-2xl bg-white border border-slate-100 p-0.5 shadow-sm">
+                    <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain rounded-2xl bg-white border border-slate-100 p-0.5 shadow-sm">
                 </div>
                 <h2 class="text-lg font-black text-slate-900 tracking-tight uppercase leading-none">
                     Nigeria Immigration Service

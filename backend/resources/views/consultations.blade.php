@@ -37,27 +37,27 @@
         <div id="vitals-display-panel" class="hidden p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl grid grid-cols-2 sm:grid-cols-6 gap-4">
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Blood Pressure</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-bp">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-bp">·</span>
             </div>
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Temperature</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-temp">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-temp">·</span>
             </div>
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Pulse Rate</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-pulse">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-pulse">·</span>
             </div>
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Resp. Rate</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-resp">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-resp">·</span>
             </div>
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Weight</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-weight">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-weight">·</span>
             </div>
             <div>
                 <span class="text-[9px] font-bold text-slate-800 dark:text-slate-200 uppercase block">Height</span>
-                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-height">—</span>
+                <span class="text-xs font-bold text-slate-900 dark:text-white" id="vit-height">·</span>
             </div>
         </div>
     </div>
@@ -358,12 +358,12 @@
         const visit = activeVisits.find(v => v.id === parseInt(visitId));
         if (visit) {
             // Populate vitals
-            document.getElementById('vit-bp').innerText = visit.vitals_blood_pressure || '—';
-            document.getElementById('vit-temp').innerText = visit.vitals_temperature ? `${visit.vitals_temperature} °C` : '—';
-            document.getElementById('vit-pulse').innerText = visit.vitals_pulse_rate ? `${visit.vitals_pulse_rate} bpm` : '—';
-            document.getElementById('vit-resp').innerText = visit.vitals_respiratory_rate ? `${visit.vitals_respiratory_rate} cpm` : '—';
-            document.getElementById('vit-weight').innerText = visit.vitals_weight ? `${visit.vitals_weight} kg` : '—';
-            document.getElementById('vit-height').innerText = visit.vitals_height ? `${visit.vitals_height} cm` : '—';
+            document.getElementById('vit-bp').innerText = visit.vitals_blood_pressure || '·';
+            document.getElementById('vit-temp').innerText = visit.vitals_temperature ? `${visit.vitals_temperature} °C` : '·';
+            document.getElementById('vit-pulse').innerText = visit.vitals_pulse_rate ? `${visit.vitals_pulse_rate} bpm` : '·';
+            document.getElementById('vit-resp').innerText = visit.vitals_respiratory_rate ? `${visit.vitals_respiratory_rate} cpm` : '·';
+            document.getElementById('vit-weight').innerText = visit.vitals_weight ? `${visit.vitals_weight} kg` : '·';
+            document.getElementById('vit-height').innerText = visit.vitals_height ? `${visit.vitals_height} cm` : '·';
 
             vitalsPanel.classList.remove('hidden');
             form.classList.remove('hidden');

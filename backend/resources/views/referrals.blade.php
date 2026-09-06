@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white">Referral Management</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Inter-facility transfers — outgoing & incoming referrals</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Inter-facility transfers · outgoing & incoming referrals</p>
         </div>
         <div class="flex items-center gap-2">
             <select id="ref-type-filter" onchange="loadReferrals()" class="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">

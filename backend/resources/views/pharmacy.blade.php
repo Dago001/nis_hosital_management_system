@@ -5,14 +5,14 @@
 @section('content')
 <div class="space-y-6">
     <!-- Title & Tab Selection -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                <i data-lucide="pill" class="text-emerald-600"></i> Pharmacy & Inventory Desk
+                <i data-lucide="pill" class="text-emerald-600 shrink-0"></i> Pharmacy &amp; Inventory Desk
             </h1>
             <p class="text-xs text-slate-800 dark:text-slate-200 font-sans">Dispense patient prescriptions, perform medication costings, and monitor critical drug inventory levels</p>
         </div>
-        <div class="flex items-center gap-1 bg-slate-250 dark:bg-slate-800 rounded-xl p-1 shadow-inner">
+        <div class="flex items-center gap-1 bg-slate-250 dark:bg-slate-800 rounded-xl p-1 shadow-inner self-start sm:self-auto shrink-0">
             <button onclick="switchTab('dispensary')" id="tab-btn-dispensary" class="px-4 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer bg-white dark:bg-slate-900 text-emerald-600 shadow-sm">
                 Dispensary Queue
             </button>

@@ -128,9 +128,9 @@
             const admissionsHTML = admissions.length > 0
                 ? admissions.map(a => `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition text-xs">
-                        <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${a.patient?.first_name || '—'} ${a.patient?.last_name || ''}</td>
-                        <td class="py-3 px-4 text-slate-500 dark:text-slate-400">${a.patient?.immigration_service_number || '—'}</td>
-                        <td class="py-3 px-4 text-slate-500 dark:text-slate-400">${a.bed?.ward?.name || '—'}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800 dark:text-white">${a.patient?.first_name || '·'} ${a.patient?.last_name || ''}</td>
+                        <td class="py-3 px-4 text-slate-500 dark:text-slate-400">${a.patient?.immigration_service_number || '·'}</td>
+                        <td class="py-3 px-4 text-slate-500 dark:text-slate-400">${a.bed?.ward?.name || '·'}</td>
                         <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">Active</span></td>
                     </tr>`).join('')
                 : `<tr><td colspan="4" class="py-6 text-center text-xs text-slate-400">No recent admissions.</td></tr>`;
@@ -273,8 +273,8 @@
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-black flex items-center justify-center text-xs shrink-0">${i + 1}</div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${visit.patient?.first_name || '—'} ${visit.patient?.last_name || ''}</h4>
-                                <span class="text-[10px] text-slate-500 font-mono">${visit.patient?.immigration_service_number || '—'}</span>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${visit.patient?.first_name || '·'} ${visit.patient?.last_name || ''}</h4>
+                                <span class="text-[10px] text-slate-500 font-mono">${visit.patient?.immigration_service_number || '·'}</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -324,8 +324,8 @@
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 font-black flex items-center justify-center text-xs shrink-0">${i + 1}</div>
                             <div>
-                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${v.patient?.first_name || '—'} ${v.patient?.last_name || ''}</h4>
-                                <span class="text-[10px] text-slate-500 font-mono">${v.patient?.immigration_service_number || '—'}</span>
+                                <h4 class="text-xs font-bold text-slate-900 dark:text-white">${v.patient?.first_name || '·'} ${v.patient?.last_name || ''}</h4>
+                                <span class="text-[10px] text-slate-500 font-mono">${v.patient?.immigration_service_number || '·'}</span>
                             </div>
                         </div>
                         <a href="/vitals" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition">Record Vitals</a>

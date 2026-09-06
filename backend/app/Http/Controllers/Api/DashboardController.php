@@ -22,6 +22,18 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    /**
+     * Driver-aware "YYYY-MM" month expression (MySQL / PostgreSQL / SQLite).
+     */
+    private function monthExpr(string $col): string
+    {
+        return match (\DB::connection()->getDriverName()) {
+            'pgsql'  => "to_char($col, 'YYYY-MM')",
+            'sqlite' => "strftime('%Y-%m', $col)",
+            default  => "DATE_FORMAT($col, '%Y-%m')",
+        };
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -37,7 +49,8 @@ class DashboardController extends Controller
             $totalRevenue = (float) Payment::sum('amount');
             $todayRevenue = (float) Payment::whereDate('created_at', Carbon::today())->sum('amount');
             
-            $monthlyRevenue = Payment::selectRaw('SUM(amount) as amount, DATE_FORMAT(created_at, "%Y-%m") as month')
+            $monthExpr = $this->monthExpr('created_at');
+            $monthlyRevenue = Payment::selectRaw("SUM(amount) as amount, {$monthExpr} as month")
                 ->groupBy('month')
                 ->orderBy('month', 'asc')
                 ->get();

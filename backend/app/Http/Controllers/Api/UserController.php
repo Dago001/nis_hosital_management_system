@@ -97,7 +97,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User created successfully.',
             'user' => new UserResource($user->load(['roles', 'staff.department']))
-        ], 210);
+        ], 201);
     }
 
     public function update(Request $request, $id)

@@ -63,7 +63,7 @@ class SettingController extends Controller
         $token = $request->bearerToken() ?: $request->query('api_key');
         $storedToken = Setting::getVal('external_api_token');
 
-        if (empty($storedToken) || $token !== $storedToken) {
+        if (empty($storedToken) || !is_string($token) || !hash_equals($storedToken, $token)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized: Invalid or missing External API Sync Token.'
@@ -94,6 +94,13 @@ class SettingController extends Controller
                 'success' => false,
                 'message' => 'Configuration Error: External Sync Source URL has not been defined in settings.'
             ], 400);
+        }
+
+        if (!$this->isPublicHttpUrl($url)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Blocked: The configured URL must be a public http(s) endpoint. Internal, loopback and metadata addresses are not permitted.'
+            ], 422);
         }
 
         try {
@@ -137,6 +144,13 @@ class SettingController extends Controller
             ], 400);
         }
 
+        if (!$this->isPublicHttpUrl($url)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Blocked: The webhook target must be a public http(s) endpoint. Internal, loopback and metadata addresses are not permitted.'
+            ], 422);
+        }
+
         $payload = [
             'event' => Setting::getVal('webhook_events', 'patient.registered'),
             'timestamp' => now()->toIso8601String(),
@@ -177,5 +191,64 @@ class SettingController extends Controller
                 'message' => 'Webhook delivery failed. Connection Error: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * SSRF guard: only allow outbound calls to public http(s) endpoints.
+     * Rejects non-http schemes, and hostnames that resolve to loopback,
+     * private, link-local, or cloud-metadata address ranges.
+     */
+    protected function isPublicHttpUrl(string $url): bool
+    {
+        $parts = parse_url($url);
+
+        if ($parts === false || empty($parts['scheme']) || empty($parts['host'])) {
+            return false;
+        }
+
+        if (!in_array(strtolower($parts['scheme']), ['http', 'https'], true)) {
+            return false;
+        }
+
+        $host = $parts['host'];
+
+        // Resolve the host to its IP addresses (covers hostnames and literal IPs).
+        $ips = [];
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ips[] = $host;
+        } else {
+            $records = @dns_get_record($host, DNS_A + DNS_AAAA);
+            foreach ($records ?: [] as $record) {
+                if (!empty($record['ip'])) {
+                    $ips[] = $record['ip'];
+                } elseif (!empty($record['ipv6'])) {
+                    $ips[] = $record['ipv6'];
+                }
+            }
+            // Fallback for environments where dns_get_record is limited.
+            if (empty($ips)) {
+                $resolved = gethostbyname($host);
+                if ($resolved && $resolved !== $host) {
+                    $ips[] = $resolved;
+                }
+            }
+        }
+
+        if (empty($ips)) {
+            return false;
+        }
+
+        foreach ($ips as $ip) {
+            // Reject anything that is not a global, routable, public address.
+            if (!filter_var(
+                $ip,
+                FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+            )) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

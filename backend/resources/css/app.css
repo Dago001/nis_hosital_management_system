@@ -1,9 +1,98 @@
 @import 'tailwindcss';
 
+/* Scan Blade views (and the class strings built inside their inline <script>s),
+   compiled views, and pagination templates for utility classes. */
+@source '../views';
+@source '../../app';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/* Enable class-based dark mode (<html class="dark">). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand palette (NIS green). */
+    --color-primary: #008000;
+    --color-secondary: #1e293b;
+
+    /* Public-site palette (Coat of Arms greens) used by the landing/about/services pages. */
+    --color-nigGreen-50: #f0fdf4;
+    --color-nigGreen-100: #dcfce7;
+    --color-nigGreen-200: #bbf7d0;
+    --color-nigGreen-300: #86efac;
+    --color-nigGreen-450: #008751;
+    --color-nigGreen-600: #006633;
+    --color-nigGreen-650: #005c2e;
+    --color-nigGreen-655: #00562b;
+    --color-nigGreen-700: #14532d;
+    --color-nigGreen-900: #064e3b;
+
+    /* Intermediate shades referenced across the public pages (previously undefined). */
+    --color-slate-450: #7c899c;
+    --color-slate-650: #3f4b5b;
+    --color-slate-655: #3b4757;
+    --color-emerald-650: #059062;
+    --color-emerald-655: #04835a;
+    --color-red-550: #ec3030;
+    --color-red-655: #cf1f1f;
+}
+
+/* ── Base theme surfaces ─────────────────────────────────────────────── */
+html:not(.dark) body {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+html.dark body {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+/* Prevent horizontal page scroll on small screens. */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* ── Print: hide app chrome so reports/receipts print clean ──────────── */
+@media print {
+    #app-sidebar,
+    #sidebar-overlay,
+    header,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+    main {
+        overflow: visible !important;
+    }
+    body {
+        background: #fff !important;
+    }
+    /* Reveal print-only branded headers. */
+    .print-only {
+        display: block !important;
+    }
+}
+.print-only {
+    display: none;
 }

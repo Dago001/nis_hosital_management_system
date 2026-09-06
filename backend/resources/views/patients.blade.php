@@ -25,18 +25,18 @@
                     <i data-lucide="search" class="w-4 h-4"></i>
                 </div>
                 <div>
-                    <h3 class="text-xs font-bold text-slate-800 dark:text-white">Hospital Code Lookup</h3>
-                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Search patients by their unique Hospital Code only</p>
+                    <h3 class="text-xs font-bold text-slate-800 dark:text-white">Patient Lookup</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Search by Hospital Code, name, NIN or phone number</p>
                 </div>
             </div>
             <div class="relative flex-grow max-w-md">
-                <input type="text" id="search-input" oninput="handleSearch(this.value)" 
-                       placeholder="Enter Hospital Code e.g. NIS/PAT/000001" 
-                       class="w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-all font-mono tracking-wide">
+                <input type="text" id="search-input" oninput="handleSearch(this.value)"
+                       placeholder="Search by code, name, NIN or phone…"
+                       class="w-full pl-10 pr-4 py-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-100 placeholder-slate-400 transition-all tracking-wide">
                 <i data-lucide="badge-check" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-emerald-500 w-4 h-4"></i>
             </div>
             <div class="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1.5 font-bold shrink-0 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-3 py-2 rounded-xl">
-                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Hospital Code Required
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Min. 3 characters
             </div>
         </div>
     </div>
@@ -59,7 +59,7 @@
                     <tr><td colspan="6" class="py-12 text-center">
                         <div class="flex flex-col items-center gap-2 text-slate-500">
                             <i data-lucide="search" class="w-8 h-8 text-slate-300"></i>
-                            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Enter a Hospital Code to search</p>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Search for a patient to begin</p>
                             <p class="text-xs text-slate-400">Patient records are protected and require a valid Hospital Code to access.</p>
                         </div>
                     </td></tr>
@@ -71,12 +71,22 @@
 
 <!-- Register Patient Modal -->
 <div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-black text-slate-805 dark:text-white uppercase tracking-wider">Register Patient File</h3>
-            <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-655 dark:hover:text-slate-250 transition focus:outline-none">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden">
+        <!-- Branded building-image banner header -->
+        <div class="-mx-6 -mt-6 mb-5 relative h-24 bg-cover bg-center" style="background-image:url('/images/nis_building_day.jpg');">
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-800/70"></div>
+            <div class="relative h-full flex items-center gap-3 px-6">
+                <div class="w-11 h-11 rounded-xl bg-white flex items-center justify-center p-1 shadow-md shrink-0">
+                    <img src="/images/nis_logo.jpg" alt="NIS" class="w-9 h-9 object-contain">
+                </div>
+                <div class="text-white">
+                    <h3 class="text-base font-black uppercase tracking-wider leading-tight">Register Patient File</h3>
+                    <p class="text-[10px] text-emerald-100 font-semibold">Nigeria Immigration Service Hospital</p>
+                </div>
+                <button onclick="closeRegisterModal()" class="ml-auto text-white/80 hover:text-white transition focus:outline-none">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Step Progress Indicator (Form Breaker) -->
@@ -135,15 +145,15 @@
                     <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                            <input type="text" id="first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="first_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                            <input type="text" id="middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="middle_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Last Name</label>
-                            <input type="text" id="last_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="last_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
 
@@ -163,7 +173,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Phone Number</label>
-                            <input type="text" id="phone" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="phone" required inputmode="numeric" data-filter="phone" maxLength="15" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
@@ -171,11 +181,11 @@
                         </div>
                         <div id="standalone-service-group">
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
-                            <input type="text" id="immigration_service_number" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="immigration_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
-                            <input type="text" id="nin" maxLength="11" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="nin" maxLength="11" inputmode="numeric" data-filter="digits" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
                 </div>
@@ -208,7 +218,7 @@
                     <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
                         <div class="flex-grow">
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
-                            <input type="text" id="sponsor_service_number" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
                             <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
@@ -233,11 +243,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">First Name</label>
-                            <input type="text" id="dep_first_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_first_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Middle Name (Optional)</label>
-                            <input type="text" id="dep_middle_name" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            <input type="text" id="dep_middle_name" data-filter="letters" maxLength="60" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Gender</label>
@@ -564,6 +574,33 @@
 
 @section('scripts')
 <script>
+    // ── Live input filtering (numbers stay numbers, letters stay letters) ──
+    // Delegated so it also covers dynamically shown dependant fields.
+    document.addEventListener('input', (e) => {
+        const el = e.target;
+        const kind = el?.dataset?.filter;
+        if (!kind) return;
+        const before = el.value;
+        let after = before;
+        if (kind === 'letters') {
+            // Letters, spaces, hyphen, apostrophe, period only.
+            after = before.replace(/[^A-Za-z\s'.\-]/g, '');
+        } else if (kind === 'digits') {
+            after = before.replace(/\D/g, '');
+        } else if (kind === 'phone') {
+            // Digits with a single optional leading +.
+            after = before.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '');
+        } else if (kind === 'code') {
+            // Service/hospital codes: letters, digits, slash, hyphen; upper-cased.
+            after = before.replace(/[^A-Za-z0-9\/\-]/g, '').toUpperCase();
+        }
+        if (after !== before) {
+            const pos = el.selectionStart - (before.length - after.length);
+            el.value = after;
+            try { el.setSelectionRange(pos, pos); } catch (_) {}
+        }
+    });
+
     let searchTimeout = null;
 
     async function loadPatients(query = '') {
@@ -574,7 +611,7 @@
             tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center">
                 <div class="flex flex-col items-center gap-2 text-slate-500">
                     <i data-lucide="search" class="w-8 h-8 text-slate-300"></i>
-                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Enter a Hospital Code to search</p>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Search for a patient to begin</p>
                     <p class="text-xs text-slate-400">Patient records are protected and require a valid Hospital Code to access.</p>
                 </div>
             </td></tr>`;
@@ -599,7 +636,7 @@
                                 ${pat.immigration_service_number}
                             </span>
                         </td>
-                        <td class="py-3.5 px-6 font-mono text-slate-800 dark:text-slate-200">${pat.nin || '—'}</td>
+                        <td class="py-3.5 px-6 font-mono text-slate-800 dark:text-slate-200">${pat.nin || '·'}</td>
                         <td class="py-3.5 px-6">${pat.phone}</td>
                         <td class="py-3.5 px-6 text-right">
                             <button onclick="handleShowDetails(${pat.id})" class="text-emerald-600 hover:text-emerald-700 font-bold hover:underline cursor-pointer">
@@ -893,7 +930,7 @@
                         ${dep.relationship_to_sponsor}
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
-                    <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} — DOB: ${dep.date_of_birth})</span>
+                    <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1084,9 +1121,9 @@
             const gender = document.getElementById('gender').value;
             const dob = document.getElementById('date_of_birth').value;
             const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim() || '—';
-            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '—';
-            const nin = document.getElementById('nin').value.trim() || '—';
+            const email = document.getElementById('email').value.trim() || '·';
+            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '·';
+            const nin = document.getElementById('nin').value.trim() || '·';
             const blood = document.getElementById('blood_group').value;
             const genotypeVal = document.getElementById('genotype').value;
             const state = document.getElementById('state').value;
@@ -1099,7 +1136,7 @@
 
             if (registrationMode === 'standalone') {
                 document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
-                document.getElementById('prev-gender-dob').innerText = `${gender} — DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
+                document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
                 document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
                 document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
                 document.getElementById('prev-row-dependant').classList.add('hidden');
@@ -1108,7 +1145,7 @@
                 const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor})`).join(', ');
                 document.getElementById('prev-name').innerText = depsStr;
                 document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
-                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '—'}`;
+                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '·'}`;
                 document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
                 
                 document.getElementById('prev-row-dependant').classList.remove('hidden');
@@ -1264,7 +1301,7 @@
                         last_name: dep.last_name,
                         gender: dep.gender,
                         date_of_birth: dep.date_of_birth,
-                        phone: sponsorPhone || '—',
+                        phone: sponsorPhone || '·',
                         email: null,
                         immigration_service_number: serviceNo,
                         sponsor_service_number: dep.sponsor_service_number,
@@ -1341,12 +1378,12 @@
             document.getElementById('det-dob').innerText = pat.date_of_birth;
             document.getElementById('det-gender').innerText = pat.gender;
             document.getElementById('det-phone').innerText = pat.phone;
-            document.getElementById('det-nin').innerText = pat.nin || '—';
-            document.getElementById('det-blood').innerText = pat.blood_group || '—';
-            document.getElementById('det-genotype').innerText = pat.genotype || '—';
-            document.getElementById('det-state').innerText = pat.state || '—';
-            document.getElementById('det-lga').innerText = pat.lga || '—';
-            document.getElementById('det-address').innerText = pat.address || '—';
+            document.getElementById('det-nin').innerText = pat.nin || '·';
+            document.getElementById('det-blood').innerText = pat.blood_group || '·';
+            document.getElementById('det-genotype').innerText = pat.genotype || '·';
+            document.getElementById('det-state').innerText = pat.state || '·';
+            document.getElementById('det-lga').innerText = pat.lga || '·';
+            document.getElementById('det-address').innerText = pat.address || '·';
             document.getElementById('det-allergies').innerText = pat.allergies || 'None';
             document.getElementById('det-disability').innerText = pat.disability || 'None';
 

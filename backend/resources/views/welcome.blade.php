@@ -7,34 +7,11 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        nigGreen: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            450: '#008751', // Coat of Arms Green
-                            600: '#006633', // Deep Forest Green
-                            700: '#14532d',
-                            900: '#064e3b',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/jpeg" href="/images/nis_logo.jpg">
+    <link rel="apple-touch-icon" href="/images/nis_logo.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Locally bundled Tailwind CSS + Lucide icons -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#f4f7f5] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-nigGreen-600 selection:text-white font-sans">
 @if(\App\Models\Setting::getVal('maintenance_mode', '0') === '1')
@@ -51,7 +28,7 @@
             <div class="max-w-xl w-full text-center space-y-8 bg-white border border-slate-200/80 p-8 rounded-3xl shadow-2xl">
                 <!-- Logo & Icon Header -->
                 <div class="flex flex-col items-center justify-center gap-3">
-                    <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain bg-white rounded-2xl p-1 border border-slate-200/80 shadow-md">
+                    <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-16 w-16 object-contain bg-white rounded-2xl p-1 border border-slate-200/80 shadow-md">
                    
                 </div>
 
@@ -92,7 +69,7 @@
 
         <!-- Footer -->
         <footer class="py-6 border-t border-white/10 text-center text-[10px] text-slate-300 font-sans relative z-10">
-            &copy; 2026 Nigeria Immigration Service Medical Unit. All rights reserved.
+            &copy; 2026 All Right Reserved | Nigeria Immigration Service
         </footer>
     </div>
 @else
@@ -103,7 +80,7 @@
     <header class="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
+                <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
                     <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
                     <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
@@ -169,9 +146,62 @@
             </div>
         </div>
 
+        <!-- Trust / Statistics Band -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @foreach([
+                    ['icon'=>'users','value'=>'50,000+','label'=>'Patients Served'],
+                    ['icon'=>'stethoscope','value'=>'120+','label'=>'Medical Officers'],
+                    ['icon'=>'building-2','value'=>'12','label'=>'Clinical Departments'],
+                    ['icon'=>'clock','value'=>'24/7','label'=>'Emergency Response'],
+                ] as $stat)
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                        <div class="p-3 rounded-xl bg-nigGreen-50 text-nigGreen-600 shrink-0">
+                            <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none">{{ $stat['value'] }}</div>
+                            <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Clinical Services Highlights -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
+                    <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
+                    <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
+                </div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey · from registration and triage to diagnostics, pharmacy and billing.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach([
+                    ['icon'=>'user-plus','title'=>'Patient Registration','desc'=>'Fast, secure enrolment of officers, dependants and civilians with unique hospital codes and biometric markers.'],
+                    ['icon'=>'activity','title'=>'Nursing Triage & Vitals','desc'=>'Structured vital-sign capture and priority triage routing directly into the physician consultation queue.'],
+                    ['icon'=>'stethoscope','title'=>'Physician Consultation','desc'=>'SOAP-based clinical notes, ICD-10 diagnosis coding and AI-assisted clinical decision support.'],
+                    ['icon'=>'test-tube','title'=>'Laboratory & Radiology','desc'=>'End-to-end diagnostic worklists with sample tracking, result entry and consultant approval.'],
+                    ['icon'=>'pill','title'=>'Pharmacy & Dispensary','desc'=>'Prescription costing, dispensing and real-time drug inventory with reorder-level alerts.'],
+                    ['icon'=>'credit-card','title'=>'Billing & Cashiering','desc'=>'Automated invoicing, NHIS discounting and multi-channel payment collection with receipts.'],
+                ] as $svc)
+                    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-nigGreen-200 transition-all group">
+                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 group-hover:bg-nigGreen-600 group-hover:text-white transition-colors">
+                            <i data-lucide="{{ $svc['icon'] }}" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">{{ $svc['desc'] }}</p>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <!-- Appointment Booking Form Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-8 lg:p-12 space-y-6">
+            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
                 <div class="space-y-2">
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <i data-lucide="calendar" class="text-nigGreen-600"></i> Book an Outpatient Appointment
@@ -212,7 +242,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
-                        <textarea id="apt-notes" rows="1" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none"></textarea>
+                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
@@ -276,7 +306,7 @@
                 <!-- Column 1: Command Title -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
-                        <img src="/assets/nis_logo-R4erN-9J.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
+                        <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
                         <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
@@ -319,7 +349,7 @@
 
             <!-- Footer Bottom -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500 font-sans">
-                <span>&copy; 2026 Nigeria Immigration Service- All rights reserved.</span>
+                <span>&copy; 2026 All Right Reserved | Nigeria Immigration Service</span>
             </div>
         </div>
     </footer>
@@ -448,6 +478,127 @@
         });
     </script>
     <script src="/assets/support-chat.js"></script>
+
+    <!-- ═══════════ MediBot: AI Assistant (bottom-left) ═══════════ -->
+    <div id="medibot" class="fixed bottom-6 left-6 z-[9998] font-sans">
+        <!-- Launcher button -->
+        <button id="medibot-toggle" onclick="mediBotToggle()"
+                class="group flex items-center gap-2 bg-nigGreen-600 hover:bg-nigGreen-700 text-white pl-3 pr-4 py-3 rounded-full shadow-xl shadow-nigGreen-900/20 transition-all">
+            <span class="relative flex h-6 w-6 items-center justify-center">
+                <i data-lucide="bot" class="w-5 h-5"></i>
+            </span>
+            <span class="text-xs font-bold">Ask MediBot</span>
+        </button>
+
+        <!-- Chat panel -->
+        <div id="medibot-panel" class="hidden absolute bottom-16 left-0 w-[calc(100vw-3rem)] max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col" style="height:min(70vh,560px);">
+            <!-- Header -->
+            <div class="bg-nigGreen-600 text-white px-4 py-3 flex items-center gap-3 shrink-0">
+                <div class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-grow">
+                    <p class="text-sm font-bold leading-tight">MediBot Assistant</p>
+                    <p class="text-[10px] text-emerald-100 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Online · answers &amp; bookings
+                    </p>
+                </div>
+                <button onclick="mediBotToggle()" class="text-white/80 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <!-- Messages -->
+            <div id="medibot-messages" class="flex-grow overflow-y-auto p-4 space-y-3 bg-slate-50 text-xs"></div>
+            <!-- Quick chips -->
+            <div id="medibot-chips" class="px-3 pt-2 flex flex-wrap gap-1.5 shrink-0 bg-white border-t border-slate-100">
+                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-semibold bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
+                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
+                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
+            </div>
+            <!-- Input -->
+            <form onsubmit="mediBotSubmit(event)" class="p-3 flex items-center gap-2 shrink-0 bg-white border-t border-slate-100">
+                <input id="medibot-input" type="text" autocomplete="off" placeholder="Type your message…"
+                       class="flex-grow bg-slate-100 rounded-full px-4 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-nigGreen-500">
+                <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let mediBotState = {};
+        let mediBotOpened = false;
+
+        function mediBotToggle() {
+            const panel = document.getElementById('medibot-panel');
+            const open = panel.classList.toggle('hidden');
+            if (!open && !mediBotOpened) {
+                mediBotOpened = true;
+                mediBotAppend('bot', "Hello! 👋 I'm **MediBot**. I can answer questions about our services and **book an appointment** for you. How can I help?");
+            }
+            if (!open) setTimeout(() => document.getElementById('medibot-input')?.focus(), 100);
+            lucide.createIcons();
+        }
+
+        function mediBotFormat(text) {
+            const esc = (text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        function mediBotAppend(who, text) {
+            const box = document.getElementById('medibot-messages');
+            const wrap = document.createElement('div');
+            wrap.className = who === 'user' ? 'flex justify-end' : 'flex justify-start';
+            wrap.innerHTML = who === 'user'
+                ? `<div class="bg-nigGreen-600 text-white rounded-2xl rounded-br-sm px-3 py-2 max-w-[85%] leading-relaxed">${mediBotFormat(text)}</div>`
+                : `<div class="bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-bl-sm px-3 py-2 max-w-[90%] leading-relaxed">${mediBotFormat(text)}</div>`;
+            box.appendChild(wrap);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function mediBotTyping(on) {
+            const box = document.getElementById('medibot-messages');
+            let t = document.getElementById('medibot-typing');
+            if (on && !t) {
+                t = document.createElement('div');
+                t.id = 'medibot-typing';
+                t.className = 'flex justify-start';
+                t.innerHTML = `<div class="bg-white border border-slate-200 text-slate-400 rounded-2xl px-3 py-2">…</div>`;
+                box.appendChild(t); box.scrollTop = box.scrollHeight;
+            } else if (!on && t) { t.remove(); }
+        }
+
+        async function mediBotSend(message) {
+            if (!message || !message.trim()) return;
+            mediBotAppend('user', message);
+            mediBotTyping(true);
+            try {
+                const res = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ message, state: mediBotState })
+                });
+                const data = await res.json();
+                mediBotTyping(false);
+                if (res.ok) {
+                    mediBotState = data.state || {};
+                    mediBotAppend('bot', data.reply);
+                } else {
+                    mediBotAppend('bot', data.message || "Sorry, I couldn't process that. Please try again.");
+                }
+            } catch (e) {
+                mediBotTyping(false);
+                mediBotAppend('bot', "I'm having trouble connecting right now. Please try again shortly.");
+            }
+        }
+
+        function mediBotSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('medibot-input');
+            const msg = input.value;
+            input.value = '';
+            mediBotSend(msg);
+        }
+    </script>
 @endif
 </body>
 </html>

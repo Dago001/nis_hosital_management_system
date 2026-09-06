@@ -24,6 +24,7 @@ Route::post('/chat/session/init', [SupportChatController::class, 'initSession'])
 Route::get('/chat/messages', [SupportChatController::class, 'getVisitorMessages']);
 Route::post('/chat/send', [SupportChatController::class, 'sendVisitorMessage'])->middleware('throttle:60,1');
 Route::get('/external/sync-patients', [SettingController::class, 'syncPatients']);
+Route::post('/chatbot', [App\Http\Controllers\Api\ChatbotController::class, 'chat'])->middleware('throttle:60,1');
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'audit'])->group(function () {
@@ -76,11 +77,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // Pharmacy & Dispensary
     Route::get('/pharmacy/inventory', [PharmacyController::class, 'getInventory']);
-    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory']);
-    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory']);
+    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory'])->middleware('role_or_permission:manage_inventory');
+    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory'])->middleware('role_or_permission:manage_inventory');
     Route::get('/pharmacy/prescriptions', [PharmacyController::class, 'getPrescriptions']);
-    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription']);
-    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription']);
+    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription'])->middleware('role_or_permission:dispense_drugs');
+    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription'])->middleware('role_or_permission:dispense_drugs');
 
     // Administrative / Audit Logs & Users
     Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])->middleware('role_or_permission:view_audit_logs');
@@ -130,6 +131,9 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/reports/patient-flow', [App\Http\Controllers\Api\ReportController::class, 'patientFlow']);
     Route::get('/reports/revenue', [App\Http\Controllers\Api\ReportController::class, 'revenue']);
     Route::get('/reports/clinical', [App\Http\Controllers\Api\ReportController::class, 'clinical']);
+    Route::get('/reports/diagnoses', [App\Http\Controllers\Api\ReportController::class, 'diagnoses']);
+    Route::get('/reports/bed-occupancy', [App\Http\Controllers\Api\ReportController::class, 'bedOccupancy']);
+    Route::get('/reports/staff-performance', [App\Http\Controllers\Api\ReportController::class, 'staffPerformance']);
 
 
 

@@ -5,13 +5,20 @@
 @section('content')
 <div class="space-y-6">
 
+    <!-- Print-only branded header -->
+    <div class="print-only text-center mb-4 pb-3 border-b border-slate-300">
+        <img src="/images/nis_logo.jpg" alt="NIS" style="height:64px;width:64px;object-fit:contain;margin:0 auto 6px;">
+        <h2 style="font-weight:800;text-transform:uppercase;letter-spacing:.05em;">Nigeria Immigration Service</h2>
+        <p style="font-size:12px;color:#475569;">Hospital Medical Services Portal, Abuja | Analytics Report</p>
+    </div>
+
     <!-- Page Header -->
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white">Analytics & Reports</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Executive intelligence dashboard — KPIs, trends & clinical metrics</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Executive intelligence dashboard · KPIs, trends & clinical metrics</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
             <select id="period-filter" onchange="loadAll()" class="text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                 <option value="today">Today</option>
                 <option value="week">This Week</option>

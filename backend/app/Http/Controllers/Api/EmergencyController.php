@@ -34,8 +34,11 @@ class EmergencyController extends Controller
             $query->where('status', $status);
         }
 
-        // Sort: red first, then yellow, then green, then black; then by arrival time
-        $emergencies = $query->orderByRaw("FIELD(triage_level, 'red', 'yellow', 'green', 'black')")
+        // Sort: red first, then yellow, then green, then black; then by arrival time.
+        // Driver-agnostic CASE ordering (MySQL FIELD() is not portable to pgsql/sqlite).
+        $emergencies = $query->orderByRaw(
+                "CASE triage_level WHEN 'red' THEN 1 WHEN 'yellow' THEN 2 WHEN 'green' THEN 3 WHEN 'black' THEN 4 ELSE 5 END"
+            )
             ->orderBy('arrived_at')
             ->get()
             ->map(function ($em) {
@@ -115,7 +118,7 @@ class EmergencyController extends Controller
             ...$validated,
             'status' => 'waiting',
             'arrived_at' => now(),
-            'triaged_at' => $validated['triaged_by'] ? now() : null,
+            'triaged_at' => !empty($validated['triaged_by']) ? now() : null,
         ]);
 
         return response()->json([
