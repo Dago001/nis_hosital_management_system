@@ -138,18 +138,47 @@ class AppointmentController extends Controller
      */
     public function sendReminder(int $id)
     {
-        $appointment = Appointment::with(['patient', 'doctor'])->find($id);
+        $appointment = Appointment::with(['patient', 'doctor', 'department'])->find($id);
         if (!$appointment) {
             return response()->json(['message' => 'Appointment not found.'], 404);
         }
 
+        $sent = $this->dispatchReminder($appointment);
         $appointment->reminder_sent_at = now();
         $appointment->save();
 
         return response()->json([
-            'message' => 'Reminder logged for ' . $appointment->patient?->full_name . '.',
+            'message' => $sent
+                ? 'Reminder email sent to ' . $appointment->patient?->full_name . '.'
+                : 'Reminder logged for ' . $appointment->patient?->full_name . ' (no email on file).',
+            'emailed' => $sent,
             'appointment' => $appointment,
         ]);
+    }
+
+    /**
+     * Send the reminder email when the patient has an email address. Failures
+     * are swallowed (and logged) so a mail outage never blocks the workflow;
+     * the reminder is still recorded on the appointment.
+     */
+    private function dispatchReminder(Appointment $appointment): bool
+    {
+        $email = $appointment->patient?->email;
+        if (empty($email)) {
+            return false;
+        }
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($email)
+                ->send(new \App\Mail\AppointmentReminderMail($appointment));
+            return true;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Appointment reminder email failed', [
+                'appointment_id' => $appointment->id,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -160,19 +189,25 @@ class AppointmentController extends Controller
     {
         $date = $request->input('date', Carbon::tomorrow()->toDateString());
 
-        $due = Appointment::whereDate('appointment_date', $date)
+        $due = Appointment::with(['patient', 'doctor', 'department'])
+            ->whereDate('appointment_date', $date)
             ->where('status', 'pending')
             ->whereNull('reminder_sent_at')
             ->get();
 
+        $emailed = 0;
         foreach ($due as $appointment) {
+            if ($this->dispatchReminder($appointment)) {
+                $emailed++;
+            }
             $appointment->reminder_sent_at = now();
             $appointment->save();
         }
 
         return response()->json([
-            'message' => "Reminders sent for {$due->count()} appointment(s) on {$date}.",
+            'message' => "Reminders processed for {$due->count()} appointment(s) on {$date} ({$emailed} emailed).",
             'count' => $due->count(),
+            'emailed' => $emailed,
             'date' => $date,
         ]);
     }

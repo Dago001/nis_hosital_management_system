@@ -76,8 +76,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // Clinical Workflows (Vitals & SOAP Consultations)
     Route::post('/clinical/vitals', [ClinicalController::class, 'recordVitals'])->middleware('role_or_permission:nursing_vitals');
-    Route::get('/clinical/active-visit/{patientId}', [ClinicalController::class, 'getActiveVisit'])->middleware('role_or_permission:consult_patients');
-    Route::post('/clinical/consult/{visitId}', [ClinicalController::class, 'consult'])->middleware('role_or_permission:consult_patients');
+    // consult_patients holders reach these; senior clinical roles are also
+    // admitted so ClinicalController's per-doctor isolation can grant them
+    // break-glass access to any visit (audit-logged).
+    Route::get('/clinical/active-visit/{patientId}', [ClinicalController::class, 'getActiveVisit'])->middleware('role_or_permission:consult_patients,medical_director,chief_medical_officer');
+    Route::post('/clinical/consult/{visitId}', [ClinicalController::class, 'consult'])->middleware('role_or_permission:consult_patients,medical_director,chief_medical_officer');
     Route::post('/clinical/drug-safety-check', [ClinicalController::class, 'drugSafetyCheck'])->middleware('role_or_permission:consult_patients');
     Route::post('/clinical/ai-chat', [ClinicalAiController::class, 'consult']);
 

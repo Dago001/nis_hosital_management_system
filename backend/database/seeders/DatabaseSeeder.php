@@ -352,7 +352,10 @@ class DatabaseSeeder extends Seeder
             $user = User::create([
                 'name' => $acc['name'],
                 'email' => $acc['email'],
-                'password' => Hash::make('Password123#'), // Secure default seed password
+                // Seed password is configurable via SEED_PASSWORD; the dev
+                // default MUST be overridden (or these accounts removed) before
+                // go-live. See DEPLOYMENT.md.
+                'password' => Hash::make(env('SEED_PASSWORD') ?: 'Password123#'),
                 'status' => 'active'
             ]);
 

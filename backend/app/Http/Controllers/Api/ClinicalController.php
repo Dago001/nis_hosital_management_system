@@ -19,6 +19,38 @@ use Illuminate\Support\Facades\Auth;
 class ClinicalController extends Controller
 {
     /**
+     * Roles allowed to access ANY patient visit regardless of the assigned
+     * doctor ("break-glass"). Every such access is captured by audit logging.
+     */
+    private const OVERRIDE_ROLES = ['super_admin', 'medical_director', 'chief_medical_officer'];
+
+    /**
+     * Whether the current user may open/act on a given visit. The assigned
+     * doctor can; senior override roles can; an unassigned visit may be picked
+     * up by any consulting clinician. Everyone else is blocked, so one doctor
+     * cannot see or complete another doctor's assigned patient.
+     */
+    private function canAccessVisit(Visit $visit): bool
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return false;
+        }
+
+        foreach (self::OVERRIDE_ROLES as $role) {
+            if ($user->hasRole($role)) {
+                return true;
+            }
+        }
+
+        if (empty($visit->staff_id)) {
+            return true;
+        }
+
+        return $user->staff && (int) $visit->staff_id === (int) $user->staff->id;
+    }
+
+    /**
      * Advisory drug-safety check (allergy conflicts + interactions) the
      * consultation UI calls as the doctor builds a prescription.
      */
@@ -115,8 +147,19 @@ class ClinicalController extends Controller
             'radiology_tests.*.clinical_indication' => 'nullable|string',
         ]);
 
-        $doctor = Auth::user()->staff;
-        $doctorId = $doctor ? $doctor->id : $visit->staff_id;
+        // Per-doctor isolation: only the assigned doctor (or a senior override
+        // role) may complete this consult. Unassigned visits may be picked up.
+        if (! $this->canAccessVisit($visit)) {
+            return response()->json([
+                'message' => 'This patient is assigned to another doctor. You do not have access to this consultation.'
+            ], 403);
+        }
+
+        $callerStaffId = Auth::user()->staff?->id;
+        // Preserve the originally assigned doctor; only stamp the caller when the
+        // visit is unassigned. This stops a consult from silently reassigning
+        // another doctor's patient to whoever completed it.
+        $doctorId = $visit->staff_id ?: $callerStaffId;
 
         DB::transaction(function () use ($visit, $validated, $doctorId) {
             // 1. Update the consultation details on the visit
@@ -243,6 +286,14 @@ class ClinicalController extends Controller
             return response()->json([
                 'message' => 'No active waiting consult file found for this patient. Ensure triage vitals are recorded first.'
             ], 404);
+        }
+
+        // Per-doctor isolation: a doctor may only open a waiting visit assigned
+        // to them (senior override roles excepted).
+        if (! $this->canAccessVisit($visit)) {
+            return response()->json([
+                'message' => 'This patient is assigned to another doctor.'
+            ], 403);
         }
 
         return response()->json([
