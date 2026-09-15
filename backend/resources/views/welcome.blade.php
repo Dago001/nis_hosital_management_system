@@ -477,7 +477,6 @@
             lucide.createIcons();
         });
     </script>
-    <script src="/assets/support-chat.js"></script>
 
     <!-- ═══════════ MediBot: AI Assistant (bottom-left) ═══════════ -->
     <div id="medibot" class="fixed bottom-6 left-6 z-[9998] font-sans">
