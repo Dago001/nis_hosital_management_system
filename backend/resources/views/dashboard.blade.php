@@ -26,9 +26,6 @@
                 <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="live-date"></span></span>
             </div>
         </div>
-        <div class="absolute right-0 bottom-0 opacity-[0.04] dark:opacity-5 translate-y-1/4 translate-x-1/4 pointer-events-none text-emerald-900 dark:text-white">
-            <i data-lucide="activity" class="w-52 h-52"></i>
-        </div>
     </div>
 
     <!-- Spinner Loading -->
