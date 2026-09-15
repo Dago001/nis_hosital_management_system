@@ -107,6 +107,10 @@ class PatientController extends Controller
     {
         // Names: letters only (plus spaces, hyphens, apostrophes, periods).
         $nameRule = ['regex:/^[A-Za-z][A-Za-z\s\'.\-]*$/'];
+        // Place names (state/LGA): official Nigerian names include spaces,
+        // hyphens, apostrophes, periods, slashes and parentheses
+        // (e.g. "FCT (Abuja)", "Kolokuma/Opokuma", "Jama'are").
+        $placeRule = ['regex:/^[A-Za-z][A-Za-z\s\'.\-()\/]*$/'];
         // Phone: digits only, optional leading +, 7-15 digits (E.164-ish).
         $phoneRule = ['regex:/^\+?[0-9]{7,15}$/'];
 
@@ -123,8 +127,8 @@ class PatientController extends Controller
             'date_of_birth' => 'required|date|before_or_equal:today',
             'phone' => array_merge(['required', 'string'], $phoneRule),
             'address' => 'required|string|max:500',
-            'state' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
-            'lga' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
+            'state' => array_merge(['nullable', 'string', 'max:255'], $placeRule),
+            'lga' => array_merge(['nullable', 'string', 'max:255'], $placeRule),
             'city' => 'nullable|string|max:255',
             'next_of_kin_name' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'next_of_kin_relationship' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
@@ -143,8 +147,8 @@ class PatientController extends Controller
             'first_name.regex' => 'First name may only contain letters.',
             'middle_name.regex' => 'Middle name may only contain letters.',
             'last_name.regex' => 'Last name may only contain letters.',
-            'state.regex' => 'State may only contain letters.',
-            'lga.regex' => 'LGA may only contain letters.',
+            'state.regex' => 'State contains invalid characters.',
+            'lga.regex' => 'LGA contains invalid characters.',
             'relationship_to_sponsor.regex' => 'Relationship may only contain letters.',
             'phone.regex' => 'Phone number must contain digits only (7-15 digits, optional leading +).',
             'nin.regex' => 'NIN must be exactly 11 digits.',
@@ -379,6 +383,12 @@ class PatientController extends Controller
                 'first_name' => $staff->first_name,
                 'phone' => $staff->phone ?? 'N/A',
                 'full_name' => "{$staff->first_name} {$staff->last_name} (" . ($staff->rank ?? 'Officer') . ")",
+                // Staff records carry no residential address; dependant address
+                // is entered manually in that case.
+                'state' => null,
+                'lga' => null,
+                'city' => null,
+                'address' => null,
                 'existing_dependants' => $existing
             ]);
         }
@@ -394,6 +404,11 @@ class PatientController extends Controller
                 'first_name' => $patient->first_name,
                 'phone' => $patient->phone ?? 'N/A',
                 'full_name' => "{$patient->first_name} {$patient->last_name} (Patient File: {$patient->immigration_service_number})",
+                // Dependant address auto-populates from the sponsor's file.
+                'state' => $patient->state,
+                'lga' => $patient->lga,
+                'city' => $patient->city,
+                'address' => $patient->address,
                 'existing_dependants' => $existing
             ]);
         }

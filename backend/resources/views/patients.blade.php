@@ -263,43 +263,46 @@
 
             <!-- STEP 2: Dependant Details -->
             <div id="step-section-2" class="hidden space-y-4">
-                <!-- If standalone mode, show skipped msg -->
-                <div id="dependant-skipped-msg" class="p-6 text-center text-slate-500 dark:text-slate-450 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                    <i data-lucide="arrow-right-left" class="w-8 h-8 mx-auto mb-2 opacity-50 text-emerald-500"></i>
-                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Standalone Mode Active</p>
-                    <p class="text-[10px] text-slate-400 mt-1">Sponsor/dependant linking is not required. Click Next to proceed.</p>
+                <!-- Mode-adaptive intro -->
+                <div id="dependant-intro" class="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl text-xs">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="users" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                        <span id="dependant-intro-text">Optionally add dependants (spouse/children) for this officer/civilian. They will be tied to this file automatically. You can also skip and click Next.</span>
+                    </div>
                 </div>
 
                 <!-- Dependant inputs group -->
-                <div id="dependant-active-inputs" class="hidden space-y-4">
+                <div id="dependant-active-inputs" class="space-y-4">
                     <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-[10px] font-black flex items-center gap-2">
                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
                         <span>NOTE: Dependants are limited to 1 Wife (no age limit) and 3 Children (under 18 years).</span>
                     </div>
 
-                    <!-- Sponsor search input -->
-                    <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
-                        <div class="flex-grow">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
-                            <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                    <!-- Sponsor search input (only when adding to an EXISTING officer) -->
+                    <div id="sponsor-block" class="space-y-4">
+                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
+                            <div class="flex-grow">
+                                <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
+                                <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                            <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
+                                <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
+                            </button>
                         </div>
-                        <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
-                            <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
-                        </button>
-                    </div>
 
-                    <!-- Sponsor verification card -->
-                    <div id="sponsor-verify-status" class="hidden p-4 rounded-xl border border-slate-200 dark:border-slate-850 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600" id="sponsor-icon-box">
-                                <i data-lucide="user-check" class="w-4 h-4"></i>
+                        <!-- Sponsor verification card -->
+                        <div id="sponsor-verify-status" class="hidden p-4 rounded-xl border border-slate-200 dark:border-slate-850 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600" id="sponsor-icon-box">
+                                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="sponsor-fullname-label">Sponsor Found</h4>
+                                    <p class="text-[9px] text-slate-500 dark:text-slate-400">Surname auto-populated: <b class="text-slate-700 dark:text-slate-200 uppercase" id="sponsor-surname-badge"></b></p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="sponsor-fullname-label">Sponsor Found</h4>
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400">Surname auto-populated: <b class="text-slate-700 dark:text-slate-200 uppercase" id="sponsor-surname-badge"></b></p>
-                            </div>
+                            <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
                         </div>
-                        <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
                     </div>
 
                     <!-- Dependant Name & Details -->
@@ -332,6 +335,27 @@
                                 <option value="Ward">Ward</option>
                                 <option value="Wife">Wife</option>
                             </select>
+                        </div>
+                        <!-- Per-dependant medical markers (each dependant is independent) -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Blood Group</label>
+                            <select id="dep_blood_group" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Genotype</label>
+                            <select id="dep_genotype" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="AA">AA</option><option value="AS">AS</option>
+                                <option value="SS">SS</option><option value="AC">AC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Allergies (optional)</label>
+                            <input type="text" id="dep_allergies" maxLength="255" placeholder="e.g. Penicillin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                     </div>
 
@@ -408,9 +432,14 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Allergies & Medical markers -->
+            <!-- STEP 4: Allergies & Medical markers (main officer/civilian) -->
             <div id="step-section-4" class="hidden space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Shown in dependant-of-officer mode where there is no main file -->
+                <div id="step4-dep-note" class="hidden p-4 bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="info" class="w-5 h-5 mx-auto mb-1 text-emerald-500"></i>
+                    Medical markers (blood group, genotype, allergies) are captured <b>per dependant</b> in Step 2. Click Next to review.
+                </div>
+                <div id="step4-main-markers" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Blood Group</label>
                         <select id="blood_group" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
@@ -851,48 +880,65 @@
     let sponsorSurname = '';
     let sponsorPhone = '';
     let sponsorExistingDependants = [];
+    let sponsorAddress = { state: '', lga: '', city: '', address: '' };
     let pendingDependants = [];
 
     function handleModeChange(mode) {
         registrationMode = mode;
         const demographicsContainer = document.getElementById('standalone-demographics-container');
         const dependantNotice = document.getElementById('dependant-mode-notice');
-        
-        const depSkipped = document.getElementById('dependant-skipped-msg');
+
         const depActive = document.getElementById('dependant-active-inputs');
-        
+        const sponsorBlock = document.getElementById('sponsor-block');
+        const introText = document.getElementById('dependant-intro-text');
+        const step4Markers = document.getElementById('step4-main-markers');
+        const step4Note = document.getElementById('step4-dep-note');
+
         const firstName = document.getElementById('first_name');
         const lastName = document.getElementById('last_name');
         const dob = document.getElementById('date_of_birth');
         const phone = document.getElementById('phone');
-        
+        const marital = document.getElementById('marital_status');
+
+        // The dependant capture card is available in BOTH modes now.
+        if (depActive) depActive.classList.remove('hidden');
+
         if (mode === 'standalone') {
             if (demographicsContainer) demographicsContainer.classList.remove('hidden');
             if (dependantNotice) dependantNotice.classList.add('hidden');
-            
-            if (depSkipped) depSkipped.classList.remove('hidden');
-            if (depActive) depActive.classList.add('hidden');
-            
+
+            // No sponsor lookup: dependants are tied to the person being registered.
+            if (sponsorBlock) sponsorBlock.classList.add('hidden');
+            if (introText) introText.textContent = 'Optionally add dependants (spouse/children) for this officer/civilian. They are tied to this file automatically. You can skip and click Next.';
+            if (step4Markers) step4Markers.classList.remove('hidden');
+            if (step4Note) step4Note.classList.add('hidden');
+
             if (firstName) firstName.setAttribute('required', 'required');
             if (lastName) lastName.setAttribute('required', 'required');
             if (dob) dob.setAttribute('required', 'required');
             if (phone) phone.setAttribute('required', 'required');
+            if (marital) marital.setAttribute('required', 'required');
         } else {
             if (demographicsContainer) demographicsContainer.classList.add('hidden');
             if (dependantNotice) dependantNotice.classList.remove('hidden');
-            
-            if (depSkipped) depSkipped.classList.add('hidden');
-            if (depActive) depActive.classList.remove('hidden');
-            
+
+            // Adding dependants to an EXISTING officer: sponsor must be verified.
+            if (sponsorBlock) sponsorBlock.classList.remove('hidden');
+            if (introText) introText.textContent = 'Verify the existing officer/sponsor, then add their dependants. Address auto-populates from the officer’s file.';
+            if (step4Markers) step4Markers.classList.add('hidden');
+            if (step4Note) step4Note.classList.remove('hidden');
+
             if (firstName) firstName.removeAttribute('required');
             if (lastName) lastName.removeAttribute('required');
             if (dob) dob.removeAttribute('required');
             if (phone) phone.removeAttribute('required');
+            if (marital) marital.removeAttribute('required');
         }
-        
+
         // Reset dependants lists when switching modes
         pendingDependants = [];
         sponsorExistingDependants = [];
+        sponsorVerified = false;
         renderPendingDependantsList();
     }
 
@@ -975,17 +1021,27 @@
                 sponsorSurname = res.surname;
                 sponsorPhone = res.phone || '';
                 sponsorExistingDependants = res.existing_dependants || [];
-                
+                sponsorAddress = {
+                    state: res.state || '',
+                    lga: res.lga || '',
+                    city: res.city || '',
+                    address: res.address || '',
+                };
+
+                // Auto-populate the dependant's address from the sponsor's file.
+                applySponsorAddress();
+
                 // Clear any leftover pending list when verifying new sponsor
                 pendingDependants = [];
                 renderPendingDependantsList();
                 updateRelationshipOptions();
-                
+
                 if (statusCard) statusCard.classList.remove('hidden');
                 if (fullnameLabel) fullnameLabel.innerText = res.full_name;
                 if (surnameBadge) surnameBadge.innerText = res.surname;
-                
-                alert('Sponsor verified successfully! Surname and coordinates have been mapped.');
+
+                const addrNote = sponsorAddress.address ? ' Address auto-filled from the officer’s file.' : '';
+                alert('Sponsor verified successfully! Surname mapped.' + addrNote);
             } else {
                 sponsorVerified = false;
                 sponsorSurname = '';
@@ -1046,11 +1102,27 @@
         const depDob = document.getElementById('dep_date_of_birth').value;
         const depGender = document.getElementById('dep_gender').value;
         const rel = document.getElementById('relationship_to_sponsor').value;
-        const sponsor = document.getElementById('sponsor_service_number').value.trim();
+        const depBlood = document.getElementById('dep_blood_group').value;
+        const depGenotype = document.getElementById('dep_genotype').value;
+        const depAllergies = document.getElementById('dep_allergies').value.trim();
 
-        if (!sponsor || !sponsorVerified) {
-            alert('Please verify the Sponsor/Officer Service Number first.');
-            return;
+        // Resolve the surname + sponsor link depending on the mode.
+        let depLastName, sponsor;
+        if (registrationMode === 'standalone') {
+            // Tie the dependant to the officer/civilian being registered now.
+            depLastName = document.getElementById('last_name').value.trim();
+            if (!depLastName) {
+                alert('Please fill the officer/civilian’s Last Name in Step 1 first.');
+                return;
+            }
+            sponsor = ''; // resolved to the new file's service number on submit
+        } else {
+            sponsor = document.getElementById('sponsor_service_number').value.trim();
+            if (!sponsor || !sponsorVerified) {
+                alert('Please verify the Sponsor/Officer Service Number first.');
+                return;
+            }
+            depLastName = sponsorSurname;
         }
 
         if (!depFirst || !depDob) {
@@ -1088,11 +1160,14 @@
         pendingDependants.push({
             first_name: depFirst,
             middle_name: depMiddle || null,
-            last_name: sponsorSurname,
+            last_name: depLastName,
             gender: depGender,
             date_of_birth: depDob,
             relationship_to_sponsor: rel,
-            sponsor_service_number: sponsor
+            sponsor_service_number: sponsor,
+            blood_group: depBlood,
+            genotype: depGenotype,
+            allergies: depAllergies || null
         });
 
         renderPendingDependantsList();
@@ -1103,6 +1178,7 @@
         document.getElementById('dep_middle_name').value = '';
         document.getElementById('dep_date_of_birth').value = '';
         document.getElementById('dep_gender').value = 'Male';
+        document.getElementById('dep_allergies').value = '';
     }
 
     function renderPendingDependantsList() {
@@ -1124,6 +1200,7 @@
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
                     <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
+                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1269,8 +1346,11 @@
         }
         
         if (currentRegisterStep === 2) {
-            // Validate Dependant details if in dependant mode
+            const depFirst = document.getElementById('dep_first_name').value.trim();
+            const depDob = document.getElementById('dep_date_of_birth').value;
+
             if (registrationMode === 'dependant') {
+                // Adding dependants to an existing officer: sponsor + >=1 dependant required.
                 const sponsor = document.getElementById('sponsor_service_number').value.trim();
                 if (!sponsor) {
                     alert('Sponsor/Officer Service Number is required.');
@@ -1280,21 +1360,21 @@
                     alert('Please verify the Sponsor Service Number before proceeding.');
                     return;
                 }
-                
-                // Fallback: If they entered fields but did not click "Add Dependant", auto-add it!
-                const depFirst = document.getElementById('dep_first_name').value.trim();
-                const depDob = document.getElementById('dep_date_of_birth').value;
                 if (pendingDependants.length === 0) {
                     if (depFirst || depDob) {
                         handleAddDependantClick();
-                        // Verify if it was successfully added
-                        if (pendingDependants.length === 0) {
-                            return;
-                        }
+                        if (pendingDependants.length === 0) return; // add failed (age policy, limits)
                     } else {
                         alert('Please add at least one Dependant before proceeding.');
                         return;
                     }
+                }
+            } else {
+                // Standalone: dependants are OPTIONAL. If details were typed but not
+                // added, capture them so they aren't lost; otherwise just continue.
+                if (pendingDependants.length === 0 && (depFirst || depDob)) {
+                    handleAddDependantClick();
+                    if (pendingDependants.length === 0) return; // add failed (age policy, limits)
                 }
             }
         }
@@ -1332,26 +1412,34 @@
 
             const sponsor = document.getElementById('sponsor_service_number').value.trim();
 
+            const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor}) [${d.blood_group}/${d.genotype}]`).join(', ');
+
             if (registrationMode === 'standalone') {
                 document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
                 document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
                 document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
                 document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
-                document.getElementById('prev-row-dependant').classList.add('hidden');
+
+                if (pendingDependants.length > 0) {
+                    document.getElementById('prev-row-dependant').classList.remove('hidden');
+                    document.getElementById('prev-dependant').innerText = `${pendingDependants.length} tied to this file: ${depsStr}`;
+                } else {
+                    document.getElementById('prev-row-dependant').classList.add('hidden');
+                }
+                document.getElementById('prev-medical').innerText = `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
             } else {
-                // Dependant Mode Preview
-                const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor})`).join(', ');
+                // Dependant-of-officer preview
                 document.getElementById('prev-name').innerText = depsStr;
                 document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
                 document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '·'}`;
                 document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
-                
+
                 document.getElementById('prev-row-dependant').classList.remove('hidden');
                 document.getElementById('prev-dependant').innerText = `Yes (${pendingDependants.length} Dependant(s) under Sponsor: ${sponsor})`;
+                document.getElementById('prev-medical').innerText = 'Set per dependant (see Dependant Status above)';
             }
 
             document.getElementById('prev-address').innerText = `${address}, ${lga}, ${state} State`;
-            document.getElementById('prev-medical').innerText = `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
         }
 
         if (currentRegisterStep < 5) {
@@ -1441,28 +1529,30 @@
         }
     }
 
+    // Copy a verified sponsor's residential address into the Step 3 fields.
+    function applySponsorAddress() {
+        if (!sponsorAddress) return;
+        const stateSel = document.getElementById('state');
+        const lgaSel = document.getElementById('lga');
+        const citySel = document.getElementById('city');
+        const addrEl = document.getElementById('address');
+        if (sponsorAddress.state && stateSel) {
+            stateSel.value = sponsorAddress.state;
+            handleStateChange(sponsorAddress.state);
+            if (sponsorAddress.lga && lgaSel) lgaSel.value = sponsorAddress.lga;
+        }
+        if (sponsorAddress.city && citySel) citySel.value = sponsorAddress.city;
+        if (sponsorAddress.address && addrEl) addrEl.value = sponsorAddress.address;
+    }
+
     async function handleRegisterSubmit(e) {
         e.preventDefault();
 
-        const isDep = (registrationMode === 'dependant');
-        
-        // Auto-add if they have filled the fields but list is empty
-        if (isDep && pendingDependants.length === 0) {
-            const depFirst = document.getElementById('dep_first_name').value.trim();
-            const depDob = document.getElementById('dep_date_of_birth').value;
-            if (depFirst || depDob) {
-                handleAddDependantClick();
-                if (pendingDependants.length === 0) return;
-            } else {
-                alert('Please add at least one Dependant.');
-                return;
-            }
-        }
-
+        const isDepMode = (registrationMode === 'dependant');
         const val = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-        const commonPayload = {
-            blood_group: document.getElementById('blood_group').value,
-            genotype: document.getElementById('genotype').value,
+
+        // Address + next-of-kin context shared by the main file and its dependants.
+        const addressCtx = {
             state: val('state') || null,
             lga: val('lga') || null,
             city: val('city') || null,
@@ -1470,15 +1560,35 @@
             next_of_kin_name: val('next_of_kin_name') || null,
             next_of_kin_relationship: val('next_of_kin_relationship') || null,
             next_of_kin_address: val('next_of_kin_address') || null,
-            allergies: document.getElementById('allergies').value || null,
-            disability: document.getElementById('disability').value || 'None'
         };
 
+        // Build a dependant payload; each dependant carries its OWN medical markers.
+        const depPayload = (dep, sponsorNumber, contactPhone) => ({
+            ...addressCtx,
+            first_name: dep.first_name,
+            middle_name: dep.middle_name,
+            last_name: dep.last_name,
+            gender: dep.gender,
+            marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
+            date_of_birth: dep.date_of_birth,
+            phone: (contactPhone && /^\+?\d{7,15}$/.test(contactPhone)) ? contactPhone : '00000000000',
+            email: null,
+            immigration_service_number: 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000),
+            sponsor_service_number: sponsorNumber,
+            relationship_to_sponsor: dep.relationship_to_sponsor,
+            nin: null,
+            blood_group: dep.blood_group,
+            genotype: dep.genotype,
+            allergies: dep.allergies || null,
+            disability: 'None',
+        });
+
         try {
-            if (!isDep) {
-                let serviceNo = document.getElementById('immigration_service_number').value.trim();
-                const payload = {
-                    ...commonPayload,
+            if (!isDepMode) {
+                // 1. Register the main officer/civilian.
+                const serviceNo = document.getElementById('immigration_service_number').value.trim();
+                const mainPayload = {
+                    ...addressCtx,
                     first_name: document.getElementById('first_name').value,
                     middle_name: document.getElementById('middle_name').value || null,
                     last_name: document.getElementById('last_name').value,
@@ -1493,34 +1603,36 @@
                     email: document.getElementById('email').value || null,
                     immigration_service_number: serviceNo || null,
                     nin: document.getElementById('nin').value || null,
+                    blood_group: document.getElementById('blood_group').value,
+                    genotype: document.getElementById('genotype').value,
+                    allergies: document.getElementById('allergies').value || null,
+                    disability: document.getElementById('disability').value || 'None',
                 };
-                const res = await api.post('/patients', payload);
-                const pat = res.patient;
-                document.getElementById('success-patient-name').innerText = pat.full_name;
-                document.getElementById('success-patient-code').innerText = pat.immigration_service_number;
+                const res = await api.post('/patients', mainPayload);
+                const main = res.patient;
+                const created = [main];
+
+                // 2. Register dependants tied to the officer/civilian just created.
+                for (const dep of pendingDependants) {
+                    const depRes = await api.post('/patients', depPayload(dep, main.immigration_service_number, main.phone));
+                    created.push(depRes.patient);
+                }
+
+                document.getElementById('success-patient-name').innerText = created.map(p => p.full_name).join(', ');
+                document.getElementById('success-patient-code').innerText = created.map(p => p.immigration_service_number).join(', ');
             } else {
+                // Dependants for an EXISTING officer.
+                if (pendingDependants.length === 0) {
+                    const depFirst = document.getElementById('dep_first_name').value.trim();
+                    const depDob = document.getElementById('dep_date_of_birth').value;
+                    if (depFirst || depDob) { handleAddDependantClick(); if (pendingDependants.length === 0) return; }
+                    else { alert('Please add at least one Dependant.'); return; }
+                }
                 const registeredPats = [];
                 for (const dep of pendingDependants) {
-                    const serviceNo = 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000);
-                    const payload = {
-                        ...commonPayload,
-                        first_name: dep.first_name,
-                        middle_name: dep.middle_name,
-                        last_name: dep.last_name,
-                        gender: dep.gender,
-                        marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
-                        date_of_birth: dep.date_of_birth,
-                        phone: (sponsorPhone && /^\+?\d{7,15}$/.test(sponsorPhone)) ? sponsorPhone : '00000000000',
-                        email: null,
-                        immigration_service_number: serviceNo,
-                        sponsor_service_number: dep.sponsor_service_number,
-                        relationship_to_sponsor: dep.relationship_to_sponsor,
-                        nin: null
-                    };
-                    const res = await api.post('/patients', payload);
-                    registeredPats.push(res.patient);
+                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number, sponsorPhone));
+                    registeredPats.push(depRes.patient);
                 }
-                
                 document.getElementById('success-patient-name').innerText = registeredPats.map(p => p.full_name).join(', ');
                 document.getElementById('success-patient-code').innerText = registeredPats.map(p => p.immigration_service_number).join(', ');
             }
