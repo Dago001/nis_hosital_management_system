@@ -96,8 +96,8 @@
 </div>
 
 <!-- Register Patient Modal -->
-<div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden">
+<div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 mx-auto overflow-hidden">
         <!-- Branded building-image banner header -->
         <div class="-mx-6 -mt-6 mb-5 relative h-24 bg-cover bg-center" style="background-image:url('/images/nis_building_day.jpg');">
             <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-800/70"></div>
@@ -534,8 +534,8 @@
 </div>
 
 <!-- View Patient Details File Modal -->
-<div id="details-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-3xl shadow-2xl relative my-8">
+<div id="details-modal" class="hidden fixed inset-0 z-50 overflow-y-auto p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-3xl shadow-2xl relative my-8 mx-auto">
         <h3 class="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <i data-lucide="fingerprint" class="text-emerald-500"></i> Comprehensive Clinical File History
         </h3>
