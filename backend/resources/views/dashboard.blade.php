@@ -6,27 +6,27 @@
 <div class="space-y-6">
 
     <!-- Welcome Banner -->
-    <div class="bg-gradient-to-r from-[#006633] via-emerald-800 to-[#004422] p-6 rounded-2xl text-white shadow-xl relative overflow-hidden border border-emerald-700/30">
+    <div class="bg-[#f6f7f4] dark:bg-slate-900 p-6 rounded-2xl text-slate-800 dark:text-white shadow-sm relative overflow-hidden border border-slate-200 dark:border-slate-800">
         <div class="relative z-10 flex items-center justify-between flex-wrap gap-4">
             <div class="space-y-1.5">
-                <h1 class="text-xl font-black tracking-tight flex items-center gap-2">
-                    
+                <h1 class="text-xl font-black tracking-tight flex items-center gap-2 text-slate-800 dark:text-white">
+
                     Nigeria Immigration Service Hospital
                 </h1>
-                <p class="text-emerald-100 text-xs">
-                    Welcome back, <span class="font-bold text-white" id="welcome-name">User</span> 
+                <p class="text-slate-500 dark:text-slate-400 text-xs">
+                    Welcome back, <span class="font-bold text-slate-800 dark:text-white" id="welcome-name">User</span>
                 </p>
-                <div class="inline-flex items-center gap-1.5 mt-1 px-3 py-1 bg-white/15 rounded-full text-[10px] font-bold uppercase tracking-wider border border-white/20" id="welcome-role">
+                <div class="inline-flex items-center gap-1.5 mt-1 px-3 py-1 bg-emerald-600/10 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-600/20 dark:border-emerald-500/20" id="welcome-role">
                     Staff Portal
                 </div>
             </div>
-            <div class="hidden md:flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
+            <div class="hidden md:flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span id="live-clock"></span></span>
-                <span class="w-px h-4 bg-white/20"></span>
+                <span class="w-px h-4 bg-slate-300 dark:bg-slate-700"></span>
                 <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3.5 h-3.5"></i> <span id="live-date"></span></span>
             </div>
         </div>
-        <div class="absolute right-0 bottom-0 opacity-5 translate-y-1/4 translate-x-1/4 pointer-events-none">
+        <div class="absolute right-0 bottom-0 opacity-[0.04] dark:opacity-5 translate-y-1/4 translate-x-1/4 pointer-events-none text-emerald-900 dark:text-white">
             <i data-lucide="activity" class="w-52 h-52"></i>
         </div>
     </div>
