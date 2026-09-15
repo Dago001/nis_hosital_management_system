@@ -33,6 +33,8 @@ class Patient extends Model
         'next_of_kin_address',
         'immigration_service_number',
         'sponsor_service_number',
+        'is_nhis',
+        'nhis_number',
         'relationship_to_sponsor',
         'nin',
         'passport_photograph_path',
@@ -113,16 +115,20 @@ class Patient extends Model
         return $this->hasMany(RadiologyRequest::class);
     }
 
+    protected function casts(): array
+    {
+        return [
+            'is_nhis' => 'boolean',
+        ];
+    }
+
+    /**
+     * NHIS coverage is now an explicit flag set at registration, so the whole
+     * application (billing discounts, registration fee waiver, claims
+     * eligibility) treats the patient consistently.
+     */
     public function isNhis(): bool
     {
-        if (!empty($this->sponsor_service_number)) {
-            return true;
-        }
-
-        if (!empty($this->immigration_service_number) && !str_contains($this->immigration_service_number, '/PAT/')) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->is_nhis;
     }
 }

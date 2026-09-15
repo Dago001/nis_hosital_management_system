@@ -167,6 +167,21 @@
 
                 <!-- Standalone Demographic Fields (Hidden in Dependant Mode) -->
                 <div id="standalone-demographics-container" class="space-y-4">
+                    <!-- Passport photograph (used on the Patient ID Card) -->
+                    <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+                        <div class="shrink-0">
+                            <img id="photo-preview" alt="" class="w-20 h-24 object-cover rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hidden">
+                            <div id="photo-placeholder" class="w-20 h-24 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center text-slate-400">
+                                <i data-lucide="user" class="w-8 h-8"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">Passport Photograph</label>
+                            <input type="file" id="passport_photo" accept="image/png,image/jpeg,image/webp" onchange="previewPhoto(this)" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:cursor-pointer">
+                            <p class="text-[9px] text-slate-400 mt-1">JPG / PNG / WEBP, up to 4&nbsp;MB. Appears on the patient's ID card.</p>
+                        </div>
+                    </div>
+
                     <!-- Standalone Name Inputs -->
                     <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                         <div>
@@ -213,6 +228,24 @@
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
                             <input type="text" id="nin" maxLength="11" inputmode="numeric" data-filter="digits" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
+                    </div>
+
+                    <!-- NHIS coverage -->
+                    <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 mt-4">
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Is this patient covered under NHIS?</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                <input type="radio" name="nhis_status" value="yes" onchange="handleNhisChange(this.value)" class="text-emerald-600 focus:ring-emerald-500"> Yes (NHIS covered)
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                <input type="radio" name="nhis_status" value="no" checked onchange="handleNhisChange(this.value)" class="text-emerald-600 focus:ring-emerald-500"> No (pays cash)
+                            </label>
+                        </div>
+                        <div id="nhis-number-group" class="hidden mt-3">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">NHIS Valid Number <span class="text-red-500">*</span></label>
+                            <input type="text" id="nhis_number" data-filter="code" maxLength="60" placeholder="e.g. NHIS-1234567" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <p id="nhis-cost-note" class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-2">Non-NHIS: a registration fee and full service charges apply.</p>
                     </div>
                 </div>
                 <!-- Additional bio-data -->
@@ -356,6 +389,11 @@
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Allergies (optional)</label>
                             <input type="text" id="dep_allergies" maxLength="255" placeholder="e.g. Penicillin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Passport Photograph (optional)</label>
+                            <input type="file" id="dep_passport_photo" accept="image/png,image/jpeg,image/webp" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:cursor-pointer">
+                            <p class="text-[9px] text-slate-400 mt-1">Appears on this dependant's ID card. Set before clicking "Add Dependant".</p>
                         </div>
                     </div>
 
@@ -1105,6 +1143,8 @@
         const depBlood = document.getElementById('dep_blood_group').value;
         const depGenotype = document.getElementById('dep_genotype').value;
         const depAllergies = document.getElementById('dep_allergies').value.trim();
+        const depPhotoInput = document.getElementById('dep_passport_photo');
+        const depPhotoFile = (depPhotoInput && depPhotoInput.files && depPhotoInput.files[0]) ? depPhotoInput.files[0] : null;
 
         // Resolve the surname + sponsor link depending on the mode.
         let depLastName, sponsor;
@@ -1167,7 +1207,8 @@
             sponsor_service_number: sponsor,
             blood_group: depBlood,
             genotype: depGenotype,
-            allergies: depAllergies || null
+            allergies: depAllergies || null,
+            photoFile: depPhotoFile
         });
 
         renderPendingDependantsList();
@@ -1179,6 +1220,7 @@
         document.getElementById('dep_date_of_birth').value = '';
         document.getElementById('dep_gender').value = 'Male';
         document.getElementById('dep_allergies').value = '';
+        if (depPhotoInput) depPhotoInput.value = '';
     }
 
     function renderPendingDependantsList() {
@@ -1242,6 +1284,17 @@
         sponsorSurname = '';
         sponsorPhone = '';
         renderPendingDependantsList();
+
+        // Reset passport photo preview
+        const pv = document.getElementById('photo-preview');
+        if (pv) { pv.classList.add('hidden'); pv.removeAttribute('src'); }
+        const pph = document.getElementById('photo-placeholder');
+        if (pph) pph.classList.remove('hidden');
+
+        // Reset NHIS to "No"
+        const nhisNo = document.querySelector('input[name="nhis_status"][value="no"]');
+        if (nhisNo) nhisNo.checked = true;
+        handleNhisChange('no');
 
         // Set standalone mode default
         const modeStandaloneRadio = document.getElementById('mode-standalone');
@@ -1411,6 +1464,8 @@
             const disability = document.getElementById('disability').value.trim() || 'None';
 
             const sponsor = document.getElementById('sponsor_service_number').value.trim();
+            const nhisYes = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
+            const nhisNum = document.getElementById('nhis_number').value.trim();
 
             const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor}) [${d.blood_group}/${d.genotype}]`).join(', ');
 
@@ -1418,7 +1473,7 @@
                 document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
                 document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
                 document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
-                document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
+                document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo} | NHIS: ${nhisYes ? 'Yes (' + (nhisNum || '—') + ')' : 'No (cash)'}`;
 
                 if (pendingDependants.length > 0) {
                     document.getElementById('prev-row-dependant').classList.remove('hidden');
@@ -1529,6 +1584,46 @@
         }
     }
 
+    // Live preview of the selected passport photo.
+    function previewPhoto(input) {
+        const img = document.getElementById('photo-preview');
+        const ph = document.getElementById('photo-placeholder');
+        const file = input.files && input.files[0];
+        if (file) {
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            if (ph) ph.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            if (ph) ph.classList.remove('hidden');
+        }
+    }
+
+    // Toggle the NHIS number field + cost note based on the NHIS answer.
+    function handleNhisChange(value) {
+        const grp = document.getElementById('nhis-number-group');
+        const numInput = document.getElementById('nhis_number');
+        const note = document.getElementById('nhis-cost-note');
+        if (value === 'yes') {
+            if (grp) grp.classList.remove('hidden');
+            if (numInput) numInput.setAttribute('required', 'required');
+            if (note) { note.textContent = 'NHIS covered: registration fee waived and service charges discounted.'; note.className = 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-2'; }
+        } else {
+            if (grp) grp.classList.add('hidden');
+            if (numInput) { numInput.removeAttribute('required'); numInput.value = ''; }
+            if (note) { note.textContent = 'Non-NHIS: a registration fee and full service charges apply.'; note.className = 'text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-2'; }
+        }
+    }
+
+    // Upload a passport photo for a freshly created patient (best-effort).
+    async function uploadPatientPhoto(patientId, file) {
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('photo', file);
+        try { await api.post(`/patients/${patientId}/photo`, fd); }
+        catch (e) { console.warn('Passport photo upload failed:', e); }
+    }
+
     // Copy a verified sponsor's residential address into the Step 3 fields.
     function applySponsorAddress() {
         if (!sponsorAddress) return;
@@ -1562,8 +1657,9 @@
             next_of_kin_address: val('next_of_kin_address') || null,
         };
 
-        // Build a dependant payload; each dependant carries its OWN medical markers.
-        const depPayload = (dep, sponsorNumber, contactPhone) => ({
+        // Build a dependant payload; each dependant carries its OWN medical markers
+        // and inherits the sponsor's NHIS coverage.
+        const depPayload = (dep, sponsorNumber, contactPhone, isNhisFlag) => ({
             ...addressCtx,
             first_name: dep.first_name,
             middle_name: dep.middle_name,
@@ -1577,11 +1673,16 @@
             sponsor_service_number: sponsorNumber,
             relationship_to_sponsor: dep.relationship_to_sponsor,
             nin: null,
+            is_nhis: !!isNhisFlag,
             blood_group: dep.blood_group,
             genotype: dep.genotype,
             allergies: dep.allergies || null,
             disability: 'None',
         });
+
+        // NHIS answer for the main officer/civilian.
+        const mainIsNhis = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
+        const mainNhisNumber = mainIsNhis ? (document.getElementById('nhis_number').value.trim() || null) : null;
 
         try {
             if (!isDepMode) {
@@ -1603,6 +1704,8 @@
                     email: document.getElementById('email').value || null,
                     immigration_service_number: serviceNo || null,
                     nin: document.getElementById('nin').value || null,
+                    is_nhis: mainIsNhis,
+                    nhis_number: mainNhisNumber,
                     blood_group: document.getElementById('blood_group').value,
                     genotype: document.getElementById('genotype').value,
                     allergies: document.getElementById('allergies').value || null,
@@ -1612,9 +1715,14 @@
                 const main = res.patient;
                 const created = [main];
 
+                // Upload the main patient's passport photo (if any).
+                await uploadPatientPhoto(main.id, document.getElementById('passport_photo').files[0]);
+
                 // 2. Register dependants tied to the officer/civilian just created.
+                //    Dependants inherit the main person's NHIS coverage.
                 for (const dep of pendingDependants) {
-                    const depRes = await api.post('/patients', depPayload(dep, main.immigration_service_number, main.phone));
+                    const depRes = await api.post('/patients', depPayload(dep, main.immigration_service_number, main.phone, mainIsNhis));
+                    await uploadPatientPhoto(depRes.patient.id, dep.photoFile);
                     created.push(depRes.patient);
                 }
 
@@ -1630,7 +1738,9 @@
                 }
                 const registeredPats = [];
                 for (const dep of pendingDependants) {
-                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number, sponsorPhone));
+                    // Dependants of an existing NIS officer are NHIS-covered.
+                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number, sponsorPhone, true));
+                    await uploadPatientPhoto(depRes.patient.id, dep.photoFile);
                     registeredPats.push(depRes.patient);
                 }
                 document.getElementById('success-patient-name').innerText = registeredPats.map(p => p.full_name).join(', ');

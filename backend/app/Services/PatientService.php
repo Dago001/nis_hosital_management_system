@@ -52,14 +52,19 @@ class PatientService
                 $data['facility_id'] = (int) (request('facility_id') ?? 1);
             }
 
+            // NHIS coverage is an explicit choice at registration.
+            $data['is_nhis'] = filter_var(request('is_nhis', false), FILTER_VALIDATE_BOOLEAN);
+            $data['nhis_number'] = $data['is_nhis'] ? (request('nhis_number') ?: null) : null;
+
             // Mocking barcode and QR code data for NIS HMS Patient Cards
             $data['qr_code_data'] = 'NISHMS-PAT-' . time() . '-' . rand(1000, 9999);
             $data['barcode_data'] = 'NIS' . rand(100000, 999999);
 
             $patient = $this->patientRepo->create($data);
 
-            // Generate registration fee invoice for new Cash/Civilian (non-NHIS) patient
-            $isNhis = !empty($patient->sponsor_service_number) || (!empty($dto->immigration_service_number) && !str_contains($dto->immigration_service_number, '/PAT/'));
+            // Generate registration fee invoice for non-NHIS (cash) patients only.
+            // NHIS-covered patients are not billed the registration fee.
+            $isNhis = (bool) $patient->is_nhis;
             if (!$isNhis) {
                 $regFee = \App\Models\ServiceTariff::priceFor('REG_NEW', 5000.00);
                 $invoice = \App\Models\Invoice::create([

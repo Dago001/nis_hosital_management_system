@@ -136,6 +136,8 @@ class PatientController extends Controller
             'email' => 'nullable|email|max:255',
             'immigration_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/', 'unique:patients,immigration_service_number'],
             'sponsor_service_number' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\-]+$/'],
+            'is_nhis' => 'nullable|boolean',
+            'nhis_number' => 'nullable|required_if:is_nhis,true,1|string|max:60|regex:/^[A-Za-z0-9\/\-]+$/',
             'relationship_to_sponsor' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'nin' => ['nullable', 'string', 'regex:/^[0-9]{11}$/', 'unique:patients,nin'],
             'allergies' => 'nullable|string',
@@ -361,6 +363,43 @@ class PatientController extends Controller
                 'issued_on' => now()->toDateString(),
             ],
             'qr' => $qrDataUri,
+        ]);
+    }
+
+    /**
+     * Upload / replace a patient's passport photograph. Stored on the public
+     * disk so it can be shown on the printable Patient ID Card.
+     */
+    public function uploadPhoto(Request $request, int $id)
+    {
+        $patient = Patient::findOrFail($id);
+
+        $request->validate([
+            'photo' => 'required|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ]);
+
+        // Remove a previous photo to avoid orphaned files.
+        if ($patient->passport_photograph_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($patient->passport_photograph_path);
+        }
+
+        $path = $request->file('photo')->store('patient_photos', 'public');
+        $patient->passport_photograph_path = $path;
+        $patient->save();
+
+        $this->auditLog->log(
+            userId: $request->user()?->id,
+            action: 'upload_patient_photo',
+            auditableType: Patient::class,
+            auditableId: $patient->id,
+            payload: ['hospital_code' => $patient->immigration_service_number],
+            ipAddress: $request->ip(),
+            userAgent: $request->userAgent()
+        );
+
+        return response()->json([
+            'message' => 'Passport photo uploaded.',
+            'photo_url' => asset('storage/' . $path),
         ]);
     }
 

@@ -23,15 +23,10 @@ class ClaimController extends Controller
     {
         $claimedInvoiceIds = ClaimItem::pluck('invoice_id');
 
-        $invoices = Invoice::with('patient:id,first_name,last_name,immigration_service_number,sponsor_service_number')
+        $invoices = Invoice::with('patient:id,first_name,last_name,immigration_service_number,is_nhis')
             ->whereNotIn('id', $claimedInvoiceIds)
-            ->whereHas('patient', function ($q) {
-                $q->whereNotNull('sponsor_service_number')
-                  ->orWhere(function ($q2) {
-                      $q2->whereNotNull('immigration_service_number')
-                         ->where('immigration_service_number', 'not like', '%/PAT/%');
-                  });
-            })
+            // Only NHIS-covered patients' invoices are claimable.
+            ->whereHas('patient', fn ($q) => $q->where('is_nhis', true))
             ->latest('created_at')
             ->limit(200)
             ->get()

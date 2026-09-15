@@ -48,6 +48,8 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/patients/{id}', [PatientController::class, 'show'])->middleware('role_or_permission:view_patients');
     // Printable patient ID card (QR)
     Route::get('/patients/{id}/id-card', [PatientController::class, 'idCard'])->middleware('role_or_permission:view_patients');
+    // Passport photo for the ID card
+    Route::post('/patients/{id}/photo', [PatientController::class, 'uploadPhoto'])->middleware('role_or_permission:register_patients');
     // Patient document attachments (PHI — private storage, streamed downloads)
     Route::get('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'index'])->middleware('role_or_permission:view_patients');
     Route::post('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'store'])->middleware('role_or_permission:register_patients,view_patients');
