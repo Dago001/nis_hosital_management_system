@@ -1584,19 +1584,30 @@
         }
     }
 
-    // Live preview of the selected passport photo.
+    // Live preview of the selected passport photo (FileReader -> data URI is the
+    // most reliable across browsers).
     function previewPhoto(input) {
         const img = document.getElementById('photo-preview');
         const ph = document.getElementById('photo-placeholder');
         const file = input.files && input.files[0];
-        if (file) {
-            img.src = URL.createObjectURL(file);
+        if (!file) {
+            img.classList.add('hidden');
+            img.removeAttribute('src');
+            if (ph) ph.classList.remove('hidden');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
             img.classList.remove('hidden');
             if (ph) ph.classList.add('hidden');
-        } else {
+        };
+        reader.onerror = () => {
             img.classList.add('hidden');
             if (ph) ph.classList.remove('hidden');
-        }
+            alert('Could not read that image. Please choose a valid JPG, PNG or WEBP file.');
+        };
+        reader.readAsDataURL(file);
     }
 
     // Toggle the NHIS number field + cost note based on the NHIS answer.
