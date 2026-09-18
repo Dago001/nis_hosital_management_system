@@ -115,11 +115,138 @@
         }
     }
 
+    // Literal class strings per colour so Tailwind compiles them.
+    const QA_COLORS = {
+        emerald: 'bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400',
+        blue:    'bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400',
+        amber:   'bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-100 border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400',
+        indigo:  'bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400',
+        violet:  'bg-violet-50 dark:bg-violet-500/10 hover:bg-violet-100 border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-400',
+        rose:    'bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-400',
+        slate:   'bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300',
+    };
+    function qa(href, label, icon, color) {
+        return `<a href="${href}" class="flex items-center gap-3 p-3.5 border rounded-xl transition text-xs font-bold ${QA_COLORS[color] || QA_COLORS.slate}"><i data-lucide="${icon}" class="w-4 h-4 shrink-0"></i> ${label}</a>`;
+    }
+    // Simple role dashboard: a stat-card row + a Quick Actions panel of workflow links.
+    function roleDash(cards, actions) {
+        return `
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">${cards}</div>
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mt-6">
+                ${sectionHeader('Quick Actions', 'Jump straight into your workflows')}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">${actions}</div>
+            </div>`;
+    }
+
     function renderDashboardByRole(role, metrics, rawData) {
         const view = document.getElementById('dashboard-view');
+        const naira = (v) => '₦' + Number(v || 0).toLocaleString();
+
+        // ═══ Role-specific tailored dashboards (checked first) ═══
+
+        if (role === 'hospital_admin') {
+            view.innerHTML = roleDash(
+                statCard('Total Patients', (metrics.total_patients||0).toLocaleString(), 'In registry', 'users', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Staff Roster', (metrics.total_staff||0).toLocaleString(), 'Onboarded staff', 'briefcase-medical', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600') +
+                statCard('Bed Occupancy', (metrics.bed_occupancy_rate||0)+'%', (metrics.active_admissions||0)+' admitted', 'bed', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600') +
+                statCard("Today's Revenue", naira(metrics.today_revenue), 'Collected today', 'banknote', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'),
+                qa('/admin/users','User Accounts','user-cog','emerald') + qa('/facilities','Facilities','hospital','blue') +
+                qa('/reports','Analytics','bar-chart','indigo') + qa('/tariffs','Service Tariffs','tags','amber') +
+                qa('/claims','NHIS Claims','file-check-2','violet') + qa('/audit-trail','Audit Trail','clipboard-list','slate')
+            );
+        }
+
+        else if (role === 'chief_medical_officer') {
+            view.innerHTML = roleDash(
+                statCard('Active Admissions', (metrics.active_admissions||0), 'Inpatients now', 'bed', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600') +
+                statCard('Consultations Today', (metrics.consultations_today||0), 'Completed', 'stethoscope', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Lab Approvals', (metrics.pending_lab_approvals||0), 'Awaiting sign-off', 'flask-conical', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Radiology Approvals', (metrics.pending_radiology_approvals||0), 'Awaiting sign-off', 'scan', 'bg-violet-50 dark:bg-violet-500/10 text-violet-600'),
+                qa('/reports','Clinical Analytics','bar-chart','indigo') + qa('/laboratory','Diagnostics Review','test-tube','violet') +
+                qa('/consultations','Consultations','stethoscope','emerald') + qa('/ipd','Ward / IPD','building-2','blue') +
+                qa('/referrals','Referrals','arrow-right-left','amber') + qa('/queue','Patient Queue','list-ordered','slate')
+            );
+        }
+
+        else if (role === 'theatre_manager') {
+            view.innerHTML = roleDash(
+                statCard("Surgeries Today", (metrics.surgeries_today||0), 'Scheduled today', 'calendar', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Scheduled', (metrics.scheduled||0), 'Upcoming', 'clock', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600') +
+                statCard('In Theatre', (metrics.in_theatre||0), 'Ongoing now', 'activity', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Completed', (metrics.completed_total||0), 'All-time', 'check-circle', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600'),
+                qa('/theatre','Theatre Schedule','scissors','emerald') + qa('/ipd','Ward Beds','building-2','blue') +
+                qa('/consultations','Consultations','stethoscope','indigo') + qa('/queue','Patient Queue','list-ordered','slate')
+            );
+        }
+
+        else if (role === 'ward_manager') {
+            view.innerHTML = roleDash(
+                statCard('Active Admissions', (metrics.active_admissions||0), 'Inpatients now', 'bed', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600') +
+                statCard('Occupied Beds', (metrics.occupied_beds||0), 'In use', 'bed-double', 'bg-rose-50 dark:bg-rose-500/10 text-rose-600') +
+                statCard('Available Beds', (metrics.available_beds||0), 'Free now', 'bed', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Awaiting Vitals', (metrics.awaiting_vitals||0), 'Triage queue', 'activity', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'),
+                qa('/ipd','Ward & Beds','building-2','indigo') + qa('/vitals','Record Vitals','activity','emerald') +
+                qa('/queue','Patient Queue','list-ordered','blue') + qa('/emergencies','Emergency (ER)','alert-octagon','rose') +
+                qa('/appointments','Appointments','calendar','slate')
+            );
+        }
+
+        else if (role === 'store_officer') {
+            view.innerHTML = roleDash(
+                statCard('Total Items', (metrics.total_items||0).toLocaleString(), 'In central store', 'package', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Low Stock', (metrics.low_stock||0), 'At/below reorder', 'trending-down', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Out of Stock', (metrics.out_of_stock||0), 'Zero on hand', 'x-octagon', 'bg-rose-50 dark:bg-rose-500/10 text-rose-600') +
+                statCard('Issued Today', (metrics.issued_today||0), 'Stock movements', 'send', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600'),
+                qa('/inventory','Store Issuance','package','emerald') + qa('/procurement','Procurement','truck','blue') +
+                qa('/pharmacy','Pharmacy','pill','indigo')
+            );
+        }
+
+        else if (role === 'inventory_officer') {
+            view.innerHTML = roleDash(
+                statCard('Total Items', (metrics.total_items||0).toLocaleString(), 'Tracked items', 'package', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Low Stock', (metrics.low_stock||0), 'Reorder needed', 'trending-down', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Expiring Soon', (metrics.expiring_soon||0), 'Within 6 months', 'calendar-clock', 'bg-rose-50 dark:bg-rose-500/10 text-rose-600') +
+                statCard('Issued Today', (metrics.issued_today||0), 'Stock movements', 'send', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600'),
+                qa('/inventory','Store Issuance','package','emerald') + qa('/procurement','Procurement','truck','blue') +
+                qa('/pharmacy','Pharmacy','pill','indigo')
+            );
+        }
+
+        else if (role === 'procurement_officer') {
+            view.innerHTML = roleDash(
+                statCard('Draft POs', (metrics.draft_pos||0), 'Awaiting approval', 'file-text', 'bg-slate-100 dark:bg-slate-800 text-slate-600') +
+                statCard('Approved POs', (metrics.approved_pos||0), 'Ready to receive', 'file-check-2', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600') +
+                statCard('Open Value', naira(metrics.open_value), 'Committed spend', 'banknote', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Suppliers', (metrics.suppliers||0), 'Registered', 'building', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600'),
+                qa('/procurement','Procurement','truck','emerald') + qa('/inventory','Store Issuance','package','blue')
+            );
+        }
+
+        else if (role === 'account_officer') {
+            view.innerHTML = roleDash(
+                statCard("Today's Revenue", naira(metrics.today_revenue), 'Collected today', 'banknote', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Outstanding Invoices', (metrics.outstanding_invoices||0), 'Unpaid / partial', 'receipt', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
+                statCard('Claims Paid', naira(metrics.claims_paid_value), 'Settled NHIS value', 'file-check-2', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600') +
+                statCard('Claims Outstanding', (metrics.claims_outstanding||0), 'Draft / submitted', 'clock', 'bg-rose-50 dark:bg-rose-500/10 text-rose-600'),
+                qa('/billing','Billing & Cashier','credit-card','emerald') + qa('/claims','NHIS Claims','file-check-2','indigo') +
+                qa('/reports','Finance Reports','bar-chart','amber') + qa('/tariffs','Service Tariffs','tags','slate')
+            );
+        }
+
+        else if (role === 'records_officer') {
+            view.innerHTML = roleDash(
+                statCard('Total Patients', (metrics.total_patients||0).toLocaleString(), 'In registry', 'users', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600') +
+                statCard('Visits Today', (metrics.visits_today||0), 'Encounters', 'clipboard-list', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600') +
+                statCard('Active Admissions', (metrics.active_admissions||0), 'Inpatients', 'bed', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600') +
+                statCard("Appointments Today", (metrics.today_appointments||0), 'Scheduled', 'calendar', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'),
+                qa('/patients','Patient Records','users','emerald') + qa('/appointments','Appointments','calendar','blue') +
+                qa('/queue','Patient Queue','list-ordered','indigo') + qa('/reports','Reports','bar-chart','slate')
+            );
+        }
 
         // ─── 1. Executive / Admin View ───────────────────────────────────────────
-        if (['super_admin', 'medical_director', 'hospital_admin', 'chief_medical_officer'].includes(role)) {
+        else if (['super_admin', 'medical_director', 'hospital_admin', 'chief_medical_officer'].includes(role)) {
 
             const admissions = rawData.recent_admissions || [];
             const admissionsHTML = admissions.length > 0
