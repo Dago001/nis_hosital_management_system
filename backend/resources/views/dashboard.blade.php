@@ -152,7 +152,7 @@
                 statCard("Today's Revenue", naira(metrics.today_revenue), 'Collected today', 'banknote', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600'),
                 qa('/admin/users','User Accounts','user-cog','emerald') + qa('/facilities','Facilities','hospital','blue') +
                 qa('/reports','Analytics','bar-chart','indigo') + qa('/tariffs','Service Tariffs','tags','amber') +
-                qa('/claims','NHIS Claims','file-check-2','violet') + qa('/audit-trail','Audit Trail','clipboard-list','slate')
+                qa('/claims','NHIS Claims','file-check-2','violet') + qa('/dhis2','DHIS2 Export','globe','slate')
             );
         }
 
@@ -163,7 +163,7 @@
                 statCard('Lab Approvals', (metrics.pending_lab_approvals||0), 'Awaiting sign-off', 'flask-conical', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600') +
                 statCard('Radiology Approvals', (metrics.pending_radiology_approvals||0), 'Awaiting sign-off', 'scan', 'bg-violet-50 dark:bg-violet-500/10 text-violet-600'),
                 qa('/reports','Clinical Analytics','bar-chart','indigo') + qa('/laboratory','Diagnostics Review','test-tube','violet') +
-                qa('/consultations','Consultations','stethoscope','emerald') + qa('/ipd','Ward / IPD','building-2','blue') +
+                qa('/patients','Patient Records','users','emerald') + qa('/ipd','Ward / IPD','building-2','blue') +
                 qa('/referrals','Referrals','arrow-right-left','amber') + qa('/queue','Patient Queue','list-ordered','slate')
             );
         }
