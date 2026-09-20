@@ -181,7 +181,7 @@
                         <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Officer Service Number <span class="text-red-500">*</span></label>
                         <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
                             <div class="flex-grow">
-                                <input type="text" id="officer_service_number" data-filter="code" placeholder="e.g. NIS/2015/3921" onkeydown="if(event.key==='Enter'){event.preventDefault();handleVerifyOfficer();}" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <input type="text" id="officer_service_number" data-filter="digits" inputmode="numeric" maxlength="5" placeholder="e.g. 48213" onkeydown="if(event.key==='Enter'){event.preventDefault();handleVerifyOfficer();}" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                             </div>
                             <button type="button" id="verify-officer-btn" onclick="handleVerifyOfficer()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center justify-center gap-1">
                                 <i data-lucide="search" class="w-4 h-4"></i> Verify &amp; Fetch
@@ -1030,8 +1030,8 @@
         const input = document.getElementById('officer_service_number');
         if (!input) return;
         const serviceNum = input.value.trim();
-        if (serviceNum.length < 3) {
-            alert('Please enter the officer’s Service Number (at least 3 characters).');
+        if (!/^\d{2,5}$/.test(serviceNum)) {
+            alert('Please enter a valid NIS Service Number (2–5 digits).');
             return;
         }
         const btn = document.getElementById('verify-officer-btn');

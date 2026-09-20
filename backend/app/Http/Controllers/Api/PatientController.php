@@ -480,7 +480,9 @@ class PatientController extends Controller
     public function lookupOfficer(Request $request)
     {
         $request->validate([
-            'service_number' => 'required|string|min:3|max:50',
+            // NIS Service Numbers are numeric, 2–5 digits. Kept tolerant of a
+            // longer value so lookups against legacy patient records still work.
+            'service_number' => 'required|string|min:2|max:50',
         ]);
 
         $serviceNum = trim($request->service_number);

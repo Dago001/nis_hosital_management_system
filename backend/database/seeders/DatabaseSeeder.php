@@ -379,9 +379,10 @@ class DatabaseSeeder extends Seeder
         // 4b. Seed the NIS ID Card Portal directory (officer verification source).
         //     These stand in for the official portal when no external API is
         //     configured, so registering an NIS officer can auto-populate bio-data.
+        // NIS Service Numbers are numeric, 2–5 digits.
         $officerDirectory = [
             [
-                'service_number' => 'NIS/2015/3921',
+                'service_number' => '48213',
                 'rank' => 'Assistant Superintendent of Immigration II (ASI-II)',
                 'command' => 'FCT Command, Abuja',
                 'first_name' => 'Musa', 'middle_name' => 'Adamu', 'last_name' => 'Ibrahim',
@@ -392,7 +393,7 @@ class DatabaseSeeder extends Seeder
                 'address' => 'No. 14 Zaria Road, Nassarawa GRA, Kano',
             ],
             [
-                'service_number' => 'NIS/2017/4455',
+                'service_number' => '9072',
                 'rank' => 'Inspector of Immigration (II)',
                 'command' => 'Lagos Command, Ikeja',
                 'first_name' => 'Grace', 'middle_name' => 'Ngozi', 'last_name' => 'Okonkwo',
@@ -403,7 +404,7 @@ class DatabaseSeeder extends Seeder
                 'address' => 'Flat 3B, NIS Barracks, Ikeja, Lagos',
             ],
             [
-                'service_number' => 'NIS/2010/1188',
+                'service_number' => '615',
                 'rank' => 'Deputy Superintendent of Immigration (DSI)',
                 'command' => 'Kaduna Command',
                 'first_name' => 'Sagir', 'middle_name' => null, 'last_name' => 'Abdullahi',
