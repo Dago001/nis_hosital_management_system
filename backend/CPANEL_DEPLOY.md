@@ -59,15 +59,15 @@ php artisan key:generate
 Edit `.env` and set at least:
 
 ```
-APP_URL=https://yourdomain.gov.ng
+APP_URL=https://hms.immigration.gov.ng
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE=cpuser_hms        # exact prefixed DB name
 DB_USERNAME=cpuser_admin      # exact prefixed user
 DB_PASSWORD=********
-SESSION_DOMAIN=yourdomain.gov.ng
-SANCTUM_STATEFUL_DOMAINS=yourdomain.gov.ng
+SESSION_DOMAIN=hms.immigration.gov.ng
+SANCTUM_STATEFUL_DOMAINS=hms.immigration.gov.ng
 MAIL_MAILER=smtp
 MAIL_HOST=...                 # your SMTP host
 MAIL_PORT=587
