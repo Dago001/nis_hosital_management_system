@@ -118,7 +118,7 @@ class PatientController extends Controller
             'first_name' => array_merge(['required', 'string', 'max:255'], $nameRule),
             'middle_name' => array_merge(['nullable', 'string', 'max:255'], $nameRule),
             'last_name' => array_merge(['required', 'string', 'max:255'], $nameRule),
-            'gender' => 'required|string|in:Male,Female,Other',
+            'gender' => 'required|string|in:Male,Female',
             'marital_status' => 'required|string|in:Single,Married,Divorced,Widowed,Separated',
             'occupation' => 'nullable|string|max:255',
             'religion' => 'nullable|string|in:Christianity,Islam,Traditional,Other',
