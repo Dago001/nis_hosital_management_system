@@ -679,7 +679,7 @@
             </div>
 
             <!-- Right History Panel (Tabs) -->
-            <div class="md:col-span-2 space-y-4">
+            <div class="md:col-span-2 flex flex-col gap-4 min-h-[26rem]">
                 <!-- Tab Headers -->
                 <div class="flex border-b border-slate-150 dark:border-slate-800">
                     <button type="button" onclick="switchDetailsTab('timeline')" id="tab-btn-timeline" class="border-b-2 border-emerald-600 px-4 py-2 text-xs font-bold text-emerald-650 focus:outline-none transition-all">
@@ -697,17 +697,17 @@
                 </div>
 
                 <!-- Tab 1: Timeline -->
-                <div class="max-h-72 overflow-y-auto space-y-4 pr-2" id="det-timeline">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-4 pr-2" id="det-timeline">
                     <!-- Events Injected dynamically -->
                 </div>
 
                 <!-- Tab 2: Medications -->
-                <div class="max-h-72 overflow-y-auto space-y-3 pr-2 hidden" id="det-medications">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-3 pr-2 hidden" id="det-medications">
                     <!-- Medications list Injected dynamically -->
                 </div>
 
                 <!-- Tab 3: Diagnostics -->
-                <div class="max-h-72 overflow-y-auto space-y-3 pr-2 hidden" id="det-diagnostics">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-3 pr-2 hidden" id="det-diagnostics">
                     <!-- Diagnostics list Injected dynamically -->
                 </div>
 
