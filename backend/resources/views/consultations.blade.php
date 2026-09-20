@@ -617,7 +617,7 @@
         // Append User Message
         chatLog.innerHTML += `
             <div class="flex gap-2 items-start text-[11px] justify-end">
-                <div class="bg-emerald-605 text-white p-2.5 rounded-2xl max-w-[85%] shadow-sm">
+                <div class="bg-emerald-600 text-white p-2.5 rounded-2xl max-w-[85%] shadow-sm">
                     <p class="leading-relaxed font-semibold">${htmlEntities(query)}</p>
                 </div>
             </div>
