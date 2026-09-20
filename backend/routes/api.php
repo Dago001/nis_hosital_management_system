@@ -103,7 +103,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/diagnostics/radiology/approve-result/{requestId}', [DiagnosticsController::class, 'approveRadiologyResult'])->middleware('role_or_permission:approve_diagnostics,medical_director,chief_medical_officer');
 
     // Billing & Finance
-    Route::get('/billing/invoices/pending', [BillingController::class, 'getPendingInvoices'])->middleware('role_or_permission:collect_payments');
+    Route::get('/billing/invoices/pending', [BillingController::class, 'getPendingInvoices'])->middleware('role_or_permission:collect_payments,medical_director,chief_medical_officer,hospital_admin,view_revenue_reports');
     Route::get('/billing/invoices/{id}', [BillingController::class, 'showInvoice']);
     Route::post('/billing/invoices/{invoiceId}/pay', [BillingController::class, 'collectPayment'])->middleware('role_or_permission:collect_payments');
 
