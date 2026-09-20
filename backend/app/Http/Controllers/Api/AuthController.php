@@ -40,8 +40,10 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // Check if MFA is enabled
-        if ($user->mfa_enabled) {
+        // Check if MFA is enabled.
+        // NOTE: MFA is temporarily bypassed for the Cashier role while testing.
+        //       Remove `&& !$user->hasRole('cashier')` to re-enable it for cashiers.
+        if ($user->mfa_enabled && !$user->hasRole('cashier')) {
             // Generate OTP
             $this->mfaService->generateOtp($user);
 
