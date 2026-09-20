@@ -139,6 +139,9 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     // Sponsor Lookup
     Route::get('/sponsor/lookup', [PatientController::class, 'lookupSponsor']);
 
+    // NIS Officer verification (ID Card Portal) — used when registering an officer
+    Route::get('/officers/lookup', [PatientController::class, 'lookupOfficer']);
+
 
     // === Queue Management ===
     Route::get('/queue', [App\Http\Controllers\Api\QueueController::class, 'index']);

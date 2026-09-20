@@ -51,4 +51,20 @@ return [
         'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 2000),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | NIS ID Card Portal (Officer verification & auto-population)
+    |--------------------------------------------------------------------------
+    | When "url" is set, officer registration verifies the Service Number
+    | against the official NIS ID Card Portal and auto-populates the officer's
+    | bio-data from it. When it is not set, the system falls back to the local
+    | officer_directory table (and existing staff/patient records), so officer
+    | verification keeps working on-premise / before the integration is live.
+    */
+    'nis_portal' => [
+        'url' => env('NIS_IDCARD_PORTAL_URL'),
+        'key' => env('NIS_IDCARD_PORTAL_KEY'),
+        'timeout' => (int) env('NIS_IDCARD_PORTAL_TIMEOUT', 8),
+    ],
+
 ];

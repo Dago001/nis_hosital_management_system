@@ -153,15 +153,62 @@
             <div id="step-section-1" class="space-y-4">
                 <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 mb-4">
                     <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Registration Mode</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            <input type="radio" name="registration_mode" id="mode-standalone" value="standalone" checked onchange="handleModeChange(this.value)" class="text-emerald-600 focus:ring-emerald-500">
-                            Standalone (Civilian/Officer)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label id="mode-card-officer" class="reg-mode-card flex items-start gap-3 cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 transition hover:border-emerald-400">
+                            <input type="radio" name="registration_mode" id="mode-officer" value="officer" onchange="handleModeChange(this.value)" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <span>
+                                <span class="flex items-center gap-1.5 text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> NIS Officer
+                                </span>
+                                <span class="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Verify by Service Number against the ID Card Portal, then auto-fill the officer's details.</span>
+                            </span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            <input type="radio" name="registration_mode" id="mode-dependant" value="dependant" onchange="handleModeChange(this.value)" class="text-emerald-600 focus:ring-emerald-500">
-                            Dependant of NIS Officer
+                        <label id="mode-card-civilian" class="reg-mode-card flex items-start gap-3 cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 transition hover:border-emerald-400">
+                            <input type="radio" name="registration_mode" id="mode-civilian" value="civilian" checked onchange="handleModeChange(this.value)" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <span>
+                                <span class="flex items-center gap-1.5 text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                                    <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i> Civilian
+                                </span>
+                                <span class="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Enter the patient's details manually. Dependants can be added.</span>
+                            </span>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Officer verification (NIS Officer mode only): Service Number first -->
+                <div id="officer-lookup-block" class="hidden mb-4">
+                    <div class="bg-emerald-50/60 dark:bg-emerald-500/5 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-500/20">
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Officer Service Number <span class="text-red-500">*</span></label>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+                            <div class="flex-grow">
+                                <input type="text" id="officer_service_number" data-filter="code" placeholder="e.g. NIS/2015/3921" onkeydown="if(event.key==='Enter'){event.preventDefault();handleVerifyOfficer();}" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                            <button type="button" id="verify-officer-btn" onclick="handleVerifyOfficer()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center justify-center gap-1">
+                                <i data-lucide="search" class="w-4 h-4"></i> Verify &amp; Fetch
+                            </button>
+                        </div>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-2">This confirms the person is a serving officer of the Nigeria Immigration Service. Fields unlock once the officer is verified.</p>
+
+                        <!-- Verification result card -->
+                        <div id="officer-verify-status" class="hidden mt-3 p-3 rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-slate-950 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600">
+                                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="officer-fullname-label">Officer verified</h4>
+                                    <p class="text-[9px] text-slate-500 dark:text-slate-400" id="officer-meta-label"></p>
+                                </div>
+                            </div>
+                            <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">Verified</span>
+                        </div>
+                        <!-- Already-registered notice -->
+                        <div id="officer-already-registered" class="hidden mt-3 p-3 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] font-semibold">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                <span id="officer-already-registered-text">This officer already has a patient file. You can add dependants to their existing file below.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -284,14 +331,6 @@
                         <input type="text" id="tribe" data-filter="letters" maxLength="60" placeholder="e.g. Hausa, Igbo, Yoruba" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                     </div>
                 </div>
-
-                <!-- Dependant Mode notice in Step 1 -->
-                <div id="dependant-mode-notice" class="hidden p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="info" class="w-4 h-4"></i>
-                        <span>Dependant mode active: names, DOB, gender and sponsor details will be configured in Step 2.</span>
-                    </div>
-                </div>
             </div>
 
             <!-- STEP 2: Dependant Details -->
@@ -311,32 +350,9 @@
                         <span>NOTE: Dependants are limited to 1 Wife (no age limit) and 3 Children (under 18 years).</span>
                     </div>
 
-                    <!-- Sponsor search input (only when adding to an EXISTING officer) -->
-                    <div id="sponsor-block" class="space-y-4">
-                        <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
-                            <div class="flex-grow">
-                                <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
-                                <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                            </div>
-                            <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
-                                <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
-                            </button>
-                        </div>
-
-                        <!-- Sponsor verification card -->
-                        <div id="sponsor-verify-status" class="hidden p-4 rounded-xl border border-slate-200 dark:border-slate-850 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600" id="sponsor-icon-box">
-                                    <i data-lucide="user-check" class="w-4 h-4"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="sponsor-fullname-label">Sponsor Found</h4>
-                                    <p class="text-[9px] text-slate-500 dark:text-slate-400">Surname auto-populated: <b class="text-slate-700 dark:text-slate-200 uppercase" id="sponsor-surname-badge"></b></p>
-                                </div>
-                            </div>
-                            <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
-                        </div>
-                    </div>
+                    <!-- Dependants are tied to the officer/civilian being registered
+                         on this form; the officer is verified in Step 1. -->
+                    <input type="hidden" id="sponsor_service_number" value="">
 
                     <!-- Dependant Name & Details -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -913,71 +929,191 @@
         }, 300);
     }
     let currentRegisterStep = 1;
-    let registrationMode = 'standalone';
-    let sponsorVerified = false;
-    let sponsorSurname = '';
+    let registrationMode = 'civilian';           // 'civilian' | 'officer'
+    // Officer-mode verification state (ID Card Portal)
+    let officerVerified = false;
+    let officerData = null;                       // fetched officer bio-data
+    let officerAlreadyPatientId = null;           // set when officer already has a file
+    // Dependants tied to the person being registered
+    let sponsorExistingDependants = [];           // dependants already on an existing file
     let sponsorPhone = '';
-    let sponsorExistingDependants = [];
-    let sponsorAddress = { state: '', lga: '', city: '', address: '' };
     let pendingDependants = [];
+
+    function setModeCardHighlight(mode) {
+        const cards = { officer: document.getElementById('mode-card-officer'), civilian: document.getElementById('mode-card-civilian') };
+        Object.entries(cards).forEach(([key, el]) => {
+            if (!el) return;
+            if (key === mode) {
+                el.classList.add('border-emerald-500', 'ring-1', 'ring-emerald-500', 'bg-emerald-50/40', 'dark:bg-emerald-500/5');
+                el.classList.remove('border-slate-200', 'dark:border-slate-800');
+            } else {
+                el.classList.remove('border-emerald-500', 'ring-1', 'ring-emerald-500', 'bg-emerald-50/40', 'dark:bg-emerald-500/5');
+                el.classList.add('border-slate-200', 'dark:border-slate-800');
+            }
+        });
+    }
 
     function handleModeChange(mode) {
         registrationMode = mode;
-        const demographicsContainer = document.getElementById('standalone-demographics-container');
-        const dependantNotice = document.getElementById('dependant-mode-notice');
+        setModeCardHighlight(mode);
 
+        const demographicsContainer = document.getElementById('standalone-demographics-container');
         const depActive = document.getElementById('dependant-active-inputs');
-        const sponsorBlock = document.getElementById('sponsor-block');
+        const sponsorBlock = document.getElementById('sponsor-block');   // legacy Step-2 sponsor search: unused now
+        const officerBlock = document.getElementById('officer-lookup-block');
         const introText = document.getElementById('dependant-intro-text');
         const step4Markers = document.getElementById('step4-main-markers');
         const step4Note = document.getElementById('step4-dep-note');
 
-        const firstName = document.getElementById('first_name');
-        const lastName = document.getElementById('last_name');
-        const dob = document.getElementById('date_of_birth');
-        const phone = document.getElementById('phone');
-        const marital = document.getElementById('marital_status');
+        const demoFields = ['first_name', 'last_name', 'date_of_birth', 'phone', 'gender', 'email', 'middle_name'];
 
-        // The dependant capture card is available in BOTH modes now.
+        // Dependant capture and manual demographics are available in BOTH modes.
         if (depActive) depActive.classList.remove('hidden');
+        if (demographicsContainer) demographicsContainer.classList.remove('hidden');
+        if (sponsorBlock) sponsorBlock.classList.add('hidden');          // never used in the new flow
+        if (introText) introText.textContent = 'Optionally add dependants (spouse/children) for this file. They are tied to it automatically. You can skip and click Next.';
 
-        if (mode === 'standalone') {
-            if (demographicsContainer) demographicsContainer.classList.remove('hidden');
-            if (dependantNotice) dependantNotice.classList.add('hidden');
+        // Reset officer + dependant state whenever the mode changes.
+        officerVerified = false;
+        officerData = null;
+        officerAlreadyPatientId = null;
+        sponsorExistingDependants = [];
+        pendingDependants = [];
+        renderPendingDependantsList();
+        const ovs = document.getElementById('officer-verify-status');
+        if (ovs) ovs.classList.add('hidden');
+        const oar = document.getElementById('officer-already-registered');
+        if (oar) oar.classList.add('hidden');
 
-            // No sponsor lookup: dependants are tied to the person being registered.
-            if (sponsorBlock) sponsorBlock.classList.add('hidden');
-            if (introText) introText.textContent = 'Optionally add dependants (spouse/children) for this officer/civilian. They are tied to this file automatically. You can skip and click Next.';
-            if (step4Markers) step4Markers.classList.remove('hidden');
-            if (step4Note) step4Note.classList.add('hidden');
+        // Medical markers card is shown for a NEW main file (always in this flow).
+        if (step4Markers) step4Markers.classList.remove('hidden');
+        if (step4Note) step4Note.classList.add('hidden');
 
-            if (firstName) firstName.setAttribute('required', 'required');
-            if (lastName) lastName.setAttribute('required', 'required');
-            if (dob) dob.setAttribute('required', 'required');
-            if (phone) phone.setAttribute('required', 'required');
-            if (marital) marital.setAttribute('required', 'required');
+        const svcField = document.getElementById('immigration_service_number');
+        if (mode === 'officer') {
+            if (officerBlock) officerBlock.classList.remove('hidden');
+            // Lock the demographic fields until the officer is verified.
+            setDemographicsLocked(true);
+            // The service number is authoritative (from the portal) — not typed here.
+            if (svcField) { svcField.value = ''; svcField.disabled = true; svcField.classList.add('opacity-70'); }
+            if (introText) introText.textContent = 'Add the verified officer’s dependants (spouse/children). They are tied to the officer automatically.';
         } else {
-            if (demographicsContainer) demographicsContainer.classList.add('hidden');
-            if (dependantNotice) dependantNotice.classList.remove('hidden');
-
-            // Adding dependants to an EXISTING officer: sponsor must be verified.
-            if (sponsorBlock) sponsorBlock.classList.remove('hidden');
-            if (introText) introText.textContent = 'Verify the existing officer/sponsor, then add their dependants. Address auto-populates from the officer’s file.';
-            if (step4Markers) step4Markers.classList.add('hidden');
-            if (step4Note) step4Note.classList.remove('hidden');
-
-            if (firstName) firstName.removeAttribute('required');
-            if (lastName) lastName.removeAttribute('required');
-            if (dob) dob.removeAttribute('required');
-            if (phone) phone.removeAttribute('required');
-            if (marital) marital.removeAttribute('required');
+            if (officerBlock) officerBlock.classList.add('hidden');
+            setDemographicsLocked(false);
+            if (svcField) { svcField.value = ''; svcField.disabled = false; svcField.classList.remove('opacity-70'); }
         }
 
-        // Reset dependants lists when switching modes
-        pendingDependants = [];
-        sponsorExistingDependants = [];
-        sponsorVerified = false;
-        renderPendingDependantsList();
+        // Required attributes for the manual demographics (both modes need them,
+        // but in officer mode they are filled by the portal fetch).
+        const req = ['first_name', 'last_name', 'date_of_birth', 'phone', 'marital_status'];
+        req.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('required', 'required'); });
+        void demoFields;
+    }
+
+    // Enable/disable the officer demographic inputs until verification succeeds.
+    function setDemographicsLocked(locked) {
+        const ids = ['first_name', 'middle_name', 'last_name', 'gender', 'date_of_birth',
+                     'phone', 'email', 'nin', 'marital_status', 'religion', 'occupation',
+                     'place_of_birth', 'tribe', 'passport_photo'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.disabled = locked;
+            el.classList.toggle('opacity-50', locked);
+            el.classList.toggle('cursor-not-allowed', locked);
+        });
+    }
+
+    // Verify an officer's Service Number against the ID Card Portal and
+    // auto-populate the form with their bio-data.
+    async function handleVerifyOfficer() {
+        const input = document.getElementById('officer_service_number');
+        if (!input) return;
+        const serviceNum = input.value.trim();
+        if (serviceNum.length < 3) {
+            alert('Please enter the officer’s Service Number (at least 3 characters).');
+            return;
+        }
+        const btn = document.getElementById('verify-officer-btn');
+        if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+        try {
+            const res = await api.get(`/officers/lookup?service_number=${encodeURIComponent(serviceNum)}`);
+            if (!res.found) {
+                officerVerified = false;
+                officerData = null;
+                officerAlreadyPatientId = null;
+                document.getElementById('officer-verify-status').classList.add('hidden');
+                document.getElementById('officer-already-registered').classList.add('hidden');
+                setDemographicsLocked(true);
+                alert(res.message || 'Officer not found in the ID Card Portal.');
+                return;
+            }
+
+            officerVerified = true;
+            officerData = res.officer || {};
+            officerAlreadyPatientId = res.already_registered ? res.patient_id : null;
+            sponsorExistingDependants = res.existing_dependants || [];
+            sponsorPhone = officerData.phone || '';
+
+            // Unlock and auto-populate the demographic fields.
+            setDemographicsLocked(false);
+            applyOfficerData(officerData, serviceNum);
+            document.getElementById('immigration_service_number').disabled = true; // service number stays authoritative
+
+            // Verification card
+            const fullName = [officerData.first_name, officerData.middle_name, officerData.last_name].filter(Boolean).join(' ');
+            document.getElementById('officer-fullname-label').innerText = fullName || 'Officer verified';
+            const meta = [officerData.rank, officerData.command, 'Service No: ' + serviceNum].filter(Boolean).join(' · ');
+            document.getElementById('officer-meta-label').innerText = meta;
+            document.getElementById('officer-verify-status').classList.remove('hidden');
+
+            // Already-registered handling: switch to dependants-only.
+            const oar = document.getElementById('officer-already-registered');
+            const step4Markers = document.getElementById('step4-main-markers');
+            const step4Note = document.getElementById('step4-dep-note');
+            if (officerAlreadyPatientId) {
+                oar.classList.remove('hidden');
+                document.getElementById('officer-already-registered-text').innerText =
+                    `This officer already has a patient file (${res.hospital_number || 'existing file'}). Add dependants to the existing file below, then click through to save.`;
+                if (step4Markers) step4Markers.classList.add('hidden');
+                if (step4Note) step4Note.classList.remove('hidden');
+            } else {
+                oar.classList.add('hidden');
+                if (step4Markers) step4Markers.classList.remove('hidden');
+                if (step4Note) step4Note.classList.add('hidden');
+            }
+
+            const srcNote = res.source === 'portal' ? '' : ' (from local directory)';
+            alert('Officer verified successfully' + srcNote + '. Details auto-filled — review and complete the form.');
+            lucide.createIcons();
+        } catch (err) {
+            officerVerified = false;
+            setDemographicsLocked(true);
+            alert('Officer verification failed: ' + (err.message || 'connection error'));
+        } finally {
+            if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+        }
+    }
+
+    // Copy fetched officer bio-data into the registration form.
+    function applyOfficerData(o, serviceNum) {
+        const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
+        set('first_name', o.first_name);
+        set('middle_name', o.middle_name);
+        set('last_name', o.last_name);
+        set('date_of_birth', o.date_of_birth);
+        set('phone', o.phone);
+        set('email', o.email);
+        set('nin', o.nin);
+        set('immigration_service_number', serviceNum);
+        if (o.gender) { const g = document.getElementById('gender'); if (g) g.value = o.gender; }
+        if (o.marital_status) { const m = document.getElementById('marital_status'); if (m) m.value = o.marital_status; }
+        updateAgeDisplay();
+        // Address (Step 3) — auto-fill from the officer's file, still editable.
+        const stateSel = document.getElementById('state');
+        if (o.state && stateSel) { stateSel.value = o.state; handleStateChange(o.state); const l = document.getElementById('lga'); if (o.lga && l) l.value = o.lga; }
+        if (o.city) set('city', o.city);
+        if (o.address) set('address', o.address);
     }
 
     function calculateAge(dobString) {
@@ -1015,7 +1151,7 @@
         const ageWarning = document.getElementById('dependant-age-warning');
         const ageMsg = document.getElementById('dependant-age-msg');
         
-        if (registrationMode !== 'dependant' || !dob) {
+        if (!dob) {
             if (ageWarning) ageWarning.classList.add('hidden');
             return true;
         }
@@ -1036,65 +1172,6 @@
         } else {
             if (ageWarning) ageWarning.classList.add('hidden');
             return true;
-        }
-    }
-
-    async function handleVerifySponsor() {
-        const serviceNumInput = document.getElementById('sponsor_service_number');
-        if (!serviceNumInput) return;
-        const serviceNum = serviceNumInput.value.trim();
-        const statusCard = document.getElementById('sponsor-verify-status');
-        const fullnameLabel = document.getElementById('sponsor-fullname-label');
-        const surnameBadge = document.getElementById('sponsor-surname-badge');
-        
-        if (serviceNum.length < 3) {
-            alert('Please enter a valid Service Number (at least 3 characters).');
-            return;
-        }
-        
-        try {
-            const res = await api.get(`/sponsor/lookup?service_number=${encodeURIComponent(serviceNum)}`);
-            if (res.found) {
-                sponsorVerified = true;
-                sponsorSurname = res.surname;
-                sponsorPhone = res.phone || '';
-                sponsorExistingDependants = res.existing_dependants || [];
-                sponsorAddress = {
-                    state: res.state || '',
-                    lga: res.lga || '',
-                    city: res.city || '',
-                    address: res.address || '',
-                };
-
-                // Auto-populate the dependant's address from the sponsor's file.
-                applySponsorAddress();
-
-                // Clear any leftover pending list when verifying new sponsor
-                pendingDependants = [];
-                renderPendingDependantsList();
-                updateRelationshipOptions();
-
-                if (statusCard) statusCard.classList.remove('hidden');
-                if (fullnameLabel) fullnameLabel.innerText = res.full_name;
-                if (surnameBadge) surnameBadge.innerText = res.surname;
-
-                const addrNote = sponsorAddress.address ? ' Address auto-filled from the officer’s file.' : '';
-                alert('Sponsor verified successfully! Surname mapped.' + addrNote);
-            } else {
-                sponsorVerified = false;
-                sponsorSurname = '';
-                sponsorPhone = '';
-                sponsorExistingDependants = [];
-                if (statusCard) statusCard.classList.add('hidden');
-                alert(res.message || 'Sponsor not found. Please verify the Service Number.');
-            }
-        } catch (err) {
-            sponsorVerified = false;
-            sponsorSurname = '';
-            sponsorPhone = '';
-            sponsorExistingDependants = [];
-            if (statusCard) statusCard.classList.add('hidden');
-            alert('Sponsor verification failed: ' + (err.message || 'connection error'));
         }
     }
 
@@ -1146,24 +1223,20 @@
         const depPhotoInput = document.getElementById('dep_passport_photo');
         const depPhotoFile = (depPhotoInput && depPhotoInput.files && depPhotoInput.files[0]) ? depPhotoInput.files[0] : null;
 
-        // Resolve the surname + sponsor link depending on the mode.
-        let depLastName, sponsor;
-        if (registrationMode === 'standalone') {
-            // Tie the dependant to the officer/civilian being registered now.
-            depLastName = document.getElementById('last_name').value.trim();
-            if (!depLastName) {
-                alert('Please fill the officer/civilian’s Last Name in Step 1 first.');
-                return;
-            }
-            sponsor = ''; // resolved to the new file's service number on submit
-        } else {
-            sponsor = document.getElementById('sponsor_service_number').value.trim();
-            if (!sponsor || !sponsorVerified) {
-                alert('Please verify the Sponsor/Officer Service Number first.');
-                return;
-            }
-            depLastName = sponsorSurname;
+        // Dependants are tied to the officer/civilian being registered on this
+        // form. In officer mode the person is verified; in both modes the surname
+        // comes from the main file's Last Name (auto-filled for officers).
+        if (registrationMode === 'officer' && !officerVerified) {
+            alert('Please verify the officer’s Service Number in Step 1 first.');
+            return;
         }
+        let depLastName = document.getElementById('last_name').value.trim();
+        if (!depLastName) {
+            alert('Please fill (or verify) the patient’s Last Name in Step 1 first.');
+            return;
+        }
+        // Resolved to the file's service number at submit time.
+        let sponsor = (registrationMode === 'officer' && officerData) ? (officerData.service_number || '') : '';
 
         if (!depFirst || !depDob) {
             alert('Please fill out First Name and Date of Birth.');
@@ -1271,18 +1344,23 @@
             lgaSelect.innerHTML = '<option value="">Select LGA</option>';
         }
 
-        // Hide dependant inputs and verification status by default
-        const verifyStatus = document.getElementById('sponsor-verify-status');
-        if (verifyStatus) verifyStatus.classList.add('hidden');
+        // Hide officer verification + age status by default
+        const ovs = document.getElementById('officer-verify-status');
+        if (ovs) ovs.classList.add('hidden');
+        const oar = document.getElementById('officer-already-registered');
+        if (oar) oar.classList.add('hidden');
+        const officerNumInput = document.getElementById('officer_service_number');
+        if (officerNumInput) officerNumInput.value = '';
         const ageWarning = document.getElementById('dependant-age-warning');
         if (ageWarning) ageWarning.classList.add('hidden');
 
-        // Reset memory lists
+        // Reset memory lists + officer state
         pendingDependants = [];
         sponsorExistingDependants = [];
-        sponsorVerified = false;
-        sponsorSurname = '';
         sponsorPhone = '';
+        officerVerified = false;
+        officerData = null;
+        officerAlreadyPatientId = null;
         renderPendingDependantsList();
 
         // Reset passport photo preview
@@ -1296,12 +1374,10 @@
         if (nhisNo) nhisNo.checked = true;
         handleNhisChange('no');
 
-        // Set standalone mode default
-        const modeStandaloneRadio = document.getElementById('mode-standalone');
-        if (modeStandaloneRadio) {
-            modeStandaloneRadio.checked = true;
-        }
-        handleModeChange('standalone');
+        // Default to Civilian mode
+        const modeCivilianRadio = document.getElementById('mode-civilian');
+        if (modeCivilianRadio) modeCivilianRadio.checked = true;
+        handleModeChange('civilian');
 
         // Reset wizard to Step 1
         currentRegisterStep = 1;
@@ -1379,56 +1455,43 @@
 
     function handleNextStep() {
         if (currentRegisterStep === 1) {
-            // Validate Step 1 fields based on mode
-            if (registrationMode === 'standalone') {
-                const gender = document.getElementById('gender').value;
-                const phone = document.getElementById('phone').value.trim();
-                const first = document.getElementById('first_name').value.trim();
-                const last = document.getElementById('last_name').value.trim();
-                const dob = document.getElementById('date_of_birth').value;
-                const marital = document.getElementById('marital_status').value;
-                if (!first || !last || !gender || !dob || !phone) {
-                    alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
-                    return;
-                }
-                if (!marital) {
-                    alert('Please select a Marital Status.');
-                    return;
-                }
+            // NIS Officer must be verified against the ID Card Portal first.
+            if (registrationMode === 'officer' && !officerVerified) {
+                alert('Please verify the officer’s Service Number before continuing.');
+                return;
+            }
+            const gender = document.getElementById('gender').value;
+            const phone = document.getElementById('phone').value.trim();
+            const first = document.getElementById('first_name').value.trim();
+            const last = document.getElementById('last_name').value.trim();
+            const dob = document.getElementById('date_of_birth').value;
+            const marital = document.getElementById('marital_status').value;
+            if (!first || !last || !gender || !dob || !phone) {
+                alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
+                return;
+            }
+            if (!marital) {
+                alert('Please select a Marital Status.');
+                return;
             }
         }
-        
+
         if (currentRegisterStep === 2) {
             const depFirst = document.getElementById('dep_first_name').value.trim();
             const depDob = document.getElementById('dep_date_of_birth').value;
 
-            if (registrationMode === 'dependant') {
-                // Adding dependants to an existing officer: sponsor + >=1 dependant required.
-                const sponsor = document.getElementById('sponsor_service_number').value.trim();
-                if (!sponsor) {
-                    alert('Sponsor/Officer Service Number is required.');
-                    return;
-                }
-                if (!sponsorVerified) {
-                    alert('Please verify the Sponsor Service Number before proceeding.');
-                    return;
-                }
-                if (pendingDependants.length === 0) {
-                    if (depFirst || depDob) {
-                        handleAddDependantClick();
-                        if (pendingDependants.length === 0) return; // add failed (age policy, limits)
-                    } else {
-                        alert('Please add at least one Dependant before proceeding.');
-                        return;
-                    }
-                }
-            } else {
-                // Standalone: dependants are OPTIONAL. If details were typed but not
-                // added, capture them so they aren't lost; otherwise just continue.
-                if (pendingDependants.length === 0 && (depFirst || depDob)) {
-                    handleAddDependantClick();
-                    if (pendingDependants.length === 0) return; // add failed (age policy, limits)
-                }
+            // Dependants are OPTIONAL. If details were typed but not added,
+            // capture them so they aren't lost; otherwise just continue.
+            if (pendingDependants.length === 0 && (depFirst || depDob)) {
+                handleAddDependantClick();
+                if (pendingDependants.length === 0) return; // add failed (age policy, limits)
+            }
+
+            // For an already-registered officer we are adding dependants only, so
+            // at least one dependant is required.
+            if (registrationMode === 'officer' && officerAlreadyPatientId && pendingDependants.length === 0) {
+                alert('This officer already has a file. Add at least one dependant to continue.');
+                return;
             }
         }
 
@@ -1463,36 +1526,29 @@
             const allergies = document.getElementById('allergies').value.trim() || 'None';
             const disability = document.getElementById('disability').value.trim() || 'None';
 
-            const sponsor = document.getElementById('sponsor_service_number').value.trim();
             const nhisYes = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
             const nhisNum = document.getElementById('nhis_number').value.trim();
 
             const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor}) [${d.blood_group}/${d.genotype}]`).join(', ');
+            const dependantsOnly = (registrationMode === 'officer' && officerAlreadyPatientId);
 
-            if (registrationMode === 'standalone') {
-                document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
-                document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
-                document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
-                document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo} | NHIS: ${nhisYes ? 'Yes (' + (nhisNum || '—') + ')' : 'No (cash)'}`;
+            document.getElementById('prev-name').innerText =
+                (middle ? `${first} ${middle} ${last}` : `${first} ${last}`) + (dependantsOnly ? ' — existing officer file' : '');
+            document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob}${dob ? ' (Age: ' + calculateAge(dob) + ' years)' : ''}`;
+            document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
+            const kind = registrationMode === 'officer' ? 'NIS Officer' : 'Civilian';
+            document.getElementById('prev-identifiers').innerText = `${kind} | NIN: ${nin} | Service No: ${serviceNo} | NHIS: ${nhisYes ? 'Yes (' + (nhisNum || '—') + ')' : 'No (cash)'}`;
 
-                if (pendingDependants.length > 0) {
-                    document.getElementById('prev-row-dependant').classList.remove('hidden');
-                    document.getElementById('prev-dependant').innerText = `${pendingDependants.length} tied to this file: ${depsStr}`;
-                } else {
-                    document.getElementById('prev-row-dependant').classList.add('hidden');
-                }
-                document.getElementById('prev-medical').innerText = `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
-            } else {
-                // Dependant-of-officer preview
-                document.getElementById('prev-name').innerText = depsStr;
-                document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
-                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '·'}`;
-                document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
-
+            if (pendingDependants.length > 0) {
                 document.getElementById('prev-row-dependant').classList.remove('hidden');
-                document.getElementById('prev-dependant').innerText = `Yes (${pendingDependants.length} Dependant(s) under Sponsor: ${sponsor})`;
-                document.getElementById('prev-medical').innerText = 'Set per dependant (see Dependant Status above)';
+                document.getElementById('prev-dependant').innerText =
+                    `${pendingDependants.length} ${dependantsOnly ? 'to add to this officer' : 'tied to this file'}: ${depsStr}`;
+            } else {
+                document.getElementById('prev-row-dependant').classList.add('hidden');
             }
+            document.getElementById('prev-medical').innerText = dependantsOnly
+                ? 'Existing officer file — medical markers set per dependant'
+                : `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
 
             document.getElementById('prev-address').innerText = `${address}, ${lga}, ${state} State`;
         }
@@ -1635,26 +1691,12 @@
         catch (e) { console.warn('Passport photo upload failed:', e); }
     }
 
-    // Copy a verified sponsor's residential address into the Step 3 fields.
-    function applySponsorAddress() {
-        if (!sponsorAddress) return;
-        const stateSel = document.getElementById('state');
-        const lgaSel = document.getElementById('lga');
-        const citySel = document.getElementById('city');
-        const addrEl = document.getElementById('address');
-        if (sponsorAddress.state && stateSel) {
-            stateSel.value = sponsorAddress.state;
-            handleStateChange(sponsorAddress.state);
-            if (sponsorAddress.lga && lgaSel) lgaSel.value = sponsorAddress.lga;
-        }
-        if (sponsorAddress.city && citySel) citySel.value = sponsorAddress.city;
-        if (sponsorAddress.address && addrEl) addrEl.value = sponsorAddress.address;
-    }
-
     async function handleRegisterSubmit(e) {
         e.preventDefault();
 
-        const isDepMode = (registrationMode === 'dependant');
+        // Dependants-only path: an NIS officer who already has a patient file —
+        // we just attach dependants to it, we do not recreate the officer.
+        const isDependantsOnly = (registrationMode === 'officer' && officerAlreadyPatientId);
         const val = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
 
         // Address + next-of-kin context shared by the main file and its dependants.
@@ -1696,7 +1738,7 @@
         const mainNhisNumber = mainIsNhis ? (document.getElementById('nhis_number').value.trim() || null) : null;
 
         try {
-            if (!isDepMode) {
+            if (!isDependantsOnly) {
                 // 1. Register the main officer/civilian.
                 const serviceNo = document.getElementById('immigration_service_number').value.trim();
                 const mainPayload = {
@@ -1740,17 +1782,18 @@
                 document.getElementById('success-patient-name').innerText = created.map(p => p.full_name).join(', ');
                 document.getElementById('success-patient-code').innerText = created.map(p => p.immigration_service_number).join(', ');
             } else {
-                // Dependants for an EXISTING officer.
+                // Dependants for an EXISTING NIS officer (officer file already exists).
                 if (pendingDependants.length === 0) {
                     const depFirst = document.getElementById('dep_first_name').value.trim();
                     const depDob = document.getElementById('dep_date_of_birth').value;
                     if (depFirst || depDob) { handleAddDependantClick(); if (pendingDependants.length === 0) return; }
                     else { alert('Please add at least one Dependant.'); return; }
                 }
+                const officerService = officerData ? officerData.service_number : '';
                 const registeredPats = [];
                 for (const dep of pendingDependants) {
-                    // Dependants of an existing NIS officer are NHIS-covered.
-                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number, sponsorPhone, true));
+                    // Dependants of an NIS officer are NHIS-covered.
+                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number || officerService, sponsorPhone, true));
                     await uploadPatientPhoto(depRes.patient.id, dep.photoFile);
                     registeredPats.push(depRes.patient);
                 }
