@@ -247,6 +247,7 @@
 <script>
     let activeRequest = null;
     let labWorklist = [];
+    let currentLabReport = null;
     let labCatalogue = {}; // keyed by lowercased test name AND code
 
     const FLAG_META = {
@@ -362,8 +363,8 @@
                 } else if (stage === 'approved') {
                     statusClass = 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
                     actionHTML = `
-                        <button onclick="openPrintReportModal(${req.id})" class="bg-slate-800 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-705 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
-                            Print Report
+                        <button onclick="openPrintReportModal(${req.id})" class="inline-flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
+                            <i data-lucide="printer" class="w-3 h-3"></i> Print Report
                         </button>
                     `;
                 }
@@ -488,6 +489,22 @@
         
         document.getElementById('rep-stamp').innerText = `Verification ID: NIS-LAB-VERIFIED-${req.id}-${new Date(req.updated_at).getTime()}`;
 
+        // Keep the data so the Print button can render a self-contained document.
+        currentLabReport = {
+            patient: `${req.patient.first_name} ${req.patient.last_name}`,
+            code: req.patient.immigration_service_number || '',
+            doctor: `Dr. ${req.doctor?.full_name || 'Staff'}`,
+            scientist: scientistName,
+            date: authDate.toLocaleString(),
+            dateShort: authDate.toLocaleDateString(),
+            test: req.test_name,
+            value: (req.result_value || 'Pending') + flagTxt,
+            range: (req.normal_range_min || req.normal_range_max) ? `${req.normal_range_min || '0'} - ${req.normal_range_max || '∞'}` : 'N/A',
+            unit: req.unit || 'N/A',
+            remarks: req.remarks || 'No pathology comments provided.',
+            id: req.id,
+        };
+
         document.getElementById('print-report-modal').classList.remove('hidden');
     }
 
@@ -495,8 +512,59 @@
         document.getElementById('print-report-modal').classList.add('hidden');
     }
 
+    // Print via a self-contained window (reliable — avoids @media print pitfalls).
     function printReportVoucher() {
-        window.print();
+        const r = currentLabReport;
+        if (!r) { window.print(); return; }
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        const w = window.open('', '_blank', 'width=800,height=900');
+        if (!w) { alert('Please allow pop-ups to print the report.'); return; }
+        w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Lab Report — ${esc(r.test)}</title>
+        <style>
+            *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#1e293b}
+            body{padding:32px;max-width:720px;margin:auto}
+            .hd{text-align:center;border-bottom:2px solid #0B6B3A;padding-bottom:12px;margin-bottom:16px}
+            .hd h1{font-size:18px;margin:4px 0;color:#0B6B3A;text-transform:uppercase;letter-spacing:1px}
+            .hd h2{font-size:12px;margin:2px 0;color:#475569;font-weight:600}
+            .hd p{font-size:10px;color:#94a3b8;margin:2px 0}
+            .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;margin:12px 0}
+            .lbl{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:700;display:block}
+            table{width:100%;border-collapse:collapse;margin:12px 0;font-size:11px}
+            th,td{border:1px solid #e2e8f0;padding:8px;text-align:left}
+            th{background:#f1f5f9;text-transform:uppercase;font-size:9px;letter-spacing:.5px}
+            .remarks{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:11px;font-style:italic}
+            .sign{display:flex;justify-content:space-between;margin-top:40px;font-size:10px}
+            .sign .line{border-top:1px solid #64748b;width:200px;padding-top:4px;text-align:center}
+            .foot{text-align:center;font-size:8px;color:#94a3b8;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px}
+        </style></head><body>
+            <div class="hd">
+                <h1>Nigeria Immigration Service</h1>
+                <h2>Pathological &amp; Diagnostic Laboratories, Abuja</h2>
+                <p>Official Clinical Laboratory Report</p>
+            </div>
+            <div class="grid">
+                <div><span class="lbl">Patient Name</span> ${esc(r.patient)}</div>
+                <div><span class="lbl">Hospital Code</span> ${esc(r.code)}</div>
+                <div><span class="lbl">Ordering Doctor</span> ${esc(r.doctor)}</div>
+                <div><span class="lbl">Conducted / Verified By</span> ${esc(r.scientist)}</div>
+                <div><span class="lbl">Date Authorized</span> ${esc(r.date)}</div>
+            </div>
+            <table>
+                <thead><tr><th>Investigation</th><th>Result</th><th>Reference Range</th><th>Unit</th></tr></thead>
+                <tbody><tr>
+                    <td><b>${esc(r.test)}</b></td><td><b>${esc(r.value)}</b></td>
+                    <td>${esc(r.range)}</td><td>${esc(r.unit)}</td>
+                </tr></tbody>
+            </table>
+            <div class="remarks"><b>Pathologist / Scientist Remarks:</b> ${esc(r.remarks)}</div>
+            <div class="sign">
+                <div class="line"><b>${esc(r.scientist)}</b><br><span style="font-size:8px;color:#94a3b8">Conducted / Verified By</span></div>
+                <div class="line">${esc(r.dateShort)}<br><span style="font-size:8px;color:#94a3b8">Date</span></div>
+            </div>
+            <div class="foot">This report has been electronically verified and authorized for clinical release. Verification ID: NIS-LAB-${r.id}</div>
+            <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+        w.document.close();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -504,44 +572,4 @@
         loadLabQueue();
     });
 </script>
-
-<style>
-    @media print {
-        header, footer, aside, nav, button, select, h1, p, input, .grid, .bg-white:not(#print-report-modal), #result-modal {
-            display: none !important;
-        }
-        body {
-            background: white !important;
-            color: black !important;
-        }
-        #print-report-modal {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            display: block !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        #print-report-modal > div {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-        }
-        #printable-report-area {
-            border: none !important;
-            padding: 0 !important;
-            width: 100% !important;
-        }
-        button {
-            display: none !important;
-        }
-    }
-</style>
 @endsection
