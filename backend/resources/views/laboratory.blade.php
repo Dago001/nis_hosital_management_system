@@ -291,16 +291,29 @@
         document.getElementById('lab-stat-approved').innerText = list.filter(r => r.status === 'approved').length;
     }
 
+    // Normalised workflow stage — treats legacy 'completed' rows that carry a
+    // draft result as 'result_submitted' (pending authorization) so the approve
+    // button still appears for them.
+    function labStage(req) {
+        const hasResult = !!req.result_value;
+        const isApproved = req.result_status === 'approved' || req.status === 'approved';
+        if (isApproved) return 'approved';
+        if (req.status === 'result_submitted' || (req.status === 'completed' && hasResult)) return 'result_submitted';
+        return req.status;
+    }
+
     function filterWorklist() {
         const query = document.getElementById('lab-search').value.toLowerCase().trim();
         const status = document.getElementById('lab-status-filter').value;
-        const role = user.roles && user.roles[0] ? user.roles[0].name : '';
+        const roles = (user.roles || []).map(r => r.name);
+        const canProcess = ['super_admin', 'lab_scientist', 'radiographer'].some(x => roles.includes(x));
+        const canApprove = ['super_admin', 'medical_director', 'chief_medical_officer'].some(x => roles.includes(x));
         const tbody = document.getElementById('lab-table-body');
 
         let filtered = labWorklist;
 
         if (status !== 'all') {
-            filtered = filtered.filter(r => r.status === status);
+            filtered = filtered.filter(r => labStage(r) === status);
         }
 
         if (query.length > 0) {
@@ -325,27 +338,28 @@
                         : `<span class="ml-1 px-2 py-0.5 text-[8px] font-black rounded-full uppercase bg-red-500/10 text-red-600 border border-red-500/20">Awaiting Payment</span>`;
                 }
 
-                if (req.status === 'requested') {
+                const stage = labStage(req);
+                if (stage === 'requested') {
                     statusClass = 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
                     if (hasBill && !req.is_paid) {
                         // Blocked until the cashier confirms payment.
                         actionHTML = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600"><i data-lucide="lock" class="w-3 h-3"></i> Awaiting Payment${req.bill_amount ? ' · ₦' + Number(req.bill_amount).toLocaleString() : ''}</span>`;
-                    } else if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
+                    } else if (canProcess) {
                         actionHTML = `<button onclick="collectSample(${req.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Collect Sample</button>`;
                     }
-                } else if (req.status === 'sample_collected') {
+                } else if (stage === 'sample_collected') {
                     statusClass = 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
-                    if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
+                    if (canProcess) {
                         actionHTML = `<button onclick="openResultModal(${JSON.stringify(req).replace(/"/g, '&quot;')})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Input Values</button>`;
                     }
-                } else if (req.status === 'result_submitted') {
+                } else if (stage === 'result_submitted') {
                     statusClass = 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/20';
-                    if (['super_admin', 'medical_director', 'chief_medical_officer'].includes(role)) {
+                    if (canApprove) {
                         actionHTML = `<button onclick="approveResult(${req.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Approve Report</button>`;
                     } else {
                         actionHTML = `<span class="text-slate-800 dark:text-slate-200 font-semibold text-[10px]">Awaiting Approval</span>`;
                     }
-                } else if (req.status === 'approved') {
+                } else if (stage === 'approved') {
                     statusClass = 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
                     actionHTML = `
                         <button onclick="openPrintReportModal(${req.id})" class="bg-slate-800 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-705 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
@@ -367,7 +381,7 @@
                         <td class="py-3.5 px-6 text-slate-800 dark:text-slate-200">${new Date(req.created_at).toLocaleDateString()}</td>
                         <td class="py-3.5 px-6">
                             <span class="px-2.5 py-0.5 text-[9px] font-bold rounded-full uppercase ${statusClass}">
-                                ${req.status.replace('_', ' ')}
+                                ${stage.replace('_', ' ')}
                             </span>${paymentBadge}
                         </td>
                         <td class="py-3.5 px-6 text-right">${actionHTML}</td>

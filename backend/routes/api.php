@@ -90,7 +90,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/diagnostics/lab/queue', [DiagnosticsController::class, 'getLabQueue']);
     Route::post('/diagnostics/lab/collect-sample/{requestId}', [DiagnosticsController::class, 'collectSample'])->middleware('role_or_permission:fill_lab_results');
     Route::post('/diagnostics/lab/submit-result/{requestId}', [DiagnosticsController::class, 'submitLabResult'])->middleware('role_or_permission:fill_lab_results');
-    Route::post('/diagnostics/lab/approve-result/{requestId}', [DiagnosticsController::class, 'approveLabResult'])->middleware('role_or_permission:approve_diagnostics');
+    Route::post('/diagnostics/lab/approve-result/{requestId}', [DiagnosticsController::class, 'approveLabResult'])->middleware('role_or_permission:approve_diagnostics,medical_director,chief_medical_officer');
 
     // Laboratory test catalogue (reference ranges + auto-flagging)
     Route::get('/lab-tests', [App\Http\Controllers\Api\LabTestController::class, 'index']);
@@ -100,7 +100,7 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     // Diagnostics - Radiology
     Route::get('/diagnostics/radiology/queue', [DiagnosticsController::class, 'getRadiologyQueue']);
     Route::post('/diagnostics/radiology/submit-result/{requestId}', [DiagnosticsController::class, 'submitRadiologyResult'])->middleware('role_or_permission:fill_radiology_results');
-    Route::post('/diagnostics/radiology/approve-result/{requestId}', [DiagnosticsController::class, 'approveRadiologyResult'])->middleware('role_or_permission:approve_diagnostics');
+    Route::post('/diagnostics/radiology/approve-result/{requestId}', [DiagnosticsController::class, 'approveRadiologyResult'])->middleware('role_or_permission:approve_diagnostics,medical_director,chief_medical_officer');
 
     // Billing & Finance
     Route::get('/billing/invoices/pending', [BillingController::class, 'getPendingInvoices'])->middleware('role_or_permission:collect_payments');

@@ -209,6 +209,7 @@ class DatabaseSeeder extends Seeder
             $permissionModels['view_executive_dashboard']->id,
             $permissionModels['view_patients']->id,
             $permissionModels['view_revenue_reports']->id,
+            $permissionModels['approve_diagnostics']->id, // sign off lab/radiology reports
         ];
         $roleModels['medical_director']->permissions()->sync($execPermissions);
         $roleModels['chief_medical_officer']->permissions()->sync($execPermissions);
