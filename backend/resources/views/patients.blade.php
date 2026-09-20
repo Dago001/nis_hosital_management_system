@@ -528,46 +528,14 @@
             </div>
 
             <!-- STEP 5: Preview details -->
-            <div id="step-section-5" class="hidden space-y-4 max-h-[330px] overflow-y-auto pr-1">
+            <div id="step-section-5" class="hidden space-y-4 max-h-[62vh] sm:max-h-[420px] overflow-y-auto pr-1">
                 <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-[10px] font-bold flex items-center gap-1.5">
                     <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                    <span>Please review all patient file information details before final registry creation.</span>
+                    <span>Please review all patient file information before final registry creation.</span>
                 </div>
-                
-                <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden text-xs">
-                    <table class="w-full text-left divide-y divide-slate-100 dark:divide-slate-800">
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-950/40 text-slate-700 dark:text-slate-350">
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900 w-1/3">Full Name</td>
-                                <td class="py-2.5 px-4 font-semibold text-slate-900 dark:text-white" id="prev-name"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Gender & DOB</td>
-                                <td class="py-2.5 px-4" id="prev-gender-dob"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Contact Details</td>
-                                <td class="py-2.5 px-4" id="prev-contact"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">NIN & Service Code</td>
-                                <td class="py-2.5 px-4 font-mono" id="prev-identifiers"></td>
-                            </tr>
-                            <tr id="prev-row-dependant" class="hidden">
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Dependant Status</td>
-                                <td class="py-2.5 px-4 text-emerald-600 dark:text-emerald-450 font-bold" id="prev-dependant"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Address Details</td>
-                                <td class="py-2.5 px-4" id="prev-address"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Medical Markers</td>
-                                <td class="py-2.5 px-4" id="prev-medical"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+                <!-- Professional patient-file summary (built dynamically) -->
+                <div id="preview-content"></div>
             </div>
 
             <!-- Modal Navigation controls -->
@@ -1508,49 +1476,7 @@
         }
 
         if (currentRegisterStep === 4) {
-            // Populate Preview screen (Step 5)
-            const first = document.getElementById('first_name').value.trim();
-            const middle = document.getElementById('middle_name').value.trim();
-            const last = document.getElementById('last_name').value.trim();
-            const gender = document.getElementById('gender').value;
-            const dob = document.getElementById('date_of_birth').value;
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim() || '·';
-            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '·';
-            const nin = document.getElementById('nin').value.trim() || '·';
-            const blood = document.getElementById('blood_group').value;
-            const genotypeVal = document.getElementById('genotype').value;
-            const state = document.getElementById('state').value;
-            const lga = document.getElementById('lga').value;
-            const address = document.getElementById('address').value.trim();
-            const allergies = document.getElementById('allergies').value.trim() || 'None';
-            const disability = document.getElementById('disability').value.trim() || 'None';
-
-            const nhisYes = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
-            const nhisNum = document.getElementById('nhis_number').value.trim();
-
-            const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor}) [${d.blood_group}/${d.genotype}]`).join(', ');
-            const dependantsOnly = (registrationMode === 'officer' && officerAlreadyPatientId);
-
-            document.getElementById('prev-name').innerText =
-                (middle ? `${first} ${middle} ${last}` : `${first} ${last}`) + (dependantsOnly ? ' — existing officer file' : '');
-            document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob}${dob ? ' (Age: ' + calculateAge(dob) + ' years)' : ''}`;
-            document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
-            const kind = registrationMode === 'officer' ? 'NIS Officer' : 'Civilian';
-            document.getElementById('prev-identifiers').innerText = `${kind} | NIN: ${nin} | Service No: ${serviceNo} | NHIS: ${nhisYes ? 'Yes (' + (nhisNum || '—') + ')' : 'No (cash)'}`;
-
-            if (pendingDependants.length > 0) {
-                document.getElementById('prev-row-dependant').classList.remove('hidden');
-                document.getElementById('prev-dependant').innerText =
-                    `${pendingDependants.length} ${dependantsOnly ? 'to add to this officer' : 'tied to this file'}: ${depsStr}`;
-            } else {
-                document.getElementById('prev-row-dependant').classList.add('hidden');
-            }
-            document.getElementById('prev-medical').innerText = dependantsOnly
-                ? 'Existing officer file — medical markers set per dependant'
-                : `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
-
-            document.getElementById('prev-address').innerText = `${address}, ${lga}, ${state} State`;
+            renderPreview();
         }
 
         if (currentRegisterStep < 5) {
@@ -1564,6 +1490,185 @@
             currentRegisterStep--;
             showStep(currentRegisterStep);
         }
+    }
+
+    // Build the detailed, professional patient-file summary shown on Step 5.
+    function renderPreview() {
+        const g = (id) => { const el = document.getElementById(id); return el ? String(el.value).trim() : ''; };
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const dash = '<span class="text-slate-400 dark:text-slate-600">—</span>';
+        const show = (v) => (v && String(v).trim() !== '') ? esc(v) : dash;
+
+        const first = g('first_name'), middle = g('middle_name'), last = g('last_name');
+        const fullName = [first, middle, last].filter(Boolean).join(' ') || 'Unnamed patient';
+        const gender = g('gender'), dob = g('date_of_birth');
+        const ageStr = dob ? calculateAge(dob) + ' yrs' : '';
+        const phone = g('phone'), email = g('email');
+        const serviceNo = g('immigration_service_number'), nin = g('nin');
+        const marital = g('marital_status'), religion = g('religion'), occupation = g('occupation');
+        const pob = g('place_of_birth'), tribe = g('tribe');
+        const state = g('state'), lga = g('lga'), city = g('city'), address = g('address');
+        const nokName = g('next_of_kin_name'), nokRel = g('next_of_kin_relationship'), nokAddr = g('next_of_kin_address');
+        const blood = g('blood_group'), genotype = g('genotype'), allergies = g('allergies'), disability = g('disability');
+
+        const isOfficer = registrationMode === 'officer';
+        const dependantsOnly = isOfficer && officerAlreadyPatientId;
+        const nhisYes = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
+        const nhisNum = g('nhis_number');
+
+        const rankLine = isOfficer && officerData
+            ? [officerData.rank, officerData.command].filter(Boolean).map(esc).join(' · ')
+            : '';
+
+        // photo thumbnail from the live preview (data URI), if one was chosen
+        const pv = document.getElementById('photo-preview');
+        const photoSrc = (pv && !pv.classList.contains('hidden') && pv.getAttribute('src')) ? pv.getAttribute('src') : '';
+        const photoHtml = photoSrc
+            ? `<img src="${photoSrc}" alt="" class="w-16 h-20 object-cover rounded-lg border border-slate-200 dark:border-slate-700">`
+            : `<div class="w-16 h-20 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900 flex items-center justify-center text-slate-400"><i data-lucide="user" class="w-7 h-7"></i></div>`;
+
+        const typeBadge = isOfficer
+            ? `<span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-full"><i data-lucide="shield-check" class="w-3 h-3"></i> NIS Officer</span>`
+            : `<span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-slate-700 text-white px-2 py-0.5 rounded-full"><i data-lucide="user" class="w-3 h-3"></i> Civilian</span>`;
+        const nhisBadge = nhisYes
+            ? `<span class="text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 px-2 py-0.5 rounded-full">NHIS covered</span>`
+            : `<span class="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 px-2 py-0.5 rounded-full">Self-pay (cash)</span>`;
+        const existingBadge = dependantsOnly
+            ? `<span class="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 px-2 py-0.5 rounded-full">Existing file</span>`
+            : '';
+
+        // a labelled field cell
+        const field = (label, valueHtml, wide) => `
+            <div class="${wide ? 'sm:col-span-2' : ''}">
+                <div class="text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">${label}</div>
+                <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-100 mt-0.5 break-words">${valueHtml}</div>
+            </div>`;
+        // a section card
+        const section = (icon, title, bodyHtml) => `
+            <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-950/40">
+                <div class="flex items-center gap-1.5 px-4 py-2 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+                    <i data-lucide="${icon}" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">${title}</span>
+                </div>
+                <div class="p-4">${bodyHtml}</div>
+            </div>`;
+        const grid = (cells) => `<div class="grid grid-cols-2 gap-x-4 gap-y-3">${cells.join('')}</div>`;
+
+        // --- Bio-data ---
+        const bio = grid([
+            field('Gender', show(gender)),
+            field('Date of Birth', dob ? `${esc(dob)} <span class="text-slate-400">(${ageStr})</span>` : dash),
+            field('Marital Status', show(marital)),
+            field('Religion', show(religion)),
+            field('Occupation', show(occupation)),
+            field('Place of Birth', show(pob)),
+            field('Tribe / Ethnicity', show(tribe), true),
+        ]);
+
+        // --- Contact ---
+        const contact = grid([
+            field('Phone Number', show(phone)),
+            field('Email Address', show(email)),
+        ]);
+
+        // --- Identification & coverage ---
+        const ident = grid([
+            field('Registration Type', isOfficer ? 'NIS Officer' : 'Civilian'),
+            field('Service Number', isOfficer ? `<span class="font-mono">${show(serviceNo)}</span>` : dash),
+            field('NIN', `<span class="font-mono">${show(nin)}</span>`),
+            field('NHIS Status', nhisYes ? `Covered · <span class="font-mono">${show(nhisNum)}</span>` : 'Not covered (cash)'),
+        ]);
+
+        // --- Origin & address ---
+        const addr = grid([
+            field('State of Origin', show(state)),
+            field('LGA of Origin', show(lga)),
+            field('City / Town', show(city)),
+            field('Home Address', show(address), true),
+        ]);
+
+        // --- Next of kin ---
+        const nok = grid([
+            field('Name', show(nokName)),
+            field('Relationship', show(nokRel)),
+            field('Address', show(nokAddr), true),
+        ]);
+
+        // --- Medical markers ---
+        const medical = dependantsOnly
+            ? `<p class="text-[11px] text-slate-500 dark:text-slate-400">Existing officer file — medical markers are recorded per dependant below.</p>`
+            : grid([
+                field('Blood Group', show(blood)),
+                field('Genotype', show(genotype)),
+                field('Allergies', show(allergies)),
+                field('Disability', show(disability)),
+            ]);
+
+        // --- Dependants ---
+        let deps;
+        if (pendingDependants.length === 0) {
+            deps = `<p class="text-[11px] text-slate-500 dark:text-slate-400">No dependants added.</p>`;
+        } else {
+            const rows = pendingDependants.map(d => `
+                <tr class="border-t border-slate-100 dark:border-slate-800">
+                    <td class="py-2 px-3 font-semibold text-slate-800 dark:text-slate-100">${esc([d.first_name, d.middle_name, d.last_name].filter(Boolean).join(' '))}</td>
+                    <td class="py-2 px-3"><span class="text-[9px] font-black uppercase bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 px-1.5 py-0.5 rounded">${esc(d.relationship_to_sponsor)}</span></td>
+                    <td class="py-2 px-3">${esc(d.gender)}</td>
+                    <td class="py-2 px-3 whitespace-nowrap">${esc(d.date_of_birth)} <span class="text-slate-400">(${calculateAge(d.date_of_birth)}y)</span></td>
+                    <td class="py-2 px-3 font-mono">${esc(d.blood_group || '—')}/${esc(d.genotype || '—')}</td>
+                    <td class="py-2 px-3">${esc(d.allergies || '—')}</td>
+                </tr>`).join('');
+            deps = `
+                <div class="overflow-x-auto -m-4">
+                    <table class="w-full text-[10.5px] text-left text-slate-700 dark:text-slate-300">
+                        <thead class="bg-slate-50 dark:bg-slate-900 text-[8.5px] font-black uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th class="py-2 px-3">Name</th><th class="py-2 px-3">Relationship</th>
+                                <th class="py-2 px-3">Gender</th><th class="py-2 px-3">DOB</th>
+                                <th class="py-2 px-3">Blood/Genotype</th><th class="py-2 px-3">Allergies</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+        const depCount = pendingDependants.length;
+        const depTitle = `Dependants${depCount ? ` (${depCount}${dependantsOnly ? ' to add' : ''})` : ''}`;
+
+        const html = `
+            <!-- Header -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-white dark:from-emerald-500/5 dark:to-slate-950/40 p-4 flex items-center gap-4 mb-4">
+                ${photoHtml}
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-base font-black text-slate-900 dark:text-white truncate">${esc(fullName)}</h3>
+                        ${typeBadge}${existingBadge}
+                    </div>
+                    ${rankLine ? `<p class="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">${rankLine}</p>` : ''}
+                    <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                        ${isOfficer ? `<span class="text-[10px] font-mono text-slate-600 dark:text-slate-300">Service&nbsp;No:&nbsp;${show(serviceNo)}</span>` : ''}
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400">${esc(gender || '')}${dob ? ' · ' + ageStr : ''}</span>
+                        ${nhisBadge}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${section('badge-check', 'Identification & Coverage', ident)}
+                ${section('user', 'Bio-Data', bio)}
+                ${section('phone', 'Contact', contact)}
+                ${section('map-pin', 'Origin & Address', addr)}
+                ${section('users', 'Next of Kin', nok)}
+                ${section('activity', 'Medical Markers', medical)}
+            </div>
+
+            <div class="mt-3">
+                ${section('users', depTitle, deps)}
+            </div>`;
+
+        const target = document.getElementById('preview-content');
+        if (target) target.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
     }
 
     // Nigeria States & LGAs Data Mapping
