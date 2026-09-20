@@ -19,18 +19,23 @@ class DiagnosticsController extends Controller
 
     public function getLabQueue()
     {
-        $queue = LabRequest::with(['patient', 'doctor', 'result', 'invoice'])
+        $queue = LabRequest::with(['patient', 'doctor', 'result.scientist', 'invoice'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($req) {
                 // Flatten result fields onto the row so the worklist / print
-                // report can read result_value, ranges and the computed flag.
+                // report can read result_value, ranges, the computed flag,
+                // remarks and — importantly — who conducted/verified the test.
                 $arr = $req->toArray();
                 $arr['result_value'] = $req->result?->result_value;
                 $arr['normal_range_min'] = $req->result?->normal_range_min;
                 $arr['normal_range_max'] = $req->result?->normal_range_max;
                 $arr['unit'] = $req->result?->unit;
                 $arr['flag'] = $req->result?->flag;
+                $arr['remarks'] = $req->result?->remarks;
+                $arr['scientist_name'] = $req->result?->scientist?->full_name;
+                $arr['result_status'] = $req->result?->status;
+                $arr['approved_at'] = $req->result?->approved_at;
                 // Payment gate: the cashier must settle the lab invoice before
                 // the sample is processed.
                 $arr['invoice_id'] = $req->invoice_id;

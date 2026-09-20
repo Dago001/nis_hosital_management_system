@@ -2127,6 +2127,7 @@
             const diagBody = document.getElementById('det-diagnostics');
             if (diagBody) {
                 const diagnosticsList = res.diagnostics || [];
+                window.__diagnostics = diagnosticsList; // for the print function
                 if (diagnosticsList.length > 0) {
                     diagBody.innerHTML = diagnosticsList.map(d => {
                         const isLab = d.type === 'lab';
@@ -2147,6 +2148,9 @@
                                     <div class="text-right shrink-0">
                                         <span class="text-[9px] text-slate-400 block mb-0.5">Completed Date</span>
                                         <b class="text-[10px] text-slate-700 dark:text-slate-300">${new Date(d.completed_at).toLocaleString()}</b>
+                                        <button type="button" onclick="printDiagnosticReport(${d.id}, '${d.type}')" class="mt-1.5 inline-flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-[9px] font-bold px-2 py-1 rounded-lg transition cursor-pointer">
+                                            <i data-lucide="printer" class="w-3 h-3"></i> Print Report
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="pt-1">
@@ -2189,6 +2193,65 @@
 
     function closeDetailsModal() {
         document.getElementById('details-modal').classList.add('hidden');
+    }
+
+    // Print an official diagnostic report from the patient profile, naming the
+    // scientist/radiographer who conducted it.
+    function printDiagnosticReport(id, type) {
+        const d = (window.__diagnostics || []).find(x => x.id === id && x.type === type);
+        if (!d) { alert('Report not found.'); return; }
+        const pat = window.__currentPatient || {};
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        const isLab = d.type === 'lab';
+        const fullName = [pat.first_name, pat.last_name].filter(Boolean).join(' ');
+        const w = window.open('', '_blank', 'width=800,height=900');
+        if (!w) { alert('Please allow pop-ups to print the report.'); return; }
+        w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Report — ${esc(d.test_name)}</title>
+        <style>
+            *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#1e293b}
+            body{padding:32px;max-width:720px;margin:auto}
+            .hd{text-align:center;border-bottom:2px solid #0B6B3A;padding-bottom:12px;margin-bottom:16px}
+            .hd h1{font-size:18px;margin:4px 0;color:#0B6B3A;text-transform:uppercase;letter-spacing:1px}
+            .hd h2{font-size:12px;margin:2px 0;color:#475569;font-weight:600}
+            .hd p{font-size:10px;color:#94a3b8;margin:2px 0}
+            .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;margin:12px 0}
+            .lbl{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:700;display:block}
+            table{width:100%;border-collapse:collapse;margin:12px 0;font-size:11px}
+            th,td{border:1px solid #e2e8f0;padding:8px;text-align:left}
+            th{background:#f1f5f9;text-transform:uppercase;font-size:9px;letter-spacing:.5px}
+            .remarks{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:11px;font-style:italic}
+            .sign{display:flex;justify-content:space-between;margin-top:40px;font-size:10px}
+            .sign .line{border-top:1px solid #64748b;width:200px;padding-top:4px;text-align:center}
+            .foot{text-align:center;font-size:8px;color:#94a3b8;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px}
+        </style></head><body>
+            <div class="hd">
+                <h1>Nigeria Immigration Service</h1>
+                <h2>${isLab ? 'Pathological &amp; Diagnostic Laboratories' : 'Radiology &amp; Imaging Department'}</h2>
+                <p>Official ${isLab ? 'Clinical Laboratory' : 'Radiology'} Report</p>
+            </div>
+            <div class="grid">
+                <div><span class="lbl">Patient Name</span> ${esc(fullName)}</div>
+                <div><span class="lbl">Hospital Code</span> ${esc(pat.immigration_service_number || '')}</div>
+                <div><span class="lbl">Ordering Doctor</span> Dr. ${esc(d.doctor_name || 'Staff')}</div>
+                <div><span class="lbl">Date Authorized</span> ${esc(new Date(d.completed_at).toLocaleString())}</div>
+            </div>
+            <table>
+                <thead><tr><th>${isLab ? 'Investigation' : 'Scan'}</th><th>Result / Findings</th>${isLab ? '<th>Reference Range</th>' : ''}</tr></thead>
+                <tbody><tr>
+                    <td><b>${esc(d.test_name)}</b></td>
+                    <td>${esc(d.result_value)}</td>
+                    ${isLab ? `<td>${esc(d.normal_range || 'N/A')}</td>` : ''}
+                </tr></tbody>
+            </table>
+            <div class="remarks"><b>Remarks:</b> ${esc(d.remarks && d.remarks !== 'N/A' ? d.remarks : 'No remarks provided.')}</div>
+            <div class="sign">
+                <div class="line"><b>${esc(d.scientist_name || (isLab ? 'Laboratory Scientist' : 'Radiographer'))}</b><br><span style="font-size:8px;color:#94a3b8">Conducted / Verified By</span></div>
+                <div class="line">${esc(new Date(d.completed_at).toLocaleDateString())}<br><span style="font-size:8px;color:#94a3b8">Date</span></div>
+            </div>
+            <div class="foot">This report has been electronically verified and authorized for clinical release. Verification ID: NIS-${isLab ? 'LAB' : 'RAD'}-${d.id}</div>
+            <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+        w.document.close();
     }
 
     // ─── Patient ID Card ───────────────────────────────────────────────

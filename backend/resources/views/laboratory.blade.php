@@ -179,6 +179,10 @@
                     <span id="rep-doctor-name" class="text-slate-800 font-semibold"></span>
                 </div>
                 <div>
+                    <span class="font-bold block text-slate-450 uppercase text-[8px]">Conducted / Verified By:</span>
+                    <span id="rep-scientist-name" class="text-slate-800 font-semibold"></span>
+                </div>
+                <div>
                     <span class="font-bold block text-slate-450 uppercase text-[8px]">Date Authorized:</span>
                     <span id="rep-date" class="text-slate-800 font-semibold"></span>
                 </div>
@@ -208,6 +212,19 @@
             <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] text-slate-700">
                 <span class="font-bold block mb-1">Pathologist / Scientist Remarks:</span>
                 <span id="rep-remarks" class="italic"></span>
+            </div>
+            <!-- Signature block (who conducted / authorized the report) -->
+            <div class="flex justify-between items-end pt-4 mt-1 text-[9px] text-slate-600">
+                <div class="text-center">
+                    <div class="border-b border-slate-400 w-36 mb-1 h-6"></div>
+                    <span class="font-bold uppercase text-[8px] text-slate-450 block">Conducted / Verified By</span>
+                    <span id="rep-sign-scientist" class="font-semibold text-slate-800"></span>
+                </div>
+                <div class="text-center">
+                    <div class="border-b border-slate-400 w-36 mb-1 h-6"></div>
+                    <span class="font-bold uppercase text-[8px] text-slate-450 block">Date</span>
+                    <span id="rep-sign-date" class="font-semibold text-slate-800"></span>
+                </div>
             </div>
             <!-- Signature stamp -->
             <div class="text-center text-[8px] text-slate-400 pt-2 border-t border-slate-100">
@@ -439,7 +456,12 @@
         document.getElementById('rep-patient-name').innerText = `${req.patient.first_name} ${req.patient.last_name}`;
         document.getElementById('rep-patient-code').innerText = req.patient.immigration_service_number;
         document.getElementById('rep-doctor-name').innerText = `Dr. ${req.doctor?.full_name || 'Staff'}`;
-        document.getElementById('rep-date').innerText = new Date(req.updated_at || req.created_at).toLocaleString();
+        const scientistName = req.scientist_name || 'Laboratory Scientist';
+        document.getElementById('rep-scientist-name').innerText = scientistName;
+        document.getElementById('rep-sign-scientist').innerText = scientistName;
+        const authDate = req.approved_at ? new Date(req.approved_at) : new Date(req.updated_at || req.created_at);
+        document.getElementById('rep-date').innerText = authDate.toLocaleString();
+        document.getElementById('rep-sign-date').innerText = authDate.toLocaleDateString();
 
         document.getElementById('rep-test-name').innerText = req.test_name;
         const flagTxt = (FLAG_META[req.flag] && req.flag !== 'normal') ? `  [${FLAG_META[req.flag].label}]` : '';
