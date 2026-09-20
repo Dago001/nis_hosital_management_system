@@ -408,6 +408,10 @@
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Allergies (optional)</label>
                             <input type="text" id="dep_allergies" maxLength="255" placeholder="e.g. Penicillin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Disabilities (optional)</label>
+                            <input type="text" id="dep_disability" maxLength="255" placeholder="e.g. None" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
                         <div class="sm:col-span-2">
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Passport Photograph (optional)</label>
                             <input type="file" id="dep_passport_photo" accept="image/png,image/jpeg,image/webp" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:cursor-pointer">
@@ -1168,6 +1172,7 @@
         const depBlood = document.getElementById('dep_blood_group').value;
         const depGenotype = document.getElementById('dep_genotype').value;
         const depAllergies = document.getElementById('dep_allergies').value.trim();
+        const depDisability = document.getElementById('dep_disability').value.trim();
         const depNin = document.getElementById('dep_nin').value.trim();
         const depPhotoInput = document.getElementById('dep_passport_photo');
         const depPhotoFile = (depPhotoInput && depPhotoInput.files && depPhotoInput.files[0]) ? depPhotoInput.files[0] : null;
@@ -1230,6 +1235,7 @@
             blood_group: depBlood,
             genotype: depGenotype,
             allergies: depAllergies || null,
+            disability: depDisability || 'None',
             nin: depNin || null,
             photoFile: depPhotoFile
         });
@@ -1243,6 +1249,7 @@
         document.getElementById('dep_date_of_birth').value = '';
         document.getElementById('dep_gender').value = 'Male';
         document.getElementById('dep_allergies').value = '';
+        document.getElementById('dep_disability').value = '';
         document.getElementById('dep_nin').value = '';
         if (depPhotoInput) depPhotoInput.value = '';
     }
@@ -1266,7 +1273,7 @@
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
                     <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
-                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.nin ? ' · NIN: ' + dep.nin : ''}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}</span>
+                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.nin ? ' · NIN: ' + dep.nin : ''}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}${dep.disability && dep.disability !== 'None' ? ' · Disability: ' + dep.disability : ''}</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1601,6 +1608,7 @@
                     <td class="py-2 px-3 font-mono">${esc(d.nin || '—')}</td>
                     <td class="py-2 px-3 font-mono">${esc(d.blood_group || '—')}/${esc(d.genotype || '—')}</td>
                     <td class="py-2 px-3">${esc(d.allergies || '—')}</td>
+                    <td class="py-2 px-3">${esc(d.disability || 'None')}</td>
                 </tr>`).join('');
             deps = `
                 <div class="overflow-x-auto -m-4">
@@ -1611,6 +1619,7 @@
                                 <th class="py-2 px-3">Gender</th><th class="py-2 px-3">DOB</th>
                                 <th class="py-2 px-3">NIN</th>
                                 <th class="py-2 px-3">Blood/Genotype</th><th class="py-2 px-3">Allergies</th>
+                                <th class="py-2 px-3">Disability</th>
                             </tr>
                         </thead>
                         <tbody>${rows}</tbody>
@@ -1820,7 +1829,7 @@
             blood_group: dep.blood_group,
             genotype: dep.genotype,
             allergies: dep.allergies || null,
-            disability: 'None',
+            disability: dep.disability || 'None',
         });
 
         // NHIS answer for the main officer/civilian.
