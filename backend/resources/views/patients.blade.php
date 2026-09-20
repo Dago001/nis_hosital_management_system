@@ -267,9 +267,9 @@
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
                             <input type="email" id="email" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
-                        <div id="standalone-service-group">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
-                            <input type="text" id="immigration_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <div id="standalone-service-group" class="hidden">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number</label>
+                            <input type="text" id="immigration_service_number" data-filter="digits" inputmode="numeric" maxlength="5" placeholder="Auto-filled from the ID Card Portal" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
@@ -958,16 +958,20 @@
         if (step4Note) step4Note.classList.add('hidden');
 
         const svcField = document.getElementById('immigration_service_number');
+        const svcGroup = document.getElementById('standalone-service-group');
         if (mode === 'officer') {
             if (officerBlock) officerBlock.classList.remove('hidden');
             // Lock the demographic fields until the officer is verified.
             setDemographicsLocked(true);
             // The service number is authoritative (from the portal) — not typed here.
+            if (svcGroup) svcGroup.classList.remove('hidden');
             if (svcField) { svcField.value = ''; svcField.disabled = true; svcField.classList.add('opacity-70'); }
             if (introText) introText.textContent = 'Add the verified officer’s dependants (spouse/children). They are tied to the officer automatically.';
         } else {
             if (officerBlock) officerBlock.classList.add('hidden');
             setDemographicsLocked(false);
+            // Civilians have no NIS service number — hide the field entirely.
+            if (svcGroup) svcGroup.classList.add('hidden');
             if (svcField) { svcField.value = ''; svcField.disabled = false; svcField.classList.remove('opacity-70'); }
         }
 
