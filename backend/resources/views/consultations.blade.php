@@ -66,7 +66,31 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <!-- Left Column: SOAP Encounter Form (Direct Form Grid Item) -->
         <form id="encounter-form" onsubmit="handleConsultSubmit(event)" class="lg:col-span-2 space-y-6 hidden">
-        
+
+        <!-- Comprehensive Clinical History (past illnesses, diagnoses, results) -->
+        <div id="clinical-history-panel" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+                        <i data-lucide="history" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-850 dark:text-white">Comprehensive Clinical History</h3>
+                        <p class="text-[9px] text-slate-500">Past illnesses, diagnoses, admissions &amp; investigations</p>
+                    </div>
+                </div>
+                <span class="text-[9px] bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 font-bold px-2.5 py-1 rounded-xl" id="history-count">0 events</span>
+            </div>
+
+            <!-- Key clinical markers (allergies, blood group, genotype) -->
+            <div id="history-markers" class="flex flex-wrap gap-2"></div>
+
+            <!-- History timeline -->
+            <div id="clinical-history-container" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div class="text-center py-6 text-slate-400 text-[10px]">Select a patient file to view history.</div>
+            </div>
+        </div>
+
         <!-- Completed Diagnostics Display Panel -->
         <div id="diagnostics-display-panel" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -373,6 +397,68 @@
         }
     }
 
+    // Render the patient's key markers and clinical history timeline.
+    function renderClinicalHistory(patient, timeline) {
+        const markersEl = document.getElementById('history-markers');
+        const histEl = document.getElementById('clinical-history-container');
+        const countEl = document.getElementById('history-count');
+        if (!markersEl || !histEl) return;
+
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        const chip = (label, value, tone) => {
+            const tones = {
+                red: 'bg-red-500/10 text-red-600 border-red-500/20',
+                slate: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700',
+                emerald: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+            };
+            return `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border ${tones[tone]||tones.slate}">
+                <span class="opacity-60 uppercase text-[8px] tracking-wider">${label}</span> ${esc(value)}</span>`;
+        };
+
+        // Key markers — allergies flagged in red (critical for prescribing).
+        const markers = [];
+        const allergies = (patient.allergies && String(patient.allergies).trim() && patient.allergies !== 'None') ? patient.allergies : null;
+        markers.push(chip('Allergies', allergies || 'None recorded', allergies ? 'red' : 'slate'));
+        if (patient.blood_group) markers.push(chip('Blood', patient.blood_group, 'emerald'));
+        if (patient.genotype) markers.push(chip('Genotype', patient.genotype, 'emerald'));
+        if (patient.disability && patient.disability !== 'None') markers.push(chip('Disability', patient.disability, 'slate'));
+        if (patient.is_nhis) markers.push(chip('NHIS', patient.nhis_number || 'Covered', 'emerald'));
+        markersEl.innerHTML = markers.join('');
+
+        // Clinical timeline — past illnesses/diagnoses, admissions, results.
+        const clinicalTypes = ['consultation', 'admission', 'lab_result', 'radiology_result'];
+        const events = (timeline || []).filter(e => clinicalTypes.includes(e.type));
+        countEl.innerText = `${events.length} event${events.length === 1 ? '' : 's'}`;
+
+        if (events.length === 0) {
+            histEl.innerHTML = `<div class="text-center py-6 text-slate-400 text-[10px]">No prior clinical history recorded for this patient.</div>`;
+            return;
+        }
+
+        const meta = {
+            consultation:     { icon: 'stethoscope',     color: 'text-emerald-650 bg-emerald-500/10 border-emerald-500/20' },
+            admission:        { icon: 'bed',             color: 'text-rose-600 bg-rose-500/10 border-rose-500/20' },
+            lab_result:       { icon: 'flask-conical',   color: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/20' },
+            radiology_result: { icon: 'scan',            color: 'text-purple-600 bg-purple-500/10 border-purple-500/20' },
+        };
+
+        histEl.innerHTML = events.map(e => {
+            const m = meta[e.type] || { icon: 'clock', color: 'text-slate-500 bg-slate-100 border-slate-200' };
+            return `
+                <div class="flex gap-3 items-start text-xs p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20">
+                    <div class="p-1.5 rounded-full ${m.color} border shrink-0 mt-0.5"><i data-lucide="${m.icon}" class="w-3.5 h-3.5"></i></div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h5 class="font-bold text-slate-850 dark:text-white text-[11px]">${esc(e.title)}</h5>
+                            <span class="text-[8.5px] text-slate-400 font-mono shrink-0">${esc(e.date)}</span>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-[10.5px] mt-0.5 break-words">${esc(e.description)}</p>
+                    </div>
+                </div>`;
+        }).join('');
+        if (window.lucide) lucide.createIcons();
+    }
+
     async function loadPatientDiagnostics(patientId) {
         const container = document.getElementById('diagnostics-list-container');
         const countBadge = document.getElementById('diag-count');
@@ -380,6 +466,9 @@
         try {
             const res = await api.get(`/patients/${patientId}`);
             const list = res.diagnostics || [];
+
+            // Render the full clinical history (markers + timeline) too.
+            renderClinicalHistory(res.patient || {}, res.timeline || []);
 
             countBadge.innerText = `${list.length} Approved Report${list.length === 1 ? '' : 's'}`;
 
