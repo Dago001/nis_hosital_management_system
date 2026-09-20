@@ -200,10 +200,22 @@ class ClinicalController extends Controller
                 }
             }
 
-            // 3. Process Lab requests if ordered
+            // 3. Process Lab requests if ordered — each test is billable, so
+            //    raise a laboratory invoice that must be paid at the cashier
+            //    before the sample is processed.
             if (!empty($validated['lab_tests'])) {
+                $isNhis = $visit->patient && $visit->patient->isNhis();
+                $labDefault = \App\Models\ServiceTariff::priceFor('LAB_DEFAULT', 2500.00);
+
+                $labRequests = [];
+                $labItems = [];
+                $labTotal = 0.0;
                 foreach ($validated['lab_tests'] as $lab) {
-                    LabRequest::create([
+                    $catalogue = \App\Models\LabTest::matchByName($lab['test_name']);
+                    $price = ($catalogue && (float) $catalogue->price > 0) ? (float) $catalogue->price : $labDefault;
+                    $labTotal += $price;
+
+                    $labRequests[] = LabRequest::create([
                         'visit_id' => $visit->id,
                         'patient_id' => $visit->patient_id,
                         'staff_id' => $doctorId,
@@ -211,6 +223,31 @@ class ClinicalController extends Controller
                         'clinical_indication' => $lab['clinical_indication'] ?? null,
                         'status' => 'requested'
                     ]);
+                    $labItems[] = [
+                        'item_name' => 'Lab Test: ' . $lab['test_name'],
+                        'quantity' => 1,
+                        'unit_price' => $price,
+                        'total_price' => $price,
+                    ];
+                }
+
+                if ($labTotal > 0) {
+                    $labDiscount = $isNhis ? round($labTotal * 0.15, 2) : 0.0;
+                    $labInvoice = Invoice::create([
+                        'patient_id' => $visit->patient_id,
+                        'visit_id' => $visit->id,
+                        'total_amount' => $labTotal,
+                        'discount_amount' => $labDiscount,
+                        'paid_amount' => 0.00,
+                        'status' => 'unpaid',
+                    ]);
+                    foreach ($labItems as $li) {
+                        InvoiceItem::create($li + ['invoice_id' => $labInvoice->id]);
+                    }
+                    // Link every lab request in this order to the invoice.
+                    foreach ($labRequests as $lr) {
+                        $lr->update(['invoice_id' => $labInvoice->id]);
+                    }
                 }
             }
 

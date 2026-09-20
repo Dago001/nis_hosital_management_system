@@ -299,9 +299,21 @@
                 let statusClass = 'bg-slate-100 text-slate-700';
                 let actionHTML = '';
 
+                // Payment badge (only when the test carries a bill).
+                let paymentBadge = '';
+                const hasBill = req.payment_status && req.payment_status !== 'n/a';
+                if (hasBill) {
+                    paymentBadge = req.is_paid
+                        ? `<span class="ml-1 px-2 py-0.5 text-[8px] font-black rounded-full uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Paid</span>`
+                        : `<span class="ml-1 px-2 py-0.5 text-[8px] font-black rounded-full uppercase bg-red-500/10 text-red-600 border border-red-500/20">Awaiting Payment</span>`;
+                }
+
                 if (req.status === 'requested') {
                     statusClass = 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
-                    if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
+                    if (hasBill && !req.is_paid) {
+                        // Blocked until the cashier confirms payment.
+                        actionHTML = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600"><i data-lucide="lock" class="w-3 h-3"></i> Awaiting Payment${req.bill_amount ? ' · ₦' + Number(req.bill_amount).toLocaleString() : ''}</span>`;
+                    } else if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
                         actionHTML = `<button onclick="collectSample(${req.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Collect Sample</button>`;
                     }
                 } else if (req.status === 'sample_collected') {
@@ -339,12 +351,13 @@
                         <td class="py-3.5 px-6">
                             <span class="px-2.5 py-0.5 text-[9px] font-bold rounded-full uppercase ${statusClass}">
                                 ${req.status.replace('_', ' ')}
-                            </span>
+                            </span>${paymentBadge}
                         </td>
                         <td class="py-3.5 px-6 text-right">${actionHTML}</td>
                     </tr>
                 `;
             }).join('');
+            if (window.lucide) lucide.createIcons();
         } else {
             tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 text-xs font-semibold">No laboratory requests found matching active filters.</td></tr>`;
         }

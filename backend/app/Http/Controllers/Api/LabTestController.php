@@ -44,6 +44,7 @@ class LabTestController extends Controller
             'code' => ($creating ? 'required' : 'sometimes') . '|string|max:30|regex:/^[A-Za-z0-9_\-]+$/' . ($creating ? '|unique:lab_tests,code' : ''),
             'name' => ($creating ? 'required' : 'sometimes') . '|string|max:150',
             'category' => 'nullable|string|max:60',
+            'price' => 'nullable|numeric|min:0',
             'unit' => 'nullable|string|max:30',
             'ref_low' => 'nullable|numeric',
             'ref_high' => 'nullable|numeric',

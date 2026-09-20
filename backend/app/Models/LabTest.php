@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class LabTest extends Model
 {
     protected $fillable = [
-        'code', 'name', 'category', 'unit',
+        'code', 'name', 'category', 'price', 'unit',
         'ref_low', 'ref_high', 'critical_low', 'critical_high', 'is_active',
     ];
 
     protected $casts = [
+        'price' => 'float',
         'ref_low' => 'float',
         'ref_high' => 'float',
         'critical_low' => 'float',

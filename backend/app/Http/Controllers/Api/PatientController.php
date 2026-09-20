@@ -178,10 +178,11 @@ class PatientController extends Controller
     public function show(Request $request, int $id)
     {
         $patient = Patient::with([
-            'appointments.doctor', 
-            'visits.doctor', 
-            'invoices', 
-            'admissions', 
+            'appointments.doctor',
+            'visits.doctor',
+            'invoices.items',
+            'invoices.payments.cashier',
+            'admissions',
             'dependants', 
             'sponsor', 
             'prescriptions.items', 
@@ -310,13 +311,53 @@ class PatientController extends Controller
             }
         }
 
+        // Billing & payment history — part of the Comprehensive Clinical File.
+        $payments = [];
+        foreach ($patient->invoices as $inv) {
+            $itemNames = $inv->items->pluck('item_name')->take(4)->implode(', ');
+            $net = (float) $inv->total_amount - (float) $inv->discount_amount;
+
+            // The charge being raised.
+            $timeline[] = [
+                'type' => 'billing_charge',
+                'date' => $inv->created_at->toDateTimeString(),
+                'title' => 'Bill Raised — ₦' . number_format($net, 2),
+                'description' => ($itemNames !== '' ? $itemNames : 'Hospital charges')
+                    . '. Status: ' . strtoupper(str_replace('_', ' ', $inv->status)) . '.',
+                'status' => $inv->status,
+            ];
+
+            // Each payment received against it.
+            foreach ($inv->payments as $pay) {
+                $entry = [
+                    'type' => 'payment',
+                    'date' => $pay->created_at->toDateTimeString(),
+                    'title' => 'Payment Received — ₦' . number_format((float) $pay->amount, 2),
+                    'description' => "Method: {$pay->payment_method}"
+                        . ($pay->transaction_reference ? " · Ref: {$pay->transaction_reference}" : '')
+                        . ' · Received by ' . ($pay->cashier?->full_name ?? 'Cashier') . '.',
+                    'status' => 'paid',
+                ];
+                $timeline[] = $entry;
+                $payments[] = [
+                    'invoice_id' => $inv->id,
+                    'amount' => (float) $pay->amount,
+                    'method' => $pay->payment_method,
+                    'reference' => $pay->transaction_reference,
+                    'cashier' => $pay->cashier?->full_name ?? 'Cashier',
+                    'date' => $pay->created_at->toDateTimeString(),
+                ];
+            }
+        }
+
         // Sort timeline descending by date
         usort($timeline, fn($a, $b) => strcmp($b['date'], $a['date']));
 
         return response()->json([
             'patient' => new PatientResource($patient),
             'timeline' => $timeline,
-            'diagnostics' => $diagnostics
+            'diagnostics' => $diagnostics,
+            'payments' => $payments
         ]);
     }
 

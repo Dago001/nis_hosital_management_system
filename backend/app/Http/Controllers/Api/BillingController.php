@@ -64,8 +64,18 @@ class BillingController extends Controller
             } else {
                 $invoice->status = 'partially_paid';
             }
-            
+
             $invoice->save();
+
+            // When the bill is fully settled, release any pharmacy prescription
+            // tied to this invoice so it appears at the Pharmacy Desk as PAID and
+            // the drugs can be dispensed. (Lab requests derive paid status from
+            // the invoice directly, so they need no update.)
+            if ($invoice->status === 'paid') {
+                \App\Models\Prescription::where('invoice_id', $invoice->id)
+                    ->where('status', 'costed')
+                    ->update(['status' => 'paid']);
+            }
         });
 
         return response()->json([

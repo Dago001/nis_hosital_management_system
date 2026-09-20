@@ -2042,6 +2042,21 @@
                     } else if (event.type === 'appointment') {
                         icon = 'calendar';
                         color = 'text-blue-600 bg-blue-500/10 border border-blue-500/20';
+                    } else if (event.type === 'payment') {
+                        icon = 'banknote';
+                        color = 'text-emerald-600 bg-emerald-500/10 border border-emerald-500/20';
+                    } else if (event.type === 'billing_charge') {
+                        icon = 'receipt';
+                        color = 'text-amber-600 bg-amber-500/10 border border-amber-500/20';
+                    } else if (event.type === 'lab_result') {
+                        icon = 'flask-conical';
+                        color = 'text-indigo-600 bg-indigo-500/10 border border-indigo-500/20';
+                    } else if (event.type === 'radiology_result') {
+                        icon = 'scan';
+                        color = 'text-purple-600 bg-purple-500/10 border border-purple-500/20';
+                    } else if (event.type === 'admission') {
+                        icon = 'bed';
+                        color = 'text-rose-600 bg-rose-500/10 border border-rose-500/20';
                     }
 
                     return `

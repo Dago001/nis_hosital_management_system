@@ -19,7 +19,7 @@ class DiagnosticsController extends Controller
 
     public function getLabQueue()
     {
-        $queue = LabRequest::with(['patient', 'doctor', 'result'])
+        $queue = LabRequest::with(['patient', 'doctor', 'result', 'invoice'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($req) {
@@ -31,6 +31,14 @@ class DiagnosticsController extends Controller
                 $arr['normal_range_max'] = $req->result?->normal_range_max;
                 $arr['unit'] = $req->result?->unit;
                 $arr['flag'] = $req->result?->flag;
+                // Payment gate: the cashier must settle the lab invoice before
+                // the sample is processed.
+                $arr['invoice_id'] = $req->invoice_id;
+                $arr['payment_status'] = $req->invoice?->status ?? ($req->invoice_id ? 'unpaid' : 'n/a');
+                $arr['is_paid'] = $req->isPaid();
+                $arr['bill_amount'] = $req->invoice
+                    ? (float) $req->invoice->total_amount - (float) $req->invoice->discount_amount
+                    : null;
                 return $arr;
             });
 
@@ -39,9 +47,13 @@ class DiagnosticsController extends Controller
 
     public function collectSample(int $requestId)
     {
-        $request = LabRequest::find($requestId);
+        $request = LabRequest::with('invoice')->find($requestId);
         if (!$request) {
             return response()->json(['message' => 'Lab request not found.'], 404);
+        }
+
+        if (!$request->isPaid()) {
+            return response()->json(['message' => 'Payment for this lab test is not yet confirmed by the cashier.'], 402);
         }
 
         $request->status = 'sample_collected';
@@ -52,9 +64,13 @@ class DiagnosticsController extends Controller
 
     public function submitLabResult(Request $request, int $requestId)
     {
-        $labRequest = LabRequest::find($requestId);
+        $labRequest = LabRequest::with('invoice')->find($requestId);
         if (!$labRequest) {
             return response()->json(['message' => 'Lab request not found.'], 404);
+        }
+
+        if (!$labRequest->isPaid()) {
+            return response()->json(['message' => 'Payment for this lab test is not yet confirmed by the cashier.'], 402);
         }
 
         $validated = $request->validate([
