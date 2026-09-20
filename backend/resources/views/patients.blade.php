@@ -347,7 +347,7 @@
                 <div id="dependant-active-inputs" class="space-y-4">
                     <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-[10px] font-black flex items-center gap-2">
                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                        <span>NOTE: Dependants are limited to 1 Wife (no age limit) and 3 Children (under 18 years).</span>
+                        <span>NOTE: Dependants are limited to 1 Wife and 3 Children. No age limit applies.</span>
                     </div>
 
                     <!-- Dependants are tied to the officer/civilian being registered
@@ -401,6 +401,10 @@
                                 <option value="AA">AA</option><option value="AS">AS</option>
                                 <option value="SS">SS</option><option value="AC">AC</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN) <span class="normal-case text-slate-400">(optional)</span></label>
+                            <input type="text" id="dep_nin" maxLength="11" inputmode="numeric" data-filter="digits" placeholder="11 digits (optional)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Allergies (optional)</label>
@@ -1115,36 +1119,10 @@
     }
 
     function validateDependantAge() {
-        const dobInput = document.getElementById('dep_date_of_birth');
-        if (!dobInput) return true;
-        
-        const dob = dobInput.value;
-        const rel = document.getElementById('relationship_to_sponsor').value;
+        // Dependants have no age limit — nothing to enforce.
         const ageWarning = document.getElementById('dependant-age-warning');
-        const ageMsg = document.getElementById('dependant-age-msg');
-        
-        if (!dob) {
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
-        
-        if (rel === 'Wife') {
-            // Wives have no age limit!
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
-        
-        const age = calculateAge(dob);
-        if (age >= 18) {
-            if (ageMsg) {
-                ageMsg.innerHTML = `⚠️ Dependant is <b>${age} years old</b>. Dependant status for children (Son/Daughter/Ward) is strictly restricted to below 18 years of age.`;
-            }
-            if (ageWarning) ageWarning.classList.remove('hidden');
-            return false;
-        } else {
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
+        if (ageWarning) ageWarning.classList.add('hidden');
+        return true;
     }
 
     function updateRelationshipOptions() {
@@ -1192,6 +1170,7 @@
         const depBlood = document.getElementById('dep_blood_group').value;
         const depGenotype = document.getElementById('dep_genotype').value;
         const depAllergies = document.getElementById('dep_allergies').value.trim();
+        const depNin = document.getElementById('dep_nin').value.trim();
         const depPhotoInput = document.getElementById('dep_passport_photo');
         const depPhotoFile = (depPhotoInput && depPhotoInput.files && depPhotoInput.files[0]) ? depPhotoInput.files[0] : null;
 
@@ -1215,9 +1194,9 @@
             return;
         }
 
-        const age = calculateAge(depDob);
-        if (rel !== 'Wife' && age >= 18) {
-            alert('Sponsor dependants (Son/Daughter/Ward) must be strictly under 18 years of age.');
+        // NIN is optional, but must be exactly 11 digits when provided.
+        if (depNin && !/^\d{11}$/.test(depNin)) {
+            alert('Dependant NIN must be exactly 11 digits (or left blank).');
             return;
         }
 
@@ -1253,6 +1232,7 @@
             blood_group: depBlood,
             genotype: depGenotype,
             allergies: depAllergies || null,
+            nin: depNin || null,
             photoFile: depPhotoFile
         });
 
@@ -1265,6 +1245,7 @@
         document.getElementById('dep_date_of_birth').value = '';
         document.getElementById('dep_gender').value = 'Male';
         document.getElementById('dep_allergies').value = '';
+        document.getElementById('dep_nin').value = '';
         if (depPhotoInput) depPhotoInput.value = '';
     }
 
@@ -1287,7 +1268,7 @@
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
                     <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
-                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}</span>
+                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.nin ? ' · NIN: ' + dep.nin : ''}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1619,6 +1600,7 @@
                     <td class="py-2 px-3"><span class="text-[9px] font-black uppercase bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 px-1.5 py-0.5 rounded">${esc(d.relationship_to_sponsor)}</span></td>
                     <td class="py-2 px-3">${esc(d.gender)}</td>
                     <td class="py-2 px-3 whitespace-nowrap">${esc(d.date_of_birth)} <span class="text-slate-400">(${calculateAge(d.date_of_birth)}y)</span></td>
+                    <td class="py-2 px-3 font-mono">${esc(d.nin || '—')}</td>
                     <td class="py-2 px-3 font-mono">${esc(d.blood_group || '—')}/${esc(d.genotype || '—')}</td>
                     <td class="py-2 px-3">${esc(d.allergies || '—')}</td>
                 </tr>`).join('');
@@ -1629,6 +1611,7 @@
                             <tr>
                                 <th class="py-2 px-3">Name</th><th class="py-2 px-3">Relationship</th>
                                 <th class="py-2 px-3">Gender</th><th class="py-2 px-3">DOB</th>
+                                <th class="py-2 px-3">NIN</th>
                                 <th class="py-2 px-3">Blood/Genotype</th><th class="py-2 px-3">Allergies</th>
                             </tr>
                         </thead>
@@ -1834,7 +1817,7 @@
             immigration_service_number: 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000),
             sponsor_service_number: sponsorNumber,
             relationship_to_sponsor: dep.relationship_to_sponsor,
-            nin: null,
+            nin: dep.nin || null,
             is_nhis: !!isNhisFlag,
             blood_group: dep.blood_group,
             genotype: dep.genotype,
