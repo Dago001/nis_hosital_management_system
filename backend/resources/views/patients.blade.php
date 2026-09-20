@@ -2204,6 +2204,17 @@
         const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
         const isLab = d.type === 'lab';
         const fullName = [pat.first_name, pat.last_name].filter(Boolean).join(' ');
+        // Inline the NIS crest (from the sidebar logo already loaded) as a data URI.
+        let logo = '';
+        try {
+            const img = document.querySelector('img[src*="nis_logo"]');
+            if (img && img.complete && img.naturalWidth) {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth; c.height = img.naturalHeight;
+                c.getContext('2d').drawImage(img, 0, 0);
+                logo = c.toDataURL('image/png');
+            }
+        } catch (e) { /* ignore */ }
         const w = window.open('', '_blank', 'width=800,height=900');
         if (!w) { alert('Please allow pop-ups to print the report.'); return; }
         w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Report — ${esc(d.test_name)}</title>
@@ -2211,6 +2222,7 @@
             *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#1e293b}
             body{padding:32px;max-width:720px;margin:auto}
             .hd{text-align:center;border-bottom:2px solid #0B6B3A;padding-bottom:12px;margin-bottom:16px}
+            .hd img{height:56px;width:56px;object-fit:contain;margin:0 auto 4px}
             .hd h1{font-size:18px;margin:4px 0;color:#0B6B3A;text-transform:uppercase;letter-spacing:1px}
             .hd h2{font-size:12px;margin:2px 0;color:#475569;font-weight:600}
             .hd p{font-size:10px;color:#94a3b8;margin:2px 0}
@@ -2225,6 +2237,7 @@
             .foot{text-align:center;font-size:8px;color:#94a3b8;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px}
         </style></head><body>
             <div class="hd">
+                ${logo ? `<img src="${logo}" alt="NIS">` : ''}
                 <h1>Nigeria Immigration Service</h1>
                 <h2>${isLab ? 'Pathological &amp; Diagnostic Laboratories' : 'Radiology &amp; Imaging Department'}</h2>
                 <p>Official ${isLab ? 'Clinical Laboratory' : 'Radiology'} Report</p>

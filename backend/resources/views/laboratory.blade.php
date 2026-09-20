@@ -515,12 +515,36 @@
     // Print the exact on-screen report card. A new window is used with the
     // report card's own markup + its Tailwind stylesheet so the printout looks
     // identical to the modal preview.
+    // Inline the (already-loaded) NIS logo as a data URI so it always prints,
+    // regardless of network timing in the new window.
+    function logoDataUrl() {
+        try {
+            const img = document.querySelector('#printable-report-area img');
+            if (img && img.complete && img.naturalWidth) {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth;
+                c.height = img.naturalHeight;
+                c.getContext('2d').drawImage(img, 0, 0);
+                return c.toDataURL('image/png');
+            }
+        } catch (e) { /* tainted/canvas blocked — fall back to the URL */ }
+        return null;
+    }
+
     function printReportVoucher() {
         const area = document.getElementById('printable-report-area');
         if (!area) { window.print(); return; }
         // Pull the app's compiled stylesheet(s) so Tailwind classes render.
         const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
             .map(el => el.outerHTML).join('\n');
+
+        // Guarantee the crest prints: swap the logo src for an inlined data URI.
+        let bodyHtml = area.outerHTML;
+        const dataUrl = logoDataUrl();
+        if (dataUrl) {
+            bodyHtml = bodyHtml.replace(/src="[^"]*nis_logo\.jpg"/i, `src="${dataUrl}"`);
+        }
+
         const w = window.open('', '_blank', 'width=820,height=1000');
         if (!w) { alert('Please allow pop-ups to print the report.'); return; }
         w.document.write(`<!doctype html><html><head><meta charset="utf-8">
@@ -529,8 +553,14 @@
             ${styles}
             <style>body{background:#fff;margin:0;padding:24px;display:flex;justify-content:center}
                    #printable-report-area{max-width:640px;width:100%;border:none!important;box-shadow:none!important}</style>
-        </head><body>${area.outerHTML}
-            <script>window.onload=function(){setTimeout(function(){window.print();},300);}<\/script>
+        </head><body>${bodyHtml}
+            <script>
+                window.onload=function(){
+                    var imgs=[].slice.call(document.images);
+                    Promise.all(imgs.map(function(i){return i.complete?1:new Promise(function(r){i.onload=i.onerror=r;});}))
+                        .then(function(){ setTimeout(function(){ window.print(); }, 150); });
+                };
+            <\/script>
         </body></html>`);
         w.document.close();
     }
