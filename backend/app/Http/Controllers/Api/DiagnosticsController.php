@@ -113,25 +113,32 @@ class DiagnosticsController extends Controller
             ]
         );
 
-        $labRequest->status = 'completed';
+        // Move the request into the approval queue so a senior clinician
+        // (Medical Director / CMO) sees it and can sign it off.
+        $labRequest->status = 'result_submitted';
         $labRequest->save();
 
         return response()->json([
-            'message' => 'Laboratory result submitted as draft.',
+            'message' => 'Laboratory result submitted for approval.',
             'result' => $result
         ]);
     }
 
     public function approveLabResult(int $requestId)
     {
+        $labRequest = LabRequest::find($requestId);
         $result = LabResult::where('lab_request_id', $requestId)->first();
-        if (!$result) {
+        if (!$result || !$labRequest) {
             return response()->json(['message' => 'Lab result details not found.'], 404);
         }
 
         $result->status = 'approved';
         $result->approved_at = now();
         $result->save();
+
+        // Final approved state — the report now shows on the patient profile.
+        $labRequest->status = 'approved';
+        $labRequest->save();
 
         return response()->json([
             'message' => 'Laboratory report approved and signed off.',
@@ -174,25 +181,29 @@ class DiagnosticsController extends Controller
             ]
         );
 
-        $radRequest->status = 'completed';
+        $radRequest->status = 'result_submitted';
         $radRequest->save();
 
         return response()->json([
-            'message' => 'Radiology report submitted as draft.',
+            'message' => 'Radiology report submitted for approval.',
             'result' => $result
         ]);
     }
 
     public function approveRadiologyResult(int $requestId)
     {
+        $radRequest = RadiologyRequest::find($requestId);
         $result = RadiologyResult::where('radiology_request_id', $requestId)->first();
-        if (!$result) {
+        if (!$result || !$radRequest) {
             return response()->json(['message' => 'Radiology report details not found.'], 404);
         }
 
         $result->status = 'approved';
         $result->approved_at = now();
         $result->save();
+
+        $radRequest->status = 'approved';
+        $radRequest->save();
 
         return response()->json([
             'message' => 'Radiology report approved and signed off.',

@@ -180,7 +180,9 @@ class DashboardController extends Controller
                     'bed_occupancy_rate' => $occupancyRate,
                     'total_male_patients' => $totalMalePatients,
                     'total_female_patients' => $totalFemalePatients,
-                    'total_staff_onboarded' => $totalStaffOnboarded
+                    'total_staff_onboarded' => $totalStaffOnboarded,
+                    'pending_lab_approvals' => \App\Models\LabResult::where('status', 'draft')->count(),
+                    'pending_radiology_approvals' => \App\Models\RadiologyResult::where('status', 'draft')->count(),
                 ],
                 'revenue_trend' => $monthlyRevenue,
                 'recent_admissions' => Admission::with(['patient', 'bed.ward'])->orderBy('created_at', 'desc')->take(5)->get()

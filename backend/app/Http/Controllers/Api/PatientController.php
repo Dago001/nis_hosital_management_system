@@ -254,7 +254,7 @@ class PatientController extends Controller
         $diagnostics = [];
 
         foreach ($patient->labRequests as $req) {
-            if ($req->status === 'completed' && $req->result && $req->result->status === 'approved') {
+            if ($req->result && $req->result->status === 'approved') {
                 $completedAt = $req->result->approved_at 
                     ? \Illuminate\Support\Carbon::parse($req->result->approved_at)->toDateTimeString()
                     : $req->result->updated_at->toDateTimeString();
@@ -284,7 +284,7 @@ class PatientController extends Controller
         }
 
         foreach ($patient->radiologyRequests as $req) {
-            if ($req->status === 'completed' && $req->result && $req->result->status === 'approved') {
+            if ($req->result && $req->result->status === 'approved') {
                 $completedAt = $req->result->approved_at 
                     ? \Illuminate\Support\Carbon::parse($req->result->approved_at)->toDateTimeString()
                     : $req->result->updated_at->toDateTimeString();

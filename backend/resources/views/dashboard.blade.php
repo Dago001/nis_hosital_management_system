@@ -263,9 +263,9 @@
                 <!-- KPI Stats Row -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     ${statCard('Total Patients', (metrics.total_patients || 0).toLocaleString(), `${metrics.total_male_patients || 0} M / ${metrics.total_female_patients || 0} F`, 'users', 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600', null)}
-                    ${statCard('Staff Roster', (metrics.total_staff_onboarded || 0).toLocaleString(), 'Active clinical staff', 'briefcase-medical', 'bg-blue-50 dark:bg-blue-500/10 text-blue-600', null)}
                     ${statCard("Today's Revenue", '₦' + (metrics.today_revenue || 0).toLocaleString(), 'Total: ₦' + (metrics.total_revenue || 0).toLocaleString(), 'banknote', 'bg-amber-50 dark:bg-amber-500/10 text-amber-600', null)}
                     ${statCard('Bed Occupancy', (metrics.bed_occupancy_rate || 0) + '%', (metrics.active_admissions || 0) + ' active admissions', 'bed', 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600', null)}
+                    ${statCard('Lab Approvals', ((metrics.pending_lab_approvals || 0) + (metrics.pending_radiology_approvals || 0)).toLocaleString(), 'Awaiting your sign-off', 'flask-conical', 'bg-violet-50 dark:bg-violet-500/10 text-violet-600', null)}
                 </div>
 
                 <!-- Charts + Quick Actions Row -->
@@ -317,6 +317,10 @@
                     <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         ${sectionHeader('Quick Actions', 'Common administrative tasks')}
                         <div class="space-y-3">
+                            <a href="/laboratory" class="flex items-center justify-between gap-3 p-3.5 bg-violet-50 dark:bg-violet-500/10 hover:bg-violet-100 border border-violet-200 dark:border-violet-500/20 text-violet-700 dark:text-violet-400 rounded-xl transition text-xs font-bold">
+                                <span class="flex items-center gap-3"><i data-lucide="flask-conical" class="w-4 h-4 shrink-0"></i> Approve Lab / Radiology Reports</span>
+                                ${((metrics.pending_lab_approvals || 0) + (metrics.pending_radiology_approvals || 0)) > 0 ? `<span class="px-2 py-0.5 rounded-full bg-violet-600 text-white text-[9px]">${(metrics.pending_lab_approvals || 0) + (metrics.pending_radiology_approvals || 0)}</span>` : ''}
+                            </a>
                             <a href="/admin/users" class="flex items-center gap-3 p-3.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-xl transition text-xs font-bold">
                                 <i data-lucide="users" class="w-4 h-4 shrink-0"></i> Manage Staff Credentials
                             </a>
