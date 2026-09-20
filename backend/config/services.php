@@ -48,7 +48,14 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-opus-5'),
         'version' => env('ANTHROPIC_VERSION', '2023-06-01'),
         'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com/v1'),
-        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 2000),
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 8000),
+        // Reasoning effort: low | medium | high | xhigh | max
+        'effort' => env('ANTHROPIC_EFFORT', 'high'),
+        // Request timeout (seconds) — extended thinking + web search can take time.
+        'timeout' => (int) env('ANTHROPIC_TIMEOUT', 120),
+        // Real-time web search for current guidelines/outbreaks/recalls.
+        'web_search' => env('ANTHROPIC_WEB_SEARCH', true),
+        'web_search_max_uses' => (int) env('ANTHROPIC_WEB_SEARCH_MAX_USES', 5),
     ],
 
     /*

@@ -233,7 +233,7 @@
           </div>
           <div>
                <h3 class="text-xs font-bold text-slate-850 dark:text-white">Clinical AI Advisor</h3>
-               <p class="text-[9px] text-slate-500">Real-time medical CDSS & dosage support</p>
+               <p class="text-[9px] text-slate-500">Worldwide CDSS · real-time, evidence-based</p>
           </div>
      </div>
 
@@ -241,10 +241,11 @@
      <div class="space-y-1.5">
           <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Quick Queries</span>
           <div class="flex flex-wrap gap-1.5">
-               <button type="button" onclick="askAi('Pediatric Paracetamol dosage guide')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Pediatric Dosage</button>
+               <button type="button" onclick="askAi('Give a differential diagnosis and workup for fever with jaundice in a returning traveller')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Differential Dx</button>
                <button type="button" onclick="askAi('Check NSAID and ACE Inhibitor drug interactions')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Drug Interactions</button>
-               <button type="button" onclick="askAi('ICD-10 coding cheat sheet')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">ICD-10 Finder</button>
-               <button type="button" onclick="askAi('WHO malaria treatment protocol')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Malaria Protocol</button>
+               <button type="button" onclick="askAi('Pediatric Paracetamol weight-based dosage guide')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Pediatric Dosage</button>
+               <button type="button" onclick="askAi('What are the latest WHO treatment guidelines for this condition, with sources?')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Latest Guidelines</button>
+               <button type="button" onclick="askAi('ICD-10 coding cheat sheet for common outpatient diagnoses')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">ICD-10 Finder</button>
           </div>
      </div>
 
@@ -255,7 +256,7 @@
                     <i data-lucide="bot" class="w-3.5 h-3.5"></i>
                </div>
                <p class="text-slate-600 dark:text-slate-350 leading-relaxed">
-                    Hello. I am your Clinical AI Advisor. Ask me about drug dosages, clinical interactions, diagnostic findings, or ICD-10 codes.
+                    Hello. I am your Clinical AI Advisor — I can help with any illness worldwide: diagnosis &amp; differentials, investigations, treatment protocols, drug dosing &amp; interactions, and coding. When connected, I search current guidelines in real time and cite the sources.
                </p>
           </div>
      </div>
@@ -595,6 +596,8 @@
     }
 
     // Clinical AI Advisor chat logic
+    let aiHistory = []; // [{role:'user'|'assistant', content}] — multi-turn memory
+
     async function askAi(queryText) {
         document.getElementById('ai-query-input').value = queryText;
         handleAiSubmit(new Event('submit'));
@@ -639,8 +642,13 @@
         lucide.createIcons();
 
         try {
-            const res = await api.post('/clinical/ai-chat', { message: query });
-            
+            const res = await api.post('/clinical/ai-chat', { message: query, history: aiHistory.slice(-10) });
+
+            // Remember the exchange for follow-up questions (multi-turn context).
+            aiHistory.push({ role: 'user', content: query });
+            aiHistory.push({ role: 'assistant', content: String(res.reply || '').slice(0, 8000) });
+            if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
+
             // Remove Loader
             const loader = document.getElementById(loaderId);
             if (loader) loader.remove();
@@ -683,6 +691,8 @@
 
     function formatMarkdown(text) {
         let html = text;
+        // Markdown links [text](url) — used for cited sources.
+        html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-emerald-600 dark:text-emerald-400 underline break-all">$1</a>');
         // Replace Headings
         html = html.replace(/### (.*?)\n/g, '<h4 class="text-xs font-black text-emerald-650 dark:text-emerald-500 uppercase mt-2.5 mb-1.5">$1</h4>');
         // Replace bold
