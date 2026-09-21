@@ -161,7 +161,7 @@
                             <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
                         </div>
 
-                        <h1 data-reveal style="--d:.2s" class="nis-hero-title text-2xl lg:text-3xl font-black tracking-tight leading-tight font-sans">
+                        <h1 data-reveal style="--d:.2s" class="nis-hero-title text-2xl lg:text-3xl font-semibold tracking-tight leading-tight font-sans">
                             NIS Medical Services Portal (NIS-MSP)
                         </h1>
 
