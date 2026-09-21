@@ -170,12 +170,6 @@
                         </p>
                     </div>
 
-                    <!-- CTA -->
-                    <div data-reveal style="--d:.4s" class="flex">
-                        <a href="/login" class="nis-cta bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/20 hover:shadow-nigGreen-600/40 hover:-translate-y-0.5">
-                            Launch Systems Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
