@@ -47,19 +47,30 @@ class PatientService
                 $data['immigration_service_number'] = $this->generateHospitalCode();
             }
 
+            // Attribute the record to a facility (defaults to the HQ facility).
+            if (empty($data['facility_id'])) {
+                $data['facility_id'] = (int) (request('facility_id') ?? 1);
+            }
+
+            // NHIS coverage is an explicit choice at registration.
+            $data['is_nhis'] = filter_var(request('is_nhis', false), FILTER_VALIDATE_BOOLEAN);
+            $data['nhis_number'] = $data['is_nhis'] ? (request('nhis_number') ?: null) : null;
+
             // Mocking barcode and QR code data for NIS HMS Patient Cards
             $data['qr_code_data'] = 'NISHMS-PAT-' . time() . '-' . rand(1000, 9999);
             $data['barcode_data'] = 'NIS' . rand(100000, 999999);
 
             $patient = $this->patientRepo->create($data);
 
-            // Generate registration fee invoice for new Cash/Civilian (non-NHIS) patient
-            $isNhis = !empty($patient->sponsor_service_number) || (!empty($dto->immigration_service_number) && !str_contains($dto->immigration_service_number, '/PAT/'));
+            // Generate registration fee invoice for non-NHIS (cash) patients only.
+            // NHIS-covered patients are not billed the registration fee.
+            $isNhis = (bool) $patient->is_nhis;
             if (!$isNhis) {
+                $regFee = \App\Models\ServiceTariff::priceFor('REG_NEW', 5000.00);
                 $invoice = \App\Models\Invoice::create([
                     'patient_id' => $patient->id,
                     'visit_id' => null,
-                    'total_amount' => 5000.00,
+                    'total_amount' => $regFee,
                     'discount_amount' => 0.00,
                     'paid_amount' => 0.00,
                     'status' => 'unpaid'
@@ -69,8 +80,8 @@ class PatientService
                     'invoice_id' => $invoice->id,
                     'item_name' => 'New Patient Registration Fee (Civilian/Cash)',
                     'quantity' => 1,
-                    'unit_price' => 5000.00,
-                    'total_price' => 5000.00
+                    'unit_price' => $regFee,
+                    'total_price' => $regFee
                 ]);
             }
 

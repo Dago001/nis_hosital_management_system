@@ -17,14 +17,16 @@ use App\Http\Controllers\Api\ClinicalAiController;
 use App\Http\Controllers\Api\SettingController;
 
 // Public routes
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
-Route::post('/verify-mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/verify-mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:login');
 Route::post('/appointments/request', [AppointmentController::class, 'requestAppointment'])->middleware('throttle:30,1');
 Route::post('/chat/session/init', [SupportChatController::class, 'initSession'])->middleware('throttle:30,1');
 Route::get('/chat/messages', [SupportChatController::class, 'getVisitorMessages']);
 Route::post('/chat/send', [SupportChatController::class, 'sendVisitorMessage'])->middleware('throttle:60,1');
 Route::get('/external/sync-patients', [SettingController::class, 'syncPatients']);
 Route::post('/chatbot', [App\Http\Controllers\Api\ChatbotController::class, 'chat'])->middleware('throttle:60,1');
+// Public patient self-service portal lookup (rate-limited to deter enumeration)
+Route::post('/portal/lookup', [App\Http\Controllers\Api\PortalController::class, 'lookup'])->middleware('throttle:8,1');
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'audit'])->group(function () {
@@ -44,6 +46,15 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/patients/assigned', [PatientController::class, 'assignedToMe'])->middleware('role_or_permission:consult_patients');
     Route::post('/patients', [PatientController::class, 'store'])->middleware('role_or_permission:register_patients');
     Route::get('/patients/{id}', [PatientController::class, 'show'])->middleware('role_or_permission:view_patients');
+    // Printable patient ID card (QR)
+    Route::get('/patients/{id}/id-card', [PatientController::class, 'idCard'])->middleware('role_or_permission:view_patients');
+    // Passport photo for the ID card
+    Route::post('/patients/{id}/photo', [PatientController::class, 'uploadPhoto'])->middleware('role_or_permission:register_patients');
+    // Patient document attachments (PHI — private storage, streamed downloads)
+    Route::get('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'index'])->middleware('role_or_permission:view_patients');
+    Route::post('/patients/{id}/documents', [App\Http\Controllers\Api\PatientDocumentController::class, 'store'])->middleware('role_or_permission:register_patients,view_patients');
+    Route::get('/patient-documents/{documentId}/download', [App\Http\Controllers\Api\PatientDocumentController::class, 'download'])->middleware('role_or_permission:view_patients');
+    Route::delete('/patient-documents/{documentId}', [App\Http\Controllers\Api\PatientDocumentController::class, 'destroy'])->middleware('role_or_permission:register_patients');
 
     // Central Store / Inventory issuance (Inventory Officer -> Pharmacy)
     Route::get('/inventory/items', [App\Http\Controllers\Api\InventoryController::class, 'items'])->middleware('role_or_permission:view_inventory');
@@ -57,29 +68,42 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/appointments/doctors', [AppointmentController::class, 'getDoctors']);
     Route::post('/appointments/{id}/check-in', [AppointmentController::class, 'checkIn'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
     Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/{id}/no-show', [AppointmentController::class, 'markNoShow'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/{id}/reminder', [AppointmentController::class, 'sendReminder'])->middleware('role_or_permission:records_officer,receptionist,hospital_admin,super_admin');
+    Route::post('/appointments/reminders/send-due', [AppointmentController::class, 'sendDueReminders'])->middleware('role_or_permission:records_officer,receptionist,hospital_admin,super_admin');
+    Route::get('/appointments/attendance-stats', [AppointmentController::class, 'attendanceStats']);
     Route::get('/appointments/requests', [AppointmentController::class, 'listRequests']);
     Route::post('/appointments/requests/{id}/confirm', [AppointmentController::class, 'confirmRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
     Route::post('/appointments/requests/{id}/reject', [AppointmentController::class, 'rejectRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
 
     // Clinical Workflows (Vitals & SOAP Consultations)
     Route::post('/clinical/vitals', [ClinicalController::class, 'recordVitals'])->middleware('role_or_permission:nursing_vitals');
-    Route::get('/clinical/active-visit/{patientId}', [ClinicalController::class, 'getActiveVisit'])->middleware('role_or_permission:consult_patients');
-    Route::post('/clinical/consult/{visitId}', [ClinicalController::class, 'consult'])->middleware('role_or_permission:consult_patients');
+    // consult_patients holders reach these; senior clinical roles are also
+    // admitted so ClinicalController's per-doctor isolation can grant them
+    // break-glass access to any visit (audit-logged).
+    Route::get('/clinical/active-visit/{patientId}', [ClinicalController::class, 'getActiveVisit'])->middleware('role_or_permission:consult_patients,medical_director,chief_medical_officer');
+    Route::post('/clinical/consult/{visitId}', [ClinicalController::class, 'consult'])->middleware('role_or_permission:consult_patients,medical_director,chief_medical_officer');
+    Route::post('/clinical/drug-safety-check', [ClinicalController::class, 'drugSafetyCheck'])->middleware('role_or_permission:consult_patients');
     Route::post('/clinical/ai-chat', [ClinicalAiController::class, 'consult']);
 
     // Diagnostics - Laboratory
     Route::get('/diagnostics/lab/queue', [DiagnosticsController::class, 'getLabQueue']);
     Route::post('/diagnostics/lab/collect-sample/{requestId}', [DiagnosticsController::class, 'collectSample'])->middleware('role_or_permission:fill_lab_results');
     Route::post('/diagnostics/lab/submit-result/{requestId}', [DiagnosticsController::class, 'submitLabResult'])->middleware('role_or_permission:fill_lab_results');
-    Route::post('/diagnostics/lab/approve-result/{requestId}', [DiagnosticsController::class, 'approveLabResult'])->middleware('role_or_permission:approve_diagnostics');
+    Route::post('/diagnostics/lab/approve-result/{requestId}', [DiagnosticsController::class, 'approveLabResult'])->middleware('role_or_permission:approve_diagnostics,medical_director,chief_medical_officer');
+
+    // Laboratory test catalogue (reference ranges + auto-flagging)
+    Route::get('/lab-tests', [App\Http\Controllers\Api\LabTestController::class, 'index']);
+    Route::post('/lab-tests', [App\Http\Controllers\Api\LabTestController::class, 'store'])->middleware('role_or_permission:manage_settings');
+    Route::put('/lab-tests/{id}', [App\Http\Controllers\Api\LabTestController::class, 'update'])->middleware('role_or_permission:manage_settings');
 
     // Diagnostics - Radiology
     Route::get('/diagnostics/radiology/queue', [DiagnosticsController::class, 'getRadiologyQueue']);
     Route::post('/diagnostics/radiology/submit-result/{requestId}', [DiagnosticsController::class, 'submitRadiologyResult'])->middleware('role_or_permission:fill_radiology_results');
-    Route::post('/diagnostics/radiology/approve-result/{requestId}', [DiagnosticsController::class, 'approveRadiologyResult'])->middleware('role_or_permission:approve_diagnostics');
+    Route::post('/diagnostics/radiology/approve-result/{requestId}', [DiagnosticsController::class, 'approveRadiologyResult'])->middleware('role_or_permission:approve_diagnostics,medical_director,chief_medical_officer');
 
     // Billing & Finance
-    Route::get('/billing/invoices/pending', [BillingController::class, 'getPendingInvoices'])->middleware('role_or_permission:collect_payments');
+    Route::get('/billing/invoices/pending', [BillingController::class, 'getPendingInvoices'])->middleware('role_or_permission:collect_payments,medical_director,chief_medical_officer,hospital_admin,view_revenue_reports');
     Route::get('/billing/invoices/{id}', [BillingController::class, 'showInvoice']);
     Route::post('/billing/invoices/{invoiceId}/pay', [BillingController::class, 'collectPayment'])->middleware('role_or_permission:collect_payments');
 
@@ -115,6 +139,9 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     // Sponsor Lookup
     Route::get('/sponsor/lookup', [PatientController::class, 'lookupSponsor']);
 
+    // NIS Officer verification (ID Card Portal) — used when registering an officer
+    Route::get('/officers/lookup', [PatientController::class, 'lookupOfficer']);
+
 
     // === Queue Management ===
     Route::get('/queue', [App\Http\Controllers\Api\QueueController::class, 'index']);
@@ -133,6 +160,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::post('/ipd/beds', [App\Http\Controllers\Api\IpdController::class, 'createBed'])->middleware('role_or_permission:ward_manager,medical_director,hospital_admin');
     Route::put('/ipd/beds/{id}/status', [App\Http\Controllers\Api\IpdController::class, 'updateBedStatus'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
 
+    // Inpatient bedside care: observations + Medication Administration Record
+    Route::get('/ipd/admissions/{id}/care', [App\Http\Controllers\Api\AdmissionCareController::class, 'show'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
+    Route::post('/ipd/admissions/{id}/observations', [App\Http\Controllers\Api\AdmissionCareController::class, 'storeObservation'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager');
+    Route::post('/ipd/admissions/{id}/medications', [App\Http\Controllers\Api\AdmissionCareController::class, 'storeMedication'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager');
+
 
     // === Reports & Analytics ===
     Route::get('/reports', [App\Http\Controllers\Api\ReportController::class, 'executive']);
@@ -142,6 +174,10 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/reports/diagnoses', [App\Http\Controllers\Api\ReportController::class, 'diagnoses']);
     Route::get('/reports/bed-occupancy', [App\Http\Controllers\Api\ReportController::class, 'bedOccupancy']);
     Route::get('/reports/staff-performance', [App\Http\Controllers\Api\ReportController::class, 'staffPerformance']);
+    // Finance report depth
+    Route::get('/reports/cash-reconciliation', [App\Http\Controllers\Api\ReportController::class, 'cashReconciliation']);
+    Route::get('/reports/revenue-by-department', [App\Http\Controllers\Api\ReportController::class, 'revenueByDepartment']);
+    Route::get('/reports/debtor-aging', [App\Http\Controllers\Api\ReportController::class, 'debtorAging']);
 
 
 
@@ -163,6 +199,57 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/emergencies/beds', [App\Http\Controllers\Api\EmergencyController::class, 'getAvailableBeds']);
 
 
+
+    // NHIS / HMO Claims
+    Route::get('/claims', [App\Http\Controllers\Api\ClaimController::class, 'index'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::get('/claims/eligible', [App\Http\Controllers\Api\ClaimController::class, 'eligible'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::get('/claims/{id}', [App\Http\Controllers\Api\ClaimController::class, 'show'])->middleware('role_or_permission:collect_payments,view_revenue_reports');
+    Route::post('/claims', [App\Http\Controllers\Api\ClaimController::class, 'store'])->middleware('role_or_permission:collect_payments,create_invoices');
+    Route::post('/claims/{id}/status', [App\Http\Controllers\Api\ClaimController::class, 'updateStatus'])->middleware('role_or_permission:collect_payments,create_invoices');
+
+    // Facilities registry (multi-facility scoping)
+    Route::get('/facilities', [App\Http\Controllers\Api\FacilityController::class, 'index']);
+    Route::post('/facilities', [App\Http\Controllers\Api\FacilityController::class, 'store'])->middleware('role_or_permission:super_admin,ict_admin,hospital_admin');
+    Route::put('/facilities/{id}', [App\Http\Controllers\Api\FacilityController::class, 'update'])->middleware('role_or_permission:super_admin,ict_admin,hospital_admin');
+
+    // DHIS2 aggregate export
+    Route::middleware('role_or_permission:super_admin,hospital_admin,medical_director,health_info_officer')->group(function () {
+        Route::get('/dhis2/indicators', [App\Http\Controllers\Api\Dhis2Controller::class, 'indicators']);
+        Route::get('/dhis2/export', [App\Http\Controllers\Api\Dhis2Controller::class, 'export']);
+        Route::get('/dhis2/export.csv', [App\Http\Controllers\Api\Dhis2Controller::class, 'exportCsv']);
+    });
+
+    // Roles & permissions administration
+    Route::middleware('role_or_permission:super_admin,ict_admin')->group(function () {
+        Route::get('/roles', [App\Http\Controllers\Api\RoleController::class, 'index']);
+        Route::get('/roles/permissions', [App\Http\Controllers\Api\RoleController::class, 'permissions']);
+        Route::get('/roles/{id}', [App\Http\Controllers\Api\RoleController::class, 'show']);
+        Route::put('/roles/{id}/permissions', [App\Http\Controllers\Api\RoleController::class, 'syncPermissions']);
+    });
+
+    // Theatre / surgery scheduling
+    Route::get('/theatre/theatres', [App\Http\Controllers\Api\TheatreController::class, 'theatres']);
+    Route::get('/theatre/surgeons', [App\Http\Controllers\Api\TheatreController::class, 'surgeons']);
+    Route::get('/theatre/surgeries', [App\Http\Controllers\Api\TheatreController::class, 'index']);
+    Route::post('/theatre/surgeries', [App\Http\Controllers\Api\TheatreController::class, 'store'])->middleware('role_or_permission:super_admin,hospital_admin,medical_director,doctor,consultant,theatre_manager,nurse');
+    Route::post('/theatre/surgeries/{id}/status', [App\Http\Controllers\Api\TheatreController::class, 'updateStatus'])->middleware('role_or_permission:super_admin,hospital_admin,medical_director,doctor,consultant,theatre_manager,nurse');
+
+    // Procurement (suppliers, purchase orders, goods-received notes)
+    Route::middleware('role_or_permission:super_admin,ict_admin,hospital_admin,procurement_officer,store_officer,account_officer')->group(function () {
+        Route::get('/procurement/suppliers', [App\Http\Controllers\Api\ProcurementController::class, 'suppliers']);
+        Route::post('/procurement/suppliers', [App\Http\Controllers\Api\ProcurementController::class, 'storeSupplier']);
+        Route::get('/procurement/catalogue-items', [App\Http\Controllers\Api\ProcurementController::class, 'catalogueItems']);
+        Route::get('/procurement/orders', [App\Http\Controllers\Api\ProcurementController::class, 'index']);
+        Route::post('/procurement/orders', [App\Http\Controllers\Api\ProcurementController::class, 'store']);
+        Route::get('/procurement/orders/{id}', [App\Http\Controllers\Api\ProcurementController::class, 'show']);
+        Route::post('/procurement/orders/{id}/approve', [App\Http\Controllers\Api\ProcurementController::class, 'approve']);
+        Route::post('/procurement/orders/{id}/receive', [App\Http\Controllers\Api\ProcurementController::class, 'receive']);
+    });
+
+    // Service Tariffs (price catalogue)
+    Route::get('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'index']);
+    Route::post('/tariffs', [App\Http\Controllers\Api\TariffController::class, 'store'])->middleware('role_or_permission:manage_settings');
+    Route::put('/tariffs/{id}', [App\Http\Controllers\Api\TariffController::class, 'update'])->middleware('role_or_permission:manage_settings');
 
     // System Settings
     Route::get('/settings', [SettingController::class, 'index'])->middleware('role_or_permission:manage_settings');

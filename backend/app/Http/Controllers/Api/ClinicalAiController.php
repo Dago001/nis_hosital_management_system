@@ -18,10 +18,18 @@ class ClinicalAiController extends Controller
     public function consult(Request $request)
     {
         $validated = $request->validate([
-            'message' => 'required|string|max:2000',
+            'message' => 'required|string|max:4000',
+            'history' => 'nullable|array|max:20',
+            'history.*.role' => 'required_with:history|string|in:user,assistant',
+            'history.*.content' => 'required_with:history|string|max:8000',
+            'patient_context' => 'nullable|string|max:2000',
         ]);
 
-        $result = $this->ai->respond($validated['message']);
+        $result = $this->ai->respond(
+            $validated['message'],
+            $validated['history'] ?? [],
+            $validated['patient_context'] ?? null
+        );
 
         return response()->json([
             'reply' => $result['reply'],

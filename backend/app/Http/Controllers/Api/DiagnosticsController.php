@@ -19,15 +19,46 @@ class DiagnosticsController extends Controller
 
     public function getLabQueue()
     {
-        $queue = LabRequest::with(['patient', 'doctor'])->orderBy('created_at', 'desc')->get();
+        $queue = LabRequest::with(['patient', 'doctor', 'result.scientist', 'invoice'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($req) {
+                // Flatten result fields onto the row so the worklist / print
+                // report can read result_value, ranges, the computed flag,
+                // remarks and — importantly — who conducted/verified the test.
+                $arr = $req->toArray();
+                $arr['result_value'] = $req->result?->result_value;
+                $arr['normal_range_min'] = $req->result?->normal_range_min;
+                $arr['normal_range_max'] = $req->result?->normal_range_max;
+                $arr['unit'] = $req->result?->unit;
+                $arr['flag'] = $req->result?->flag;
+                $arr['remarks'] = $req->result?->remarks;
+                $arr['scientist_name'] = $req->result?->scientist?->full_name;
+                $arr['result_status'] = $req->result?->status;
+                $arr['approved_at'] = $req->result?->approved_at;
+                // Payment gate: the cashier must settle the lab invoice before
+                // the sample is processed.
+                $arr['invoice_id'] = $req->invoice_id;
+                $arr['payment_status'] = $req->invoice?->status ?? ($req->invoice_id ? 'unpaid' : 'n/a');
+                $arr['is_paid'] = $req->isPaid();
+                $arr['bill_amount'] = $req->invoice
+                    ? (float) $req->invoice->total_amount - (float) $req->invoice->discount_amount
+                    : null;
+                return $arr;
+            });
+
         return response()->json(['lab_requests' => $queue]);
     }
 
     public function collectSample(int $requestId)
     {
-        $request = LabRequest::find($requestId);
+        $request = LabRequest::with('invoice')->find($requestId);
         if (!$request) {
             return response()->json(['message' => 'Lab request not found.'], 404);
+        }
+
+        if (!$request->isPaid()) {
+            return response()->json(['message' => 'Payment for this lab test is not yet confirmed by the cashier.'], 402);
         }
 
         $request->status = 'sample_collected';
@@ -38,9 +69,13 @@ class DiagnosticsController extends Controller
 
     public function submitLabResult(Request $request, int $requestId)
     {
-        $labRequest = LabRequest::find($requestId);
+        $labRequest = LabRequest::with('invoice')->find($requestId);
         if (!$labRequest) {
             return response()->json(['message' => 'Lab request not found.'], 404);
+        }
+
+        if (!$labRequest->isPaid()) {
+            return response()->json(['message' => 'Payment for this lab test is not yet confirmed by the cashier.'], 402);
         }
 
         $validated = $request->validate([
@@ -54,38 +89,56 @@ class DiagnosticsController extends Controller
         $scientist = Auth::user()->staff;
         $scientistId = $scientist ? $scientist->id : null;
 
+        // Look up the catalogue entry for this test to backfill reference
+        // ranges / unit and to auto-flag the value against the range.
+        $catalogue = \App\Models\LabTest::matchByName($labRequest->test_name);
+
+        $rangeMin = $validated['normal_range_min'] ?? ($catalogue?->ref_low !== null ? (string) $catalogue->ref_low : null);
+        $rangeMax = $validated['normal_range_max'] ?? ($catalogue?->ref_high !== null ? (string) $catalogue->ref_high : null);
+        $unit = $validated['unit'] ?? $catalogue?->unit;
+
+        $flag = $catalogue?->flagFor($validated['result_value']);
+
         $result = LabResult::updateOrCreate(
             ['lab_request_id' => $labRequest->id],
             [
                 'scientist_id' => $scientistId,
                 'result_value' => $validated['result_value'],
-                'normal_range_min' => $validated['normal_range_min'] ?? null,
-                'normal_range_max' => $validated['normal_range_max'] ?? null,
-                'unit' => $validated['unit'] ?? null,
+                'normal_range_min' => $rangeMin,
+                'normal_range_max' => $rangeMax,
+                'unit' => $unit,
+                'flag' => $flag,
                 'remarks' => $validated['remarks'] ?? null,
                 'status' => 'draft'
             ]
         );
 
-        $labRequest->status = 'completed';
+        // Move the request into the approval queue so a senior clinician
+        // (Medical Director / CMO) sees it and can sign it off.
+        $labRequest->status = 'result_submitted';
         $labRequest->save();
 
         return response()->json([
-            'message' => 'Laboratory result submitted as draft.',
+            'message' => 'Laboratory result submitted for approval.',
             'result' => $result
         ]);
     }
 
     public function approveLabResult(int $requestId)
     {
+        $labRequest = LabRequest::find($requestId);
         $result = LabResult::where('lab_request_id', $requestId)->first();
-        if (!$result) {
+        if (!$result || !$labRequest) {
             return response()->json(['message' => 'Lab result details not found.'], 404);
         }
 
         $result->status = 'approved';
         $result->approved_at = now();
         $result->save();
+
+        // Final approved state — the report now shows on the patient profile.
+        $labRequest->status = 'approved';
+        $labRequest->save();
 
         return response()->json([
             'message' => 'Laboratory report approved and signed off.',
@@ -128,25 +181,29 @@ class DiagnosticsController extends Controller
             ]
         );
 
-        $radRequest->status = 'completed';
+        $radRequest->status = 'result_submitted';
         $radRequest->save();
 
         return response()->json([
-            'message' => 'Radiology report submitted as draft.',
+            'message' => 'Radiology report submitted for approval.',
             'result' => $result
         ]);
     }
 
     public function approveRadiologyResult(int $requestId)
     {
+        $radRequest = RadiologyRequest::find($requestId);
         $result = RadiologyResult::where('radiology_request_id', $requestId)->first();
-        if (!$result) {
+        if (!$result || !$radRequest) {
             return response()->json(['message' => 'Radiology report details not found.'], 404);
         }
 
         $result->status = 'approved';
         $result->approved_at = now();
         $result->save();
+
+        $radRequest->status = 'approved';
+        $radRequest->save();
 
         return response()->json([
             'message' => 'Radiology report approved and signed off.',

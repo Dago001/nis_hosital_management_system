@@ -17,6 +17,29 @@
         </div>
     </div>
 
+    <!-- Attendance / reminders strip -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+            <div class="text-lg font-black text-slate-800 dark:text-white" id="att-total">0</div>
+            <div class="text-[9px] text-slate-500 uppercase font-semibold tracking-wide">Appts (30d)</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+            <div class="text-lg font-black text-emerald-600" id="att-attended">0</div>
+            <div class="text-[9px] text-slate-500 uppercase font-semibold tracking-wide">Attended</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+            <div class="text-lg font-black text-red-600" id="att-noshow">0</div>
+            <div class="text-[9px] text-slate-500 uppercase font-semibold tracking-wide">No-shows</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex items-center justify-between gap-2">
+            <div>
+                <div class="text-lg font-black text-amber-600" id="att-rate">0%</div>
+                <div class="text-[9px] text-slate-500 uppercase font-semibold tracking-wide">No-show rate</div>
+            </div>
+            <button id="remind-btn" onclick="sendDueReminders()" class="hidden bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-2 rounded-xl leading-tight">Remind<br>tomorrow</button>
+        </div>
+    </div>
+
     <!-- Tab Navigation -->
     <div class="flex items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button id="tab-active-btn" onclick="switchTab('active')" class="text-xs font-bold pb-2 border-b-2 border-emerald-600 text-emerald-600 transition px-2">
@@ -238,13 +261,21 @@
                     if (apt.status === 'checked_in') statusClass = 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
                     else if (apt.status === 'cancelled') statusClass = 'bg-red-500/10 text-red-550 border border-red-500/20';
                     else if (apt.status === 'pending') statusClass = 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
+                    else if (apt.status === 'no_show') statusClass = 'bg-red-600 text-white';
 
                     const canManage = ['super_admin', 'records_officer', 'receptionist', 'hospital_admin'].includes(role);
                     let actionHTML = '';
 
+                    const remindBadge = apt.reminder_sent_at
+                        ? '<span class="inline-flex items-center gap-1 text-[9px] text-blue-600 font-bold mr-2" title="Reminder sent"><i data-lucide="bell-ring" class="w-3 h-3"></i>Reminded</span>'
+                        : '';
+
                     if (canManage && apt.status === 'pending') {
                         actionHTML = `
+                            ${remindBadge}
+                            ${apt.reminder_sent_at ? '' : `<button onclick="remindAppointment(${apt.id})" class="text-blue-600 hover:text-blue-700 font-bold mr-3 hover:underline">Remind</button>`}
                             <button onclick="checkInAppointment(${apt.id})" class="text-emerald-600 hover:text-emerald-700 font-bold mr-3 hover:underline">Check In</button>
+                            <button onclick="markNoShow(${apt.id})" class="text-amber-600 hover:text-amber-700 font-bold mr-3 hover:underline">No-show</button>
                             <button onclick="cancelAppointment(${apt.id})" class="text-red-500 hover:text-red-600 font-bold hover:underline">Cancel</button>
                         `;
                     } else if (apt.status === 'checked_in') {
@@ -277,6 +308,7 @@
                         </tr>
                     `;
                 }).join('');
+                if (window.lucide) lucide.createIcons();
             } else {
                 tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500 text-xs">No appointments booked for today.</td></tr>`;
             }
@@ -544,14 +576,52 @@
         }
     }
 
+    async function markNoShow(id) {
+        if (!confirm('Mark this patient as a no-show?')) return;
+        try {
+            await api.post(`/appointments/${id}/no-show`);
+            loadAppointments();
+            loadAttendanceStats();
+        } catch (err) { alert(err.message || 'Failed to mark no-show.'); }
+    }
+
+    async function remindAppointment(id) {
+        try {
+            const res = await api.post(`/appointments/${id}/reminder`);
+            alert(res.message || 'Reminder logged.');
+            loadAppointments();
+        } catch (err) { alert(err.message || 'Failed to send reminder.'); }
+    }
+
+    async function sendDueReminders() {
+        if (!confirm("Send reminders for all pending appointments booked for tomorrow?")) return;
+        try {
+            const res = await api.post('/appointments/reminders/send-due', {});
+            alert(res.message || 'Reminders dispatched.');
+            loadAppointments();
+        } catch (err) { alert(err.message || 'Failed to send reminders.'); }
+    }
+
+    async function loadAttendanceStats() {
+        try {
+            const res = await api.get('/appointments/attendance-stats');
+            document.getElementById('att-total').innerText = res.total;
+            document.getElementById('att-attended').innerText = res.attended;
+            document.getElementById('att-noshow').innerText = res.no_shows;
+            document.getElementById('att-rate').innerText = res.no_show_rate + '%';
+        } catch (e) { /* stats are best-effort */ }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const role = user.roles && user.roles[0] ? user.roles[0].name : '';
         if (['super_admin', 'records_officer', 'receptionist', 'hospital_admin'].includes(role)) {
             document.getElementById('book-btn-container').classList.remove('hidden');
+            document.getElementById('remind-btn').classList.remove('hidden');
         }
         loadAppointments();
         loadPublicRequests();
         loadSetupData();
+        loadAttendanceStats();
     });
 </script>
 @endsection

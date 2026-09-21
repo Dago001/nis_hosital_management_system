@@ -120,6 +120,7 @@
                 <span class="text-[9px] text-slate-400 font-bold tracking-wider flex items-center justify-center gap-1.5 uppercase">
                     <i data-lucide="shield-check" class="text-nigGreen-600 w-3.5 h-3.5"></i> Authorized Staff Only
                 </span>
+                <a href="/portal" class="mt-2 inline-block text-[11px] font-semibold text-nigGreen-600 hover:underline">Are you a patient? Check your records &rarr;</a>
             </div>
         </div>
     </div>

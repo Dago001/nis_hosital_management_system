@@ -228,8 +228,8 @@
                         `;
                     }
                     actions += `
-                        <button onclick="openReceiptModal(${inv.id})" class="bg-slate-800 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
-                            Receipt
+                        <button onclick="openReceiptModal(${inv.id})" class="inline-flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
+                            <i data-lucide="receipt" class="w-3 h-3"></i> Receipt
                         </button>
                     `;
 
@@ -249,6 +249,7 @@
                         </tr>
                     `;
                 }).join('');
+                if (window.lucide) lucide.createIcons();
             } else {
                 tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500 text-xs">No invoices found for this filter.</td></tr>`;
             }

@@ -209,6 +209,7 @@ class DatabaseSeeder extends Seeder
             $permissionModels['view_executive_dashboard']->id,
             $permissionModels['view_patients']->id,
             $permissionModels['view_revenue_reports']->id,
+            $permissionModels['approve_diagnostics']->id, // sign off lab/radiology reports
         ];
         $roleModels['medical_director']->permissions()->sync($execPermissions);
         $roleModels['chief_medical_officer']->permissions()->sync($execPermissions);
@@ -352,7 +353,10 @@ class DatabaseSeeder extends Seeder
             $user = User::create([
                 'name' => $acc['name'],
                 'email' => $acc['email'],
-                'password' => Hash::make('Password123#'), // Secure default seed password
+                // Seed password is configurable via SEED_PASSWORD; the dev
+                // default MUST be overridden (or these accounts removed) before
+                // go-live. See DEPLOYMENT.md.
+                'password' => Hash::make(env('SEED_PASSWORD') ?: 'Password123#'),
                 'status' => 'active'
             ]);
 
@@ -371,6 +375,73 @@ class DatabaseSeeder extends Seeder
                 'phone' => '08031234567',
                 'status' => 'active'
             ]);
+        }
+
+        // 4b. Seed the NIS ID Card Portal directory (officer verification source).
+        //     These stand in for the official portal when no external API is
+        //     configured, so registering an NIS officer can auto-populate bio-data.
+        // NIS Service Numbers are numeric, 2–5 digits.
+        $officerDirectory = [
+            [
+                'service_number' => '48213',
+                'rank' => 'Assistant Superintendent of Immigration II (ASI-II)',
+                'command' => 'FCT Command, Abuja',
+                'first_name' => 'Musa', 'middle_name' => 'Adamu', 'last_name' => 'Ibrahim',
+                'gender' => 'Male', 'date_of_birth' => '1988-03-14',
+                'phone' => '08034567812', 'email' => 'musa.ibrahim@immigration.gov.ng',
+                'nin' => '20345678911', 'marital_status' => 'Married',
+                'state' => 'Kano', 'lga' => 'Nassarawa', 'city' => 'Kano',
+                'address' => 'No. 14 Zaria Road, Nassarawa GRA, Kano',
+            ],
+            [
+                'service_number' => '9072',
+                'rank' => 'Inspector of Immigration (II)',
+                'command' => 'Lagos Command, Ikeja',
+                'first_name' => 'Grace', 'middle_name' => 'Ngozi', 'last_name' => 'Okonkwo',
+                'gender' => 'Female', 'date_of_birth' => '1991-07-22',
+                'phone' => '08123456780', 'email' => 'grace.okonkwo@immigration.gov.ng',
+                'nin' => '30456789122', 'marital_status' => 'Single',
+                'state' => 'Anambra', 'lga' => 'Onitsha North', 'city' => 'Lagos',
+                'address' => 'Flat 3B, NIS Barracks, Ikeja, Lagos',
+            ],
+            [
+                'service_number' => '615',
+                'rank' => 'Deputy Superintendent of Immigration (DSI)',
+                'command' => 'Kaduna Command',
+                'first_name' => 'Sagir', 'middle_name' => null, 'last_name' => 'Abdullahi',
+                'gender' => 'Male', 'date_of_birth' => '1983-11-02',
+                'phone' => '07098765432', 'email' => 'sagir.abdullahi@immigration.gov.ng',
+                'nin' => '10567891233', 'marital_status' => 'Married',
+                'state' => 'Kaduna', 'lga' => 'Kaduna North', 'city' => 'Kaduna',
+                'address' => 'No. 7 Ahmadu Bello Way, Kaduna',
+            ],
+        ];
+
+        // Also mirror the seeded staff officers into the portal directory so
+        // their Service Numbers verify with fuller bio-data.
+        foreach ($accounts as $acc) {
+            $officerDirectory[] = [
+                'service_number' => $acc['service_number'],
+                'rank' => $acc['rank'],
+                'command' => 'NIS Medical Services',
+                'first_name' => $acc['first_name'],
+                'middle_name' => null,
+                'last_name' => $acc['last_name'],
+                'gender' => in_array($acc['first_name'], ['Funmilayo', 'Chioma', 'Zainab']) ? 'Female' : 'Male',
+                'date_of_birth' => null,
+                'phone' => '08031234567',
+                'email' => $acc['email'],
+                'nin' => null,
+                'marital_status' => null,
+                'state' => null, 'lga' => null, 'city' => null, 'address' => null,
+            ];
+        }
+
+        foreach ($officerDirectory as $o) {
+            \App\Models\OfficerDirectory::updateOrCreate(
+                ['service_number' => $o['service_number']],
+                $o + ['status' => 'active']
+            );
         }
 
         // 5. Seed Sample Patients

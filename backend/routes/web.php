@@ -58,6 +58,10 @@ Route::get('/billing', function () {
     return view('billing');
 });
 
+Route::get('/claims', function () {
+    return view('claims');
+});
+
 Route::get('/audit-trail', function () {
     return view('audit-trail');
 });
@@ -70,10 +74,23 @@ Route::get('/settings', function () {
     return view('settings');
 });
 
+Route::get('/tariffs', function () {
+    return view('tariffs');
+});
+
 // New Feature Web Routes
 Route::get('/queue', function () { return view('queue'); });
 Route::get('/ipd', function () { return view('ipd'); });
 Route::get('/reports', function () { return view('reports'); });
 Route::get('/referrals', function () { return view('referrals'); });
 Route::get('/emergencies', function () { return view('emergency'); });
+Route::get('/lab-catalogue', function () { return view('lab-catalogue'); });
+Route::get('/theatre', function () { return view('theatre'); });
+Route::get('/procurement', function () { return view('procurement'); });
+Route::get('/dhis2', function () { return view('dhis2'); });
+Route::get('/facilities', function () { return view('facilities'); });
+Route::get('/admin/roles', function () { return view('roles'); });
+
+// Public patient self-service portal
+Route::get('/portal', function () { return view('portal'); });
 

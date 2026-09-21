@@ -43,6 +43,106 @@ class DashboardController extends Controller
         $patientCount = Patient::count();
         $todayAppointments = Appointment::whereDate('appointment_date', Carbon::today())->count();
         $activeAdmissions = Admission::where('status', 'active')->count();
+        $today = Carbon::today();
+
+        // ── Role-specific dashboards (checked first so these roles get their own
+        //    tailored view instead of a shared/generic one) ──────────────────────
+
+        // Hospital Administrator — operations oversight
+        if ($role === 'hospital_admin') {
+            $totalBeds = Bed::count();
+            $occupiedBeds = Bed::where('status', 'occupied')->count();
+            return response()->json(['role' => $role, 'metrics' => [
+                'total_patients' => $patientCount,
+                'total_staff' => Staff::count(),
+                'bed_occupancy_rate' => $totalBeds > 0 ? round($occupiedBeds / $totalBeds * 100, 1) : 0,
+                'today_revenue' => (float) Payment::whereDate('created_at', $today)->sum('amount'),
+                'active_admissions' => $activeAdmissions,
+                'facilities' => \App\Models\Facility::count(),
+            ]]);
+        }
+
+        // Chief Medical Officer — clinical governance
+        if ($role === 'chief_medical_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'active_admissions' => $activeAdmissions,
+                'today_appointments' => $todayAppointments,
+                'consultations_today' => Visit::whereNotNull('chief_complaint')->whereDate('created_at', $today)->count(),
+                'pending_lab_approvals' => \App\Models\LabResult::where('status', 'draft')->count(),
+                'pending_radiology_approvals' => \App\Models\RadiologyResult::where('status', 'draft')->count(),
+                'total_patients' => $patientCount,
+            ]]);
+        }
+
+        // Theatre Manager — operating theatre schedule
+        if ($role === 'theatre_manager') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'surgeries_today' => \App\Models\Surgery::whereDate('scheduled_start', $today)->where('status', '!=', 'cancelled')->count(),
+                'scheduled' => \App\Models\Surgery::where('status', 'scheduled')->count(),
+                'in_theatre' => \App\Models\Surgery::where('status', 'in_progress')->count(),
+                'completed_total' => \App\Models\Surgery::where('status', 'completed')->count(),
+            ]]);
+        }
+
+        // Ward Manager — ward / bed management
+        if ($role === 'ward_manager') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'active_admissions' => $activeAdmissions,
+                'occupied_beds' => Bed::where('status', 'occupied')->count(),
+                'available_beds' => Bed::where('status', 'available')->count(),
+                'awaiting_vitals' => Visit::whereNull('vitals_blood_pressure')->whereDate('created_at', $today)->count(),
+            ]]);
+        }
+
+        // Store Officer — central store
+        if ($role === 'store_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'total_items' => PharmacyItem::count(),
+                'low_stock' => PharmacyItem::whereRaw('quantity_in_stock <= reorder_level')->count(),
+                'out_of_stock' => PharmacyItem::where('quantity_in_stock', 0)->count(),
+                'issued_today' => \App\Models\StockIssuance::whereDate('created_at', $today)->count(),
+            ]]);
+        }
+
+        // Inventory Officer — stock control
+        if ($role === 'inventory_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'total_items' => PharmacyItem::count(),
+                'low_stock' => PharmacyItem::whereRaw('quantity_in_stock <= reorder_level')->count(),
+                'expiring_soon' => PharmacyItem::whereBetween('expiry_date', [$today, (clone $today)->addMonths(6)])->count(),
+                'issued_today' => \App\Models\StockIssuance::whereDate('created_at', $today)->count(),
+            ]]);
+        }
+
+        // Procurement Officer — purchasing
+        if ($role === 'procurement_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'draft_pos' => \App\Models\PurchaseOrder::where('status', 'draft')->count(),
+                'approved_pos' => \App\Models\PurchaseOrder::where('status', 'approved')->count(),
+                'open_value' => (float) \App\Models\PurchaseOrder::whereIn('status', ['draft', 'approved', 'partially_received'])->sum('total_amount'),
+                'suppliers' => \App\Models\Supplier::count(),
+            ]]);
+        }
+
+        // Account Officer — finance
+        if ($role === 'account_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'today_revenue' => (float) Payment::whereDate('created_at', $today)->sum('amount'),
+                'outstanding_invoices' => Invoice::whereIn('status', ['unpaid', 'partially_paid'])->count(),
+                'claims_paid_value' => (float) \App\Models\Claim::where('status', 'paid')->sum('total_amount'),
+                'claims_outstanding' => \App\Models\Claim::whereIn('status', ['draft', 'submitted'])->count(),
+            ]]);
+        }
+
+        // Medical Records Officer — records desk
+        if ($role === 'records_officer') {
+            return response()->json(['role' => $role, 'metrics' => [
+                'total_patients' => $patientCount,
+                'visits_today' => Visit::whereDate('created_at', $today)->count(),
+                'active_admissions' => $activeAdmissions,
+                'today_appointments' => $todayAppointments,
+            ]]);
+        }
 
         // 1. Executive / Admin Dashboard
         if (in_array($role, ['super_admin', 'medical_director', 'hospital_admin', 'chief_medical_officer'])) {
@@ -80,7 +180,9 @@ class DashboardController extends Controller
                     'bed_occupancy_rate' => $occupancyRate,
                     'total_male_patients' => $totalMalePatients,
                     'total_female_patients' => $totalFemalePatients,
-                    'total_staff_onboarded' => $totalStaffOnboarded
+                    'total_staff_onboarded' => $totalStaffOnboarded,
+                    'pending_lab_approvals' => \App\Models\LabResult::where('status', 'draft')->count(),
+                    'pending_radiology_approvals' => \App\Models\RadiologyResult::where('status', 'draft')->count(),
                 ],
                 'revenue_trend' => $monthlyRevenue,
                 'recent_admissions' => Admission::with(['patient', 'bed.ward'])->orderBy('created_at', 'desc')->take(5)->get()

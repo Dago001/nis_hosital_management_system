@@ -11,6 +11,7 @@ class PatientResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'facility_id' => $this->facility_id,
             'first_name' => $this->first_name,
             'middle_name' => $this->middle_name,
             'last_name' => $this->last_name,
@@ -34,6 +35,8 @@ class PatientResource extends JsonResource
             'next_of_kin_address' => $this->next_of_kin_address,
             'immigration_service_number' => $this->immigration_service_number,
             'sponsor_service_number' => $this->sponsor_service_number,
+            'is_nhis' => (bool) $this->is_nhis,
+            'nhis_number' => $this->nhis_number,
             'relationship_to_sponsor' => $this->relationship_to_sponsor,
             'sponsor' => $this->sponsor ? [
                 'full_name' => $this->sponsor->full_name,

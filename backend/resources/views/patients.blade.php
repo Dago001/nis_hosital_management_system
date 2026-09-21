@@ -96,8 +96,8 @@
 </div>
 
 <!-- Register Patient Modal -->
-<div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 overflow-hidden">
+<div id="register-modal" class="hidden fixed inset-0 z-50 overflow-y-auto p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-2xl shadow-2xl relative my-8 mx-auto overflow-hidden">
         <!-- Branded building-image banner header -->
         <div class="-mx-6 -mt-6 mb-5 relative h-24 bg-cover bg-center" style="background-image:url('/images/nis_building_day.jpg');">
             <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-800/70"></div>
@@ -153,20 +153,82 @@
             <div id="step-section-1" class="space-y-4">
                 <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 mb-4">
                     <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Registration Mode</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            <input type="radio" name="registration_mode" id="mode-standalone" value="standalone" checked onchange="handleModeChange(this.value)" class="text-emerald-600 focus:ring-emerald-500">
-                            Standalone (Civilian/Officer)
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label id="mode-card-officer" class="reg-mode-card flex items-start gap-3 cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 transition hover:border-emerald-400">
+                            <input type="radio" name="registration_mode" id="mode-officer" value="officer" onchange="handleModeChange(this.value)" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <span>
+                                <span class="flex items-center gap-1.5 text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i> NIS Officer
+                                </span>
+                                <span class="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Verify by Service Number against the ID Card Portal, then auto-fill the officer's details.</span>
+                            </span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                            <input type="radio" name="registration_mode" id="mode-dependant" value="dependant" onchange="handleModeChange(this.value)" class="text-emerald-600 focus:ring-emerald-500">
-                            Dependant of NIS Officer
+                        <label id="mode-card-civilian" class="reg-mode-card flex items-start gap-3 cursor-pointer rounded-xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 transition hover:border-emerald-400">
+                            <input type="radio" name="registration_mode" id="mode-civilian" value="civilian" checked onchange="handleModeChange(this.value)" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <span>
+                                <span class="flex items-center gap-1.5 text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">
+                                    <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i> Civilian
+                                </span>
+                                <span class="block text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Enter the patient's details manually. Dependants can be added.</span>
+                            </span>
                         </label>
+                    </div>
+                </div>
+
+                <!-- Officer verification (NIS Officer mode only): Service Number first -->
+                <div id="officer-lookup-block" class="hidden mb-4">
+                    <div class="bg-emerald-50/60 dark:bg-emerald-500/5 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-500/20">
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Officer Service Number <span class="text-red-500">*</span></label>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+                            <div class="flex-grow">
+                                <input type="text" id="officer_service_number" data-filter="digits" inputmode="numeric" maxlength="5" placeholder="e.g. 48213" onkeydown="if(event.key==='Enter'){event.preventDefault();handleVerifyOfficer();}" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                            </div>
+                            <button type="button" id="verify-officer-btn" onclick="handleVerifyOfficer()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center justify-center gap-1">
+                                <i data-lucide="search" class="w-4 h-4"></i> Verify &amp; Fetch
+                            </button>
+                        </div>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-2">This confirms the person is a serving officer of the Nigeria Immigration Service. Fields unlock once the officer is verified.</p>
+
+                        <!-- Verification result card -->
+                        <div id="officer-verify-status" class="hidden mt-3 p-3 rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-white dark:bg-slate-950 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600">
+                                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="officer-fullname-label">Officer verified</h4>
+                                    <p class="text-[9px] text-slate-500 dark:text-slate-400" id="officer-meta-label"></p>
+                                </div>
+                            </div>
+                            <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider whitespace-nowrap">Verified</span>
+                        </div>
+                        <!-- Already-registered notice -->
+                        <div id="officer-already-registered" class="hidden mt-3 p-3 rounded-xl border border-amber-200 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] font-semibold">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                                <span id="officer-already-registered-text">This officer already has a patient file. You can add dependants to their existing file below.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Standalone Demographic Fields (Hidden in Dependant Mode) -->
                 <div id="standalone-demographics-container" class="space-y-4">
+                    <!-- Passport photograph (used on the Patient ID Card) -->
+                    <div class="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+                        <div class="shrink-0">
+                            <img id="photo-preview" alt="" class="w-20 h-24 object-cover rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hidden">
+                            <div id="photo-placeholder" class="w-20 h-24 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 flex items-center justify-center text-slate-400">
+                                <i data-lucide="user" class="w-8 h-8"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-[10px] font-bold text-slate-850 dark:text-slate-200 uppercase tracking-wider mb-1">Passport Photograph</label>
+                            <input type="file" id="passport_photo" accept="image/png,image/jpeg,image/webp" onchange="previewPhoto(this)" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:cursor-pointer">
+                            <p class="text-[9px] text-slate-400 mt-1">JPG / PNG / WEBP, up to 4&nbsp;MB. Appears on the patient's ID card.</p>
+                        </div>
+                    </div>
+
                     <!-- Standalone Name Inputs -->
                     <div id="standalone-names-group" class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                         <div>
@@ -189,7 +251,6 @@
                             <select id="gender" required class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
-                                <option value="Other">Other</option>
                             </select>
                         </div>
                         <!-- Standalone DOB -->
@@ -205,14 +266,32 @@
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Email Address</label>
                             <input type="email" id="email" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
-                        <div id="standalone-service-group">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number (blank for Civilian)</label>
-                            <input type="text" id="immigration_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        <div id="standalone-service-group" class="hidden">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Immigration Service Number</label>
+                            <input type="text" id="immigration_service_number" data-filter="digits" inputmode="numeric" maxlength="5" placeholder="Auto-filled from the ID Card Portal" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN)</label>
                             <input type="text" id="nin" maxLength="11" inputmode="numeric" data-filter="digits" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                         </div>
+                    </div>
+
+                    <!-- NHIS coverage -->
+                    <div class="bg-slate-50 dark:bg-slate-950/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-800/80 mt-4">
+                        <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-2">Is this patient covered under NHIS?</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                <input type="radio" name="nhis_status" value="yes" onchange="handleNhisChange(this.value)" class="text-emerald-600 focus:ring-emerald-500"> Yes (NHIS covered)
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
+                                <input type="radio" name="nhis_status" value="no" checked onchange="handleNhisChange(this.value)" class="text-emerald-600 focus:ring-emerald-500"> No (pays cash)
+                            </label>
+                        </div>
+                        <div id="nhis-number-group" class="hidden mt-3">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">NHIS Valid Number <span class="text-red-500">*</span></label>
+                            <input type="text" id="nhis_number" data-filter="code" maxLength="60" placeholder="e.g. NHIS-1234567" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <p id="nhis-cost-note" class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-2">Non-NHIS: a registration fee and full service charges apply.</p>
                     </div>
                 </div>
                 <!-- Additional bio-data -->
@@ -251,56 +330,28 @@
                         <input type="text" id="tribe" data-filter="letters" maxLength="60" placeholder="e.g. Hausa, Igbo, Yoruba" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                     </div>
                 </div>
-
-                <!-- Dependant Mode notice in Step 1 -->
-                <div id="dependant-mode-notice" class="hidden p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="info" class="w-4 h-4"></i>
-                        <span>Dependant mode active: names, DOB, gender and sponsor details will be configured in Step 2.</span>
-                    </div>
-                </div>
             </div>
 
             <!-- STEP 2: Dependant Details -->
             <div id="step-section-2" class="hidden space-y-4">
-                <!-- If standalone mode, show skipped msg -->
-                <div id="dependant-skipped-msg" class="p-6 text-center text-slate-500 dark:text-slate-450 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                    <i data-lucide="arrow-right-left" class="w-8 h-8 mx-auto mb-2 opacity-50 text-emerald-500"></i>
-                    <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Standalone Mode Active</p>
-                    <p class="text-[10px] text-slate-400 mt-1">Sponsor/dependant linking is not required. Click Next to proceed.</p>
+                <!-- Mode-adaptive intro -->
+                <div id="dependant-intro" class="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-2xl text-xs">
+                    <div class="flex items-start gap-2">
+                        <i data-lucide="users" class="w-4 h-4 shrink-0 mt-0.5"></i>
+                        <span id="dependant-intro-text">Optionally add dependants (spouse/children) for this officer/civilian. They will be tied to this file automatically. You can also skip and click Next.</span>
+                    </div>
                 </div>
 
                 <!-- Dependant inputs group -->
-                <div id="dependant-active-inputs" class="hidden space-y-4">
+                <div id="dependant-active-inputs" class="space-y-4">
                     <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded-xl text-[10px] font-black flex items-center gap-2">
                         <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
-                        <span>NOTE: Dependants are limited to 1 Wife (no age limit) and 3 Children (under 18 years).</span>
+                        <span>NOTE: Dependants are limited to 1 Wife and 3 Children. No age limit applies.</span>
                     </div>
 
-                    <!-- Sponsor search input -->
-                    <div class="bg-slate-50 dark:bg-slate-950/40 p-4 border border-slate-200 dark:border-slate-800/80 rounded-2xl flex flex-col sm:flex-row items-end gap-3">
-                        <div class="flex-grow">
-                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Sponsor / Officer Service Number</label>
-                            <input type="text" id="sponsor_service_number" data-filter="code" placeholder="e.g. NIS-123456" class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-855 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                        </div>
-                        <button type="button" onclick="handleVerifySponsor()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm h-9 shrink-0 flex items-center gap-1">
-                            <i data-lucide="search" class="w-4 h-4"></i> Verify Sponsor
-                        </button>
-                    </div>
-
-                    <!-- Sponsor verification card -->
-                    <div id="sponsor-verify-status" class="hidden p-4 rounded-xl border border-slate-200 dark:border-slate-850 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600" id="sponsor-icon-box">
-                                <i data-lucide="user-check" class="w-4 h-4"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800 dark:text-white" id="sponsor-fullname-label">Sponsor Found</h4>
-                                <p class="text-[9px] text-slate-500 dark:text-slate-400">Surname auto-populated: <b class="text-slate-700 dark:text-slate-200 uppercase" id="sponsor-surname-badge"></b></p>
-                            </div>
-                        </div>
-                        <span class="text-[8px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Verified</span>
-                    </div>
+                    <!-- Dependants are tied to the officer/civilian being registered
+                         on this form; the officer is verified in Step 1. -->
+                    <input type="hidden" id="sponsor_service_number" value="">
 
                     <!-- Dependant Name & Details -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -317,7 +368,6 @@
                             <select id="dep_gender" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
-                                <option value="Other">Other</option>
                             </select>
                         </div>
                         <div>
@@ -332,6 +382,40 @@
                                 <option value="Ward">Ward</option>
                                 <option value="Wife">Wife</option>
                             </select>
+                        </div>
+                        <!-- Per-dependant medical markers (each dependant is independent) -->
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Blood Group</label>
+                            <select id="dep_blood_group" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Genotype</label>
+                            <select id="dep_genotype" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                <option value="AA">AA</option><option value="AS">AS</option>
+                                <option value="SS">SS</option><option value="AC">AC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">National Identification Number (NIN) <span class="normal-case text-slate-400">(optional)</span></label>
+                            <input type="text" id="dep_nin" maxLength="11" inputmode="numeric" data-filter="digits" placeholder="11 digits (optional)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Allergies (optional)</label>
+                            <input type="text" id="dep_allergies" maxLength="255" placeholder="e.g. Penicillin" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Disabilities (optional)</label>
+                            <input type="text" id="dep_disability" maxLength="255" placeholder="e.g. None" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-250 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Passport Photograph (optional)</label>
+                            <input type="file" id="dep_passport_photo" accept="image/png,image/jpeg,image/webp" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs file:font-bold file:cursor-pointer">
+                            <p class="text-[9px] text-slate-400 mt-1">Appears on this dependant's ID card. Set before clicking "Add Dependant".</p>
                         </div>
                     </div>
 
@@ -408,9 +492,14 @@
                 </div>
             </div>
 
-            <!-- STEP 4: Allergies & Medical markers -->
+            <!-- STEP 4: Allergies & Medical markers (main officer/civilian) -->
             <div id="step-section-4" class="hidden space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Shown in dependant-of-officer mode where there is no main file -->
+                <div id="step4-dep-note" class="hidden p-4 bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-center text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="info" class="w-5 h-5 mx-auto mb-1 text-emerald-500"></i>
+                    Medical markers (blood group, genotype, allergies) are captured <b>per dependant</b> in Step 2. Click Next to review.
+                </div>
+                <div id="step4-main-markers" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-855 dark:text-slate-200 uppercase tracking-wider mb-1">Blood Group</label>
                         <select id="blood_group" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
@@ -445,46 +534,14 @@
             </div>
 
             <!-- STEP 5: Preview details -->
-            <div id="step-section-5" class="hidden space-y-4 max-h-[330px] overflow-y-auto pr-1">
+            <div id="step-section-5" class="hidden space-y-4 max-h-[62vh] sm:max-h-[420px] overflow-y-auto pr-1">
                 <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-[10px] font-bold flex items-center gap-1.5">
                     <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                    <span>Please review all patient file information details before final registry creation.</span>
+                    <span>Please review all patient file information before final registry creation.</span>
                 </div>
-                
-                <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden text-xs">
-                    <table class="w-full text-left divide-y divide-slate-100 dark:divide-slate-800">
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-950/40 text-slate-700 dark:text-slate-350">
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900 w-1/3">Full Name</td>
-                                <td class="py-2.5 px-4 font-semibold text-slate-900 dark:text-white" id="prev-name"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Gender & DOB</td>
-                                <td class="py-2.5 px-4" id="prev-gender-dob"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Contact Details</td>
-                                <td class="py-2.5 px-4" id="prev-contact"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">NIN & Service Code</td>
-                                <td class="py-2.5 px-4 font-mono" id="prev-identifiers"></td>
-                            </tr>
-                            <tr id="prev-row-dependant" class="hidden">
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Dependant Status</td>
-                                <td class="py-2.5 px-4 text-emerald-600 dark:text-emerald-450 font-bold" id="prev-dependant"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Address Details</td>
-                                <td class="py-2.5 px-4" id="prev-address"></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2.5 px-4 font-bold bg-slate-50 dark:bg-slate-900">Medical Markers</td>
-                                <td class="py-2.5 px-4" id="prev-medical"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+                <!-- Professional patient-file summary (built dynamically) -->
+                <div id="preview-content"></div>
             </div>
 
             <!-- Modal Navigation controls -->
@@ -534,8 +591,8 @@
 </div>
 
 <!-- View Patient Details File Modal -->
-<div id="details-modal" class="hidden fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-3xl shadow-2xl relative my-8">
+<div id="details-modal" class="hidden fixed inset-0 z-50 overflow-y-auto p-4 bg-slate-950/60 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 w-full max-w-3xl shadow-2xl relative my-8 mx-auto">
         <h3 class="text-base font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
             <i data-lucide="fingerprint" class="text-emerald-500"></i> Comprehensive Clinical File History
         </h3>
@@ -622,7 +679,7 @@
             </div>
 
             <!-- Right History Panel (Tabs) -->
-            <div class="md:col-span-2 space-y-4">
+            <div class="md:col-span-2 flex flex-col gap-4 min-h-[26rem]">
                 <!-- Tab Headers -->
                 <div class="flex border-b border-slate-150 dark:border-slate-800">
                     <button type="button" onclick="switchDetailsTab('timeline')" id="tab-btn-timeline" class="border-b-2 border-emerald-600 px-4 py-2 text-xs font-bold text-emerald-650 focus:outline-none transition-all">
@@ -634,27 +691,118 @@
                     <button type="button" onclick="switchDetailsTab('diagnostics')" id="tab-btn-diagnostics" class="border-b-2 border-transparent px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 focus:outline-none transition-all">
                         Diagnostic Reports
                     </button>
+                    <button type="button" onclick="switchDetailsTab('documents')" id="tab-btn-documents" class="border-b-2 border-transparent px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 focus:outline-none transition-all">
+                        Documents
+                    </button>
                 </div>
 
                 <!-- Tab 1: Timeline -->
-                <div class="max-h-72 overflow-y-auto space-y-4 pr-2" id="det-timeline">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-4 pr-2" id="det-timeline">
                     <!-- Events Injected dynamically -->
                 </div>
 
                 <!-- Tab 2: Medications -->
-                <div class="max-h-72 overflow-y-auto space-y-3 pr-2 hidden" id="det-medications">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-3 pr-2 hidden" id="det-medications">
                     <!-- Medications list Injected dynamically -->
                 </div>
 
                 <!-- Tab 3: Diagnostics -->
-                <div class="max-h-72 overflow-y-auto space-y-3 pr-2 hidden" id="det-diagnostics">
+                <div class="flex-1 min-h-0 max-h-[62vh] overflow-y-auto space-y-3 pr-2 hidden" id="det-diagnostics">
                     <!-- Diagnostics list Injected dynamically -->
+                </div>
+
+                <!-- Tab 4: Documents -->
+                <div class="hidden" id="det-documents">
+                    <form id="doc-upload-form" onsubmit="uploadDocument(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 mb-3 bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-xl">
+                        <input id="doc-title" required placeholder="Document title" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs">
+                        <select id="doc-category" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs">
+                            <option value="referral">Referral letter</option>
+                            <option value="consent">Consent form</option>
+                            <option value="id_copy">ID copy</option>
+                            <option value="lab_report">External lab/report</option>
+                            <option value="insurance">Insurance / NHIS card</option>
+                            <option value="other" selected>Other</option>
+                        </select>
+                        <input id="doc-file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx" class="text-xs file:mr-2 file:rounded-lg file:border-0 file:bg-emerald-600 file:text-white file:px-3 file:py-1.5 file:text-xs sm:col-span-1">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg">Upload</button>
+                        <p class="text-[9px] text-slate-400 sm:col-span-2">PDF / image / Word, up to 10&nbsp;MB. Files are stored privately and access is audit-logged.</p>
+                    </form>
+                    <div class="max-h-56 overflow-y-auto space-y-2 pr-1" id="det-documents-list">
+                        <p class="text-xs text-slate-400">Loading…</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="flex justify-end gap-3 pt-6 border-t border-slate-150 dark:border-slate-800/80 mt-6">
+            <button onclick="openIdCard()" class="px-5 py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition flex items-center gap-2">
+                <i data-lucide="id-card" class="w-4 h-4"></i> ID Card
+            </button>
             <button onclick="closeDetailsModal()" class="px-5 py-2.5 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 rounded-xl transition">Close File</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    #idcard-print .idcard { width: 100%; }
+    @media print {
+        body * { visibility: hidden !important; }
+        #idcard-print, #idcard-print * { visibility: visible !important; }
+        #idcard-print { position: fixed; inset: 0; margin: 24px auto; width: 340px; }
+        #idcard-print .idcard { box-shadow: none; border: 1px solid #94a3b8; }
+        .no-print { display: none !important; }
+    }
+</style>
+
+<!-- Patient ID Card Modal (printable) -->
+<div id="idcard-modal" class="hidden fixed inset-0 z-[60] overflow-y-auto flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-md shadow-2xl">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><i data-lucide="id-card" class="text-emerald-600 w-5 h-5"></i> Patient ID Card</h3>
+            <button onclick="closeIdCard()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <!-- The card itself (this is what prints) -->
+        <div id="idcard-print">
+            <div class="idcard border border-slate-300 rounded-2xl overflow-hidden bg-white text-slate-900">
+                <div class="idcard-head flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white">
+                    <i data-lucide="shield-plus" class="w-5 h-5 shrink-0"></i>
+                    <div class="leading-tight">
+                        <div class="text-[11px] font-black uppercase tracking-wide">Nigeria Immigration Service</div>
+                        <div class="text-[9px] opacity-90">Medical Services — Patient Identification Card</div>
+                    </div>
+                </div>
+                <div class="flex gap-3 p-4">
+                    <div class="shrink-0 text-center">
+                        <img id="idc-photo" alt="" class="w-20 h-24 object-cover rounded-lg border border-slate-300 bg-slate-100 hidden">
+                        <div id="idc-photo-ph" class="w-20 h-24 rounded-lg border border-slate-300 bg-slate-100 flex items-center justify-center text-slate-400"><i data-lucide="user" class="w-8 h-8"></i></div>
+                    </div>
+                    <div class="min-w-0 flex-1 text-[11px] leading-snug">
+                        <div id="idc-name" class="text-sm font-black text-slate-900 truncate">—</div>
+                        <div id="idc-code" class="font-mono text-emerald-700 font-bold text-[11px] mb-1">—</div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-0.5">
+                            <div><span class="text-slate-500">DOB:</span> <b id="idc-dob">—</b></div>
+                            <div><span class="text-slate-500">Sex:</span> <b id="idc-gender">—</b></div>
+                            <div><span class="text-slate-500">Blood:</span> <b id="idc-blood">—</b></div>
+                            <div><span class="text-slate-500">Geno:</span> <b id="idc-geno">—</b></div>
+                        </div>
+                        <div id="idc-nhis" class="mt-1 inline-block text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 hidden">NHIS Covered</div>
+                    </div>
+                    <div class="shrink-0 text-center">
+                        <img id="idc-qr" alt="QR" class="w-24 h-24">
+                        <div id="idc-barcode" class="font-mono text-[8px] text-slate-500 mt-0.5">—</div>
+                    </div>
+                </div>
+                <div class="px-4 pb-2 flex items-center justify-between text-[8px] text-slate-500 border-t border-slate-200 pt-1">
+                    <span>Issued: <b id="idc-issued">—</b></span>
+                    <span class="italic">Property of NIS Medical Services. If found, return to nearest facility.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4 no-print">
+            <button onclick="closeIdCard()" class="px-4 py-2 text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl">Close</button>
+            <button onclick="printIdCard()" class="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-2"><i data-lucide="printer" class="w-4 h-4"></i> Print</button>
         </div>
     </div>
 </div>
@@ -755,54 +903,195 @@
         }, 300);
     }
     let currentRegisterStep = 1;
-    let registrationMode = 'standalone';
-    let sponsorVerified = false;
-    let sponsorSurname = '';
+    let registrationMode = 'civilian';           // 'civilian' | 'officer'
+    // Officer-mode verification state (ID Card Portal)
+    let officerVerified = false;
+    let officerData = null;                       // fetched officer bio-data
+    let officerAlreadyPatientId = null;           // set when officer already has a file
+    // Dependants tied to the person being registered
+    let sponsorExistingDependants = [];           // dependants already on an existing file
     let sponsorPhone = '';
-    let sponsorExistingDependants = [];
     let pendingDependants = [];
+
+    function setModeCardHighlight(mode) {
+        const cards = { officer: document.getElementById('mode-card-officer'), civilian: document.getElementById('mode-card-civilian') };
+        Object.entries(cards).forEach(([key, el]) => {
+            if (!el) return;
+            if (key === mode) {
+                el.classList.add('border-emerald-500', 'ring-1', 'ring-emerald-500', 'bg-emerald-50/40', 'dark:bg-emerald-500/5');
+                el.classList.remove('border-slate-200', 'dark:border-slate-800');
+            } else {
+                el.classList.remove('border-emerald-500', 'ring-1', 'ring-emerald-500', 'bg-emerald-50/40', 'dark:bg-emerald-500/5');
+                el.classList.add('border-slate-200', 'dark:border-slate-800');
+            }
+        });
+    }
 
     function handleModeChange(mode) {
         registrationMode = mode;
+        setModeCardHighlight(mode);
+
         const demographicsContainer = document.getElementById('standalone-demographics-container');
-        const dependantNotice = document.getElementById('dependant-mode-notice');
-        
-        const depSkipped = document.getElementById('dependant-skipped-msg');
         const depActive = document.getElementById('dependant-active-inputs');
-        
-        const firstName = document.getElementById('first_name');
-        const lastName = document.getElementById('last_name');
-        const dob = document.getElementById('date_of_birth');
-        const phone = document.getElementById('phone');
-        
-        if (mode === 'standalone') {
-            if (demographicsContainer) demographicsContainer.classList.remove('hidden');
-            if (dependantNotice) dependantNotice.classList.add('hidden');
-            
-            if (depSkipped) depSkipped.classList.remove('hidden');
-            if (depActive) depActive.classList.add('hidden');
-            
-            if (firstName) firstName.setAttribute('required', 'required');
-            if (lastName) lastName.setAttribute('required', 'required');
-            if (dob) dob.setAttribute('required', 'required');
-            if (phone) phone.setAttribute('required', 'required');
-        } else {
-            if (demographicsContainer) demographicsContainer.classList.add('hidden');
-            if (dependantNotice) dependantNotice.classList.remove('hidden');
-            
-            if (depSkipped) depSkipped.classList.add('hidden');
-            if (depActive) depActive.classList.remove('hidden');
-            
-            if (firstName) firstName.removeAttribute('required');
-            if (lastName) lastName.removeAttribute('required');
-            if (dob) dob.removeAttribute('required');
-            if (phone) phone.removeAttribute('required');
-        }
-        
-        // Reset dependants lists when switching modes
-        pendingDependants = [];
+        const sponsorBlock = document.getElementById('sponsor-block');   // legacy Step-2 sponsor search: unused now
+        const officerBlock = document.getElementById('officer-lookup-block');
+        const introText = document.getElementById('dependant-intro-text');
+        const step4Markers = document.getElementById('step4-main-markers');
+        const step4Note = document.getElementById('step4-dep-note');
+
+        const demoFields = ['first_name', 'last_name', 'date_of_birth', 'phone', 'gender', 'email', 'middle_name'];
+
+        // Dependant capture and manual demographics are available in BOTH modes.
+        if (depActive) depActive.classList.remove('hidden');
+        if (demographicsContainer) demographicsContainer.classList.remove('hidden');
+        if (sponsorBlock) sponsorBlock.classList.add('hidden');          // never used in the new flow
+        if (introText) introText.textContent = 'Optionally add dependants (spouse/children) for this file. They are tied to it automatically. You can skip and click Next.';
+
+        // Reset officer + dependant state whenever the mode changes.
+        officerVerified = false;
+        officerData = null;
+        officerAlreadyPatientId = null;
         sponsorExistingDependants = [];
+        pendingDependants = [];
         renderPendingDependantsList();
+        const ovs = document.getElementById('officer-verify-status');
+        if (ovs) ovs.classList.add('hidden');
+        const oar = document.getElementById('officer-already-registered');
+        if (oar) oar.classList.add('hidden');
+
+        // Medical markers card is shown for a NEW main file (always in this flow).
+        if (step4Markers) step4Markers.classList.remove('hidden');
+        if (step4Note) step4Note.classList.add('hidden');
+
+        const svcField = document.getElementById('immigration_service_number');
+        const svcGroup = document.getElementById('standalone-service-group');
+        if (mode === 'officer') {
+            if (officerBlock) officerBlock.classList.remove('hidden');
+            // Lock the demographic fields until the officer is verified.
+            setDemographicsLocked(true);
+            // The service number is authoritative (from the portal) — not typed here.
+            if (svcGroup) svcGroup.classList.remove('hidden');
+            if (svcField) { svcField.value = ''; svcField.disabled = true; svcField.classList.add('opacity-70'); }
+            if (introText) introText.textContent = 'Add the verified officer’s dependants (spouse/children). They are tied to the officer automatically.';
+        } else {
+            if (officerBlock) officerBlock.classList.add('hidden');
+            setDemographicsLocked(false);
+            // Civilians have no NIS service number — hide the field entirely.
+            if (svcGroup) svcGroup.classList.add('hidden');
+            if (svcField) { svcField.value = ''; svcField.disabled = false; svcField.classList.remove('opacity-70'); }
+        }
+
+        // Required attributes for the manual demographics (both modes need them,
+        // but in officer mode they are filled by the portal fetch).
+        const req = ['first_name', 'last_name', 'date_of_birth', 'phone', 'marital_status'];
+        req.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('required', 'required'); });
+        void demoFields;
+    }
+
+    // Enable/disable the officer demographic inputs until verification succeeds.
+    function setDemographicsLocked(locked) {
+        const ids = ['first_name', 'middle_name', 'last_name', 'gender', 'date_of_birth',
+                     'phone', 'email', 'nin', 'marital_status', 'religion', 'occupation',
+                     'place_of_birth', 'tribe', 'passport_photo'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.disabled = locked;
+            el.classList.toggle('opacity-50', locked);
+            el.classList.toggle('cursor-not-allowed', locked);
+        });
+    }
+
+    // Verify an officer's Service Number against the ID Card Portal and
+    // auto-populate the form with their bio-data.
+    async function handleVerifyOfficer() {
+        const input = document.getElementById('officer_service_number');
+        if (!input) return;
+        const serviceNum = input.value.trim();
+        if (!/^\d{2,5}$/.test(serviceNum)) {
+            alert('Please enter a valid NIS Service Number (2–5 digits).');
+            return;
+        }
+        const btn = document.getElementById('verify-officer-btn');
+        if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+        try {
+            const res = await api.get(`/officers/lookup?service_number=${encodeURIComponent(serviceNum)}`);
+            if (!res.found) {
+                officerVerified = false;
+                officerData = null;
+                officerAlreadyPatientId = null;
+                document.getElementById('officer-verify-status').classList.add('hidden');
+                document.getElementById('officer-already-registered').classList.add('hidden');
+                setDemographicsLocked(true);
+                alert(res.message || 'Officer not found in the ID Card Portal.');
+                return;
+            }
+
+            officerVerified = true;
+            officerData = res.officer || {};
+            officerAlreadyPatientId = res.already_registered ? res.patient_id : null;
+            sponsorExistingDependants = res.existing_dependants || [];
+            sponsorPhone = officerData.phone || '';
+
+            // Unlock and auto-populate the demographic fields.
+            setDemographicsLocked(false);
+            applyOfficerData(officerData, serviceNum);
+            document.getElementById('immigration_service_number').disabled = true; // service number stays authoritative
+
+            // Verification card
+            const fullName = [officerData.first_name, officerData.middle_name, officerData.last_name].filter(Boolean).join(' ');
+            document.getElementById('officer-fullname-label').innerText = fullName || 'Officer verified';
+            const meta = [officerData.rank, officerData.command, 'Service No: ' + serviceNum].filter(Boolean).join(' · ');
+            document.getElementById('officer-meta-label').innerText = meta;
+            document.getElementById('officer-verify-status').classList.remove('hidden');
+
+            // Already-registered handling: switch to dependants-only.
+            const oar = document.getElementById('officer-already-registered');
+            const step4Markers = document.getElementById('step4-main-markers');
+            const step4Note = document.getElementById('step4-dep-note');
+            if (officerAlreadyPatientId) {
+                oar.classList.remove('hidden');
+                document.getElementById('officer-already-registered-text').innerText =
+                    `This officer already has a patient file (${res.hospital_number || 'existing file'}). Add dependants to the existing file below, then click through to save.`;
+                if (step4Markers) step4Markers.classList.add('hidden');
+                if (step4Note) step4Note.classList.remove('hidden');
+            } else {
+                oar.classList.add('hidden');
+                if (step4Markers) step4Markers.classList.remove('hidden');
+                if (step4Note) step4Note.classList.add('hidden');
+            }
+
+            const srcNote = res.source === 'portal' ? '' : ' (from local directory)';
+            alert('Officer verified successfully' + srcNote + '. Details auto-filled — review and complete the form.');
+            lucide.createIcons();
+        } catch (err) {
+            officerVerified = false;
+            setDemographicsLocked(true);
+            alert('Officer verification failed: ' + (err.message || 'connection error'));
+        } finally {
+            if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+        }
+    }
+
+    // Copy fetched officer bio-data into the registration form.
+    function applyOfficerData(o, serviceNum) {
+        const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && v !== '') el.value = v; };
+        set('first_name', o.first_name);
+        set('middle_name', o.middle_name);
+        set('last_name', o.last_name);
+        set('date_of_birth', o.date_of_birth);
+        set('phone', o.phone);
+        set('email', o.email);
+        set('nin', o.nin);
+        set('immigration_service_number', serviceNum);
+        if (o.gender) { const g = document.getElementById('gender'); if (g) g.value = o.gender; }
+        if (o.marital_status) { const m = document.getElementById('marital_status'); if (m) m.value = o.marital_status; }
+        updateAgeDisplay();
+        // Address (Step 3) — auto-fill from the officer's file, still editable.
+        const stateSel = document.getElementById('state');
+        if (o.state && stateSel) { stateSel.value = o.state; handleStateChange(o.state); const l = document.getElementById('lga'); if (o.lga && l) l.value = o.lga; }
+        if (o.city) set('city', o.city);
+        if (o.address) set('address', o.address);
     }
 
     function calculateAge(dobString) {
@@ -832,85 +1121,10 @@
     }
 
     function validateDependantAge() {
-        const dobInput = document.getElementById('dep_date_of_birth');
-        if (!dobInput) return true;
-        
-        const dob = dobInput.value;
-        const rel = document.getElementById('relationship_to_sponsor').value;
+        // Dependants have no age limit — nothing to enforce.
         const ageWarning = document.getElementById('dependant-age-warning');
-        const ageMsg = document.getElementById('dependant-age-msg');
-        
-        if (registrationMode !== 'dependant' || !dob) {
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
-        
-        if (rel === 'Wife') {
-            // Wives have no age limit!
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
-        
-        const age = calculateAge(dob);
-        if (age >= 18) {
-            if (ageMsg) {
-                ageMsg.innerHTML = `⚠️ Dependant is <b>${age} years old</b>. Dependant status for children (Son/Daughter/Ward) is strictly restricted to below 18 years of age.`;
-            }
-            if (ageWarning) ageWarning.classList.remove('hidden');
-            return false;
-        } else {
-            if (ageWarning) ageWarning.classList.add('hidden');
-            return true;
-        }
-    }
-
-    async function handleVerifySponsor() {
-        const serviceNumInput = document.getElementById('sponsor_service_number');
-        if (!serviceNumInput) return;
-        const serviceNum = serviceNumInput.value.trim();
-        const statusCard = document.getElementById('sponsor-verify-status');
-        const fullnameLabel = document.getElementById('sponsor-fullname-label');
-        const surnameBadge = document.getElementById('sponsor-surname-badge');
-        
-        if (serviceNum.length < 3) {
-            alert('Please enter a valid Service Number (at least 3 characters).');
-            return;
-        }
-        
-        try {
-            const res = await api.get(`/sponsor/lookup?service_number=${encodeURIComponent(serviceNum)}`);
-            if (res.found) {
-                sponsorVerified = true;
-                sponsorSurname = res.surname;
-                sponsorPhone = res.phone || '';
-                sponsorExistingDependants = res.existing_dependants || [];
-                
-                // Clear any leftover pending list when verifying new sponsor
-                pendingDependants = [];
-                renderPendingDependantsList();
-                updateRelationshipOptions();
-                
-                if (statusCard) statusCard.classList.remove('hidden');
-                if (fullnameLabel) fullnameLabel.innerText = res.full_name;
-                if (surnameBadge) surnameBadge.innerText = res.surname;
-                
-                alert('Sponsor verified successfully! Surname and coordinates have been mapped.');
-            } else {
-                sponsorVerified = false;
-                sponsorSurname = '';
-                sponsorPhone = '';
-                sponsorExistingDependants = [];
-                if (statusCard) statusCard.classList.add('hidden');
-                alert(res.message || 'Sponsor not found. Please verify the Service Number.');
-            }
-        } catch (err) {
-            sponsorVerified = false;
-            sponsorSurname = '';
-            sponsorPhone = '';
-            sponsorExistingDependants = [];
-            if (statusCard) statusCard.classList.add('hidden');
-            alert('Sponsor verification failed: ' + (err.message || 'connection error'));
-        }
+        if (ageWarning) ageWarning.classList.add('hidden');
+        return true;
     }
 
     function updateRelationshipOptions() {
@@ -955,21 +1169,37 @@
         const depDob = document.getElementById('dep_date_of_birth').value;
         const depGender = document.getElementById('dep_gender').value;
         const rel = document.getElementById('relationship_to_sponsor').value;
-        const sponsor = document.getElementById('sponsor_service_number').value.trim();
+        const depBlood = document.getElementById('dep_blood_group').value;
+        const depGenotype = document.getElementById('dep_genotype').value;
+        const depAllergies = document.getElementById('dep_allergies').value.trim();
+        const depDisability = document.getElementById('dep_disability').value.trim();
+        const depNin = document.getElementById('dep_nin').value.trim();
+        const depPhotoInput = document.getElementById('dep_passport_photo');
+        const depPhotoFile = (depPhotoInput && depPhotoInput.files && depPhotoInput.files[0]) ? depPhotoInput.files[0] : null;
 
-        if (!sponsor || !sponsorVerified) {
-            alert('Please verify the Sponsor/Officer Service Number first.');
+        // Dependants are tied to the officer/civilian being registered on this
+        // form. In officer mode the person is verified; in both modes the surname
+        // comes from the main file's Last Name (auto-filled for officers).
+        if (registrationMode === 'officer' && !officerVerified) {
+            alert('Please verify the officer’s Service Number in Step 1 first.');
             return;
         }
+        let depLastName = document.getElementById('last_name').value.trim();
+        if (!depLastName) {
+            alert('Please fill (or verify) the patient’s Last Name in Step 1 first.');
+            return;
+        }
+        // Resolved to the file's service number at submit time.
+        let sponsor = (registrationMode === 'officer' && officerData) ? (officerData.service_number || '') : '';
 
         if (!depFirst || !depDob) {
             alert('Please fill out First Name and Date of Birth.');
             return;
         }
 
-        const age = calculateAge(depDob);
-        if (rel !== 'Wife' && age >= 18) {
-            alert('Sponsor dependants (Son/Daughter/Ward) must be strictly under 18 years of age.');
+        // NIN is optional, but must be exactly 11 digits when provided.
+        if (depNin && !/^\d{11}$/.test(depNin)) {
+            alert('Dependant NIN must be exactly 11 digits (or left blank).');
             return;
         }
 
@@ -997,11 +1227,17 @@
         pendingDependants.push({
             first_name: depFirst,
             middle_name: depMiddle || null,
-            last_name: sponsorSurname,
+            last_name: depLastName,
             gender: depGender,
             date_of_birth: depDob,
             relationship_to_sponsor: rel,
-            sponsor_service_number: sponsor
+            sponsor_service_number: sponsor,
+            blood_group: depBlood,
+            genotype: depGenotype,
+            allergies: depAllergies || null,
+            disability: depDisability || 'None',
+            nin: depNin || null,
+            photoFile: depPhotoFile
         });
 
         renderPendingDependantsList();
@@ -1012,6 +1248,10 @@
         document.getElementById('dep_middle_name').value = '';
         document.getElementById('dep_date_of_birth').value = '';
         document.getElementById('dep_gender').value = 'Male';
+        document.getElementById('dep_allergies').value = '';
+        document.getElementById('dep_disability').value = '';
+        document.getElementById('dep_nin').value = '';
+        if (depPhotoInput) depPhotoInput.value = '';
     }
 
     function renderPendingDependantsList() {
@@ -1033,6 +1273,7 @@
                     </span>
                     <b class="text-slate-805 dark:text-white">${dep.first_name} ${dep.middle_name ? dep.middle_name + ' ' : ''}${dep.last_name}</b>
                     <span class="text-slate-500 text-[10px] ml-2">(${dep.gender} · DOB: ${dep.date_of_birth})</span>
+                    <span class="text-slate-400 text-[10px] block mt-0.5">Blood: ${dep.blood_group || '—'} · Genotype: ${dep.genotype || '—'}${dep.nin ? ' · NIN: ' + dep.nin : ''}${dep.allergies ? ' · Allergies: ' + dep.allergies : ''}${dep.disability && dep.disability !== 'None' ? ' · Disability: ' + dep.disability : ''}</span>
                 </div>
                 <button type="button" onclick="removePendingDependant(${idx})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 cursor-pointer">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remove
@@ -1061,26 +1302,40 @@
             lgaSelect.innerHTML = '<option value="">Select LGA</option>';
         }
 
-        // Hide dependant inputs and verification status by default
-        const verifyStatus = document.getElementById('sponsor-verify-status');
-        if (verifyStatus) verifyStatus.classList.add('hidden');
+        // Hide officer verification + age status by default
+        const ovs = document.getElementById('officer-verify-status');
+        if (ovs) ovs.classList.add('hidden');
+        const oar = document.getElementById('officer-already-registered');
+        if (oar) oar.classList.add('hidden');
+        const officerNumInput = document.getElementById('officer_service_number');
+        if (officerNumInput) officerNumInput.value = '';
         const ageWarning = document.getElementById('dependant-age-warning');
         if (ageWarning) ageWarning.classList.add('hidden');
 
-        // Reset memory lists
+        // Reset memory lists + officer state
         pendingDependants = [];
         sponsorExistingDependants = [];
-        sponsorVerified = false;
-        sponsorSurname = '';
         sponsorPhone = '';
+        officerVerified = false;
+        officerData = null;
+        officerAlreadyPatientId = null;
         renderPendingDependantsList();
 
-        // Set standalone mode default
-        const modeStandaloneRadio = document.getElementById('mode-standalone');
-        if (modeStandaloneRadio) {
-            modeStandaloneRadio.checked = true;
-        }
-        handleModeChange('standalone');
+        // Reset passport photo preview
+        const pv = document.getElementById('photo-preview');
+        if (pv) { pv.classList.add('hidden'); pv.removeAttribute('src'); }
+        const pph = document.getElementById('photo-placeholder');
+        if (pph) pph.classList.remove('hidden');
+
+        // Reset NHIS to "No"
+        const nhisNo = document.querySelector('input[name="nhis_status"][value="no"]');
+        if (nhisNo) nhisNo.checked = true;
+        handleNhisChange('no');
+
+        // Default to Civilian mode
+        const modeCivilianRadio = document.getElementById('mode-civilian');
+        if (modeCivilianRadio) modeCivilianRadio.checked = true;
+        handleModeChange('civilian');
 
         // Reset wizard to Step 1
         currentRegisterStep = 1;
@@ -1158,53 +1413,43 @@
 
     function handleNextStep() {
         if (currentRegisterStep === 1) {
-            // Validate Step 1 fields based on mode
-            if (registrationMode === 'standalone') {
-                const gender = document.getElementById('gender').value;
-                const phone = document.getElementById('phone').value.trim();
-                const first = document.getElementById('first_name').value.trim();
-                const last = document.getElementById('last_name').value.trim();
-                const dob = document.getElementById('date_of_birth').value;
-                const marital = document.getElementById('marital_status').value;
-                if (!first || !last || !gender || !dob || !phone) {
-                    alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
-                    return;
-                }
-                if (!marital) {
-                    alert('Please select a Marital Status.');
-                    return;
-                }
+            // NIS Officer must be verified against the ID Card Portal first.
+            if (registrationMode === 'officer' && !officerVerified) {
+                alert('Please verify the officer’s Service Number before continuing.');
+                return;
+            }
+            const gender = document.getElementById('gender').value;
+            const phone = document.getElementById('phone').value.trim();
+            const first = document.getElementById('first_name').value.trim();
+            const last = document.getElementById('last_name').value.trim();
+            const dob = document.getElementById('date_of_birth').value;
+            const marital = document.getElementById('marital_status').value;
+            if (!first || !last || !gender || !dob || !phone) {
+                alert('Please fill out First Name, Last Name, Gender, DOB and Phone Number.');
+                return;
+            }
+            if (!marital) {
+                alert('Please select a Marital Status.');
+                return;
             }
         }
-        
+
         if (currentRegisterStep === 2) {
-            // Validate Dependant details if in dependant mode
-            if (registrationMode === 'dependant') {
-                const sponsor = document.getElementById('sponsor_service_number').value.trim();
-                if (!sponsor) {
-                    alert('Sponsor/Officer Service Number is required.');
-                    return;
-                }
-                if (!sponsorVerified) {
-                    alert('Please verify the Sponsor Service Number before proceeding.');
-                    return;
-                }
-                
-                // Fallback: If they entered fields but did not click "Add Dependant", auto-add it!
-                const depFirst = document.getElementById('dep_first_name').value.trim();
-                const depDob = document.getElementById('dep_date_of_birth').value;
-                if (pendingDependants.length === 0) {
-                    if (depFirst || depDob) {
-                        handleAddDependantClick();
-                        // Verify if it was successfully added
-                        if (pendingDependants.length === 0) {
-                            return;
-                        }
-                    } else {
-                        alert('Please add at least one Dependant before proceeding.');
-                        return;
-                    }
-                }
+            const depFirst = document.getElementById('dep_first_name').value.trim();
+            const depDob = document.getElementById('dep_date_of_birth').value;
+
+            // Dependants are OPTIONAL. If details were typed but not added,
+            // capture them so they aren't lost; otherwise just continue.
+            if (pendingDependants.length === 0 && (depFirst || depDob)) {
+                handleAddDependantClick();
+                if (pendingDependants.length === 0) return; // add failed (age policy, limits)
+            }
+
+            // For an already-registered officer we are adding dependants only, so
+            // at least one dependant is required.
+            if (registrationMode === 'officer' && officerAlreadyPatientId && pendingDependants.length === 0) {
+                alert('This officer already has a file. Add at least one dependant to continue.');
+                return;
             }
         }
 
@@ -1221,46 +1466,7 @@
         }
 
         if (currentRegisterStep === 4) {
-            // Populate Preview screen (Step 5)
-            const first = document.getElementById('first_name').value.trim();
-            const middle = document.getElementById('middle_name').value.trim();
-            const last = document.getElementById('last_name').value.trim();
-            const gender = document.getElementById('gender').value;
-            const dob = document.getElementById('date_of_birth').value;
-            const phone = document.getElementById('phone').value.trim();
-            const email = document.getElementById('email').value.trim() || '·';
-            const serviceNo = document.getElementById('immigration_service_number').value.trim() || '·';
-            const nin = document.getElementById('nin').value.trim() || '·';
-            const blood = document.getElementById('blood_group').value;
-            const genotypeVal = document.getElementById('genotype').value;
-            const state = document.getElementById('state').value;
-            const lga = document.getElementById('lga').value;
-            const address = document.getElementById('address').value.trim();
-            const allergies = document.getElementById('allergies').value.trim() || 'None';
-            const disability = document.getElementById('disability').value.trim() || 'None';
-
-            const sponsor = document.getElementById('sponsor_service_number').value.trim();
-
-            if (registrationMode === 'standalone') {
-                document.getElementById('prev-name').innerText = middle ? `${first} ${middle} ${last}` : `${first} ${last}`;
-                document.getElementById('prev-gender-dob').innerText = `${gender} · DOB: ${dob} (Age: ${calculateAge(dob)} years)`;
-                document.getElementById('prev-contact').innerText = `Phone: ${phone} | Email: ${email}`;
-                document.getElementById('prev-identifiers').innerText = `NIN: ${nin} | Service No: ${serviceNo}`;
-                document.getElementById('prev-row-dependant').classList.add('hidden');
-            } else {
-                // Dependant Mode Preview
-                const depsStr = pendingDependants.map(d => `${d.first_name} ${d.last_name} (${d.relationship_to_sponsor})`).join(', ');
-                document.getElementById('prev-name').innerText = depsStr;
-                document.getElementById('prev-gender-dob').innerText = `Dependants linked to Sponsor: ${sponsor}`;
-                document.getElementById('prev-contact').innerText = `Sponsor Contact (Phone): ${sponsorPhone || '·'}`;
-                document.getElementById('prev-identifiers').innerText = `Sponsor: ${sponsor}`;
-                
-                document.getElementById('prev-row-dependant').classList.remove('hidden');
-                document.getElementById('prev-dependant').innerText = `Yes (${pendingDependants.length} Dependant(s) under Sponsor: ${sponsor})`;
-            }
-
-            document.getElementById('prev-address').innerText = `${address}, ${lga}, ${state} State`;
-            document.getElementById('prev-medical').innerText = `Blood: ${blood} | Genotype: ${genotypeVal} | Allergies: ${allergies} | Disability: ${disability}`;
+            renderPreview();
         }
 
         if (currentRegisterStep < 5) {
@@ -1274,6 +1480,189 @@
             currentRegisterStep--;
             showStep(currentRegisterStep);
         }
+    }
+
+    // Build the detailed, professional patient-file summary shown on Step 5.
+    function renderPreview() {
+        const g = (id) => { const el = document.getElementById(id); return el ? String(el.value).trim() : ''; };
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const dash = '<span class="text-slate-400 dark:text-slate-600">—</span>';
+        const show = (v) => (v && String(v).trim() !== '') ? esc(v) : dash;
+
+        const first = g('first_name'), middle = g('middle_name'), last = g('last_name');
+        const fullName = [first, middle, last].filter(Boolean).join(' ') || 'Unnamed patient';
+        const gender = g('gender'), dob = g('date_of_birth');
+        const ageStr = dob ? calculateAge(dob) + ' yrs' : '';
+        const phone = g('phone'), email = g('email');
+        const serviceNo = g('immigration_service_number'), nin = g('nin');
+        const marital = g('marital_status'), religion = g('religion'), occupation = g('occupation');
+        const pob = g('place_of_birth'), tribe = g('tribe');
+        const state = g('state'), lga = g('lga'), city = g('city'), address = g('address');
+        const nokName = g('next_of_kin_name'), nokRel = g('next_of_kin_relationship'), nokAddr = g('next_of_kin_address');
+        const blood = g('blood_group'), genotype = g('genotype'), allergies = g('allergies'), disability = g('disability');
+
+        const isOfficer = registrationMode === 'officer';
+        const dependantsOnly = isOfficer && officerAlreadyPatientId;
+        const nhisYes = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
+        const nhisNum = g('nhis_number');
+
+        const rankLine = isOfficer && officerData
+            ? [officerData.rank, officerData.command].filter(Boolean).map(esc).join(' · ')
+            : '';
+
+        // photo thumbnail from the live preview (data URI), if one was chosen
+        const pv = document.getElementById('photo-preview');
+        const photoSrc = (pv && !pv.classList.contains('hidden') && pv.getAttribute('src')) ? pv.getAttribute('src') : '';
+        const photoHtml = photoSrc
+            ? `<img src="${photoSrc}" alt="" class="w-16 h-20 object-cover rounded-lg border border-slate-200 dark:border-slate-700">`
+            : `<div class="w-16 h-20 rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white/60 dark:bg-slate-900 flex items-center justify-center text-slate-400"><i data-lucide="user" class="w-7 h-7"></i></div>`;
+
+        const typeBadge = isOfficer
+            ? `<span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2 py-0.5 rounded-full"><i data-lucide="shield-check" class="w-3 h-3"></i> NIS Officer</span>`
+            : `<span class="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider bg-slate-700 text-white px-2 py-0.5 rounded-full"><i data-lucide="user" class="w-3 h-3"></i> Civilian</span>`;
+        const nhisBadge = nhisYes
+            ? `<span class="text-[9px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400 px-2 py-0.5 rounded-full">NHIS covered</span>`
+            : `<span class="text-[9px] font-black uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400 px-2 py-0.5 rounded-full">Self-pay (cash)</span>`;
+        const existingBadge = dependantsOnly
+            ? `<span class="text-[9px] font-black uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 px-2 py-0.5 rounded-full">Existing file</span>`
+            : '';
+
+        // a labelled field cell
+        const field = (label, valueHtml, wide) => `
+            <div class="${wide ? 'sm:col-span-2' : ''}">
+                <div class="text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">${label}</div>
+                <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-100 mt-0.5 break-words">${valueHtml}</div>
+            </div>`;
+        // a section card
+        const section = (icon, title, bodyHtml) => `
+            <div class="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-white dark:bg-slate-950/40">
+                <div class="flex items-center gap-1.5 px-4 py-2 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+                    <i data-lucide="${icon}" class="w-3.5 h-3.5 text-emerald-600"></i>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">${title}</span>
+                </div>
+                <div class="p-4">${bodyHtml}</div>
+            </div>`;
+        const grid = (cells) => `<div class="grid grid-cols-2 gap-x-4 gap-y-3">${cells.join('')}</div>`;
+
+        // --- Bio-data ---
+        const bio = grid([
+            field('Gender', show(gender)),
+            field('Date of Birth', dob ? `${esc(dob)} <span class="text-slate-400">(${ageStr})</span>` : dash),
+            field('Marital Status', show(marital)),
+            field('Religion', show(religion)),
+            field('Occupation', show(occupation)),
+            field('Place of Birth', show(pob)),
+            field('Tribe / Ethnicity', show(tribe), true),
+        ]);
+
+        // --- Contact ---
+        const contact = grid([
+            field('Phone Number', show(phone)),
+            field('Email Address', show(email)),
+        ]);
+
+        // --- Identification & coverage ---
+        const ident = grid([
+            field('Registration Type', isOfficer ? 'NIS Officer' : 'Civilian'),
+            field('Service Number', isOfficer ? `<span class="font-mono">${show(serviceNo)}</span>` : dash),
+            field('NIN', `<span class="font-mono">${show(nin)}</span>`),
+            field('NHIS Status', nhisYes ? `Covered · <span class="font-mono">${show(nhisNum)}</span>` : 'Not covered (cash)'),
+        ]);
+
+        // --- Origin & address ---
+        const addr = grid([
+            field('State of Origin', show(state)),
+            field('LGA of Origin', show(lga)),
+            field('City / Town', show(city)),
+            field('Home Address', show(address), true),
+        ]);
+
+        // --- Next of kin ---
+        const nok = grid([
+            field('Name', show(nokName)),
+            field('Relationship', show(nokRel)),
+            field('Address', show(nokAddr), true),
+        ]);
+
+        // --- Medical markers ---
+        const medical = dependantsOnly
+            ? `<p class="text-[11px] text-slate-500 dark:text-slate-400">Existing officer file — medical markers are recorded per dependant below.</p>`
+            : grid([
+                field('Blood Group', show(blood)),
+                field('Genotype', show(genotype)),
+                field('Allergies', show(allergies)),
+                field('Disability', show(disability)),
+            ]);
+
+        // --- Dependants ---
+        let deps;
+        if (pendingDependants.length === 0) {
+            deps = `<p class="text-[11px] text-slate-500 dark:text-slate-400">No dependants added.</p>`;
+        } else {
+            const rows = pendingDependants.map(d => `
+                <tr class="border-t border-slate-100 dark:border-slate-800">
+                    <td class="py-2 px-3 font-semibold text-slate-800 dark:text-slate-100">${esc([d.first_name, d.middle_name, d.last_name].filter(Boolean).join(' '))}</td>
+                    <td class="py-2 px-3"><span class="text-[9px] font-black uppercase bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-400 px-1.5 py-0.5 rounded">${esc(d.relationship_to_sponsor)}</span></td>
+                    <td class="py-2 px-3">${esc(d.gender)}</td>
+                    <td class="py-2 px-3 whitespace-nowrap">${esc(d.date_of_birth)} <span class="text-slate-400">(${calculateAge(d.date_of_birth)}y)</span></td>
+                    <td class="py-2 px-3 font-mono">${esc(d.nin || '—')}</td>
+                    <td class="py-2 px-3 font-mono">${esc(d.blood_group || '—')}/${esc(d.genotype || '—')}</td>
+                    <td class="py-2 px-3">${esc(d.allergies || '—')}</td>
+                    <td class="py-2 px-3">${esc(d.disability || 'None')}</td>
+                </tr>`).join('');
+            deps = `
+                <div class="overflow-x-auto -m-4">
+                    <table class="w-full text-[10.5px] text-left text-slate-700 dark:text-slate-300">
+                        <thead class="bg-slate-50 dark:bg-slate-900 text-[8.5px] font-black uppercase tracking-wider text-slate-500">
+                            <tr>
+                                <th class="py-2 px-3">Name</th><th class="py-2 px-3">Relationship</th>
+                                <th class="py-2 px-3">Gender</th><th class="py-2 px-3">DOB</th>
+                                <th class="py-2 px-3">NIN</th>
+                                <th class="py-2 px-3">Blood/Genotype</th><th class="py-2 px-3">Allergies</th>
+                                <th class="py-2 px-3">Disability</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+        const depCount = pendingDependants.length;
+        const depTitle = `Dependants${depCount ? ` (${depCount}${dependantsOnly ? ' to add' : ''})` : ''}`;
+
+        const html = `
+            <!-- Header -->
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-white dark:from-emerald-500/5 dark:to-slate-950/40 p-4 flex items-center gap-4 mb-4">
+                ${photoHtml}
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-base font-black text-slate-900 dark:text-white truncate">${esc(fullName)}</h3>
+                        ${typeBadge}${existingBadge}
+                    </div>
+                    ${rankLine ? `<p class="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">${rankLine}</p>` : ''}
+                    <div class="flex flex-wrap items-center gap-2 mt-1.5">
+                        ${isOfficer ? `<span class="text-[10px] font-mono text-slate-600 dark:text-slate-300">Service&nbsp;No:&nbsp;${show(serviceNo)}</span>` : ''}
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400">${esc(gender || '')}${dob ? ' · ' + ageStr : ''}</span>
+                        ${nhisBadge}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                ${section('badge-check', 'Identification & Coverage', ident)}
+                ${section('user', 'Bio-Data', bio)}
+                ${section('phone', 'Contact', contact)}
+                ${section('map-pin', 'Origin & Address', addr)}
+                ${section('users', 'Next of Kin', nok)}
+                ${section('activity', 'Medical Markers', medical)}
+            </div>
+
+            <div class="mt-3">
+                ${section('users', depTitle, deps)}
+            </div>`;
+
+        const target = document.getElementById('preview-content');
+        if (target) target.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
     }
 
     // Nigeria States & LGAs Data Mapping
@@ -1350,28 +1739,67 @@
         }
     }
 
+    // Live preview of the selected passport photo (FileReader -> data URI is the
+    // most reliable across browsers).
+    function previewPhoto(input) {
+        const img = document.getElementById('photo-preview');
+        const ph = document.getElementById('photo-placeholder');
+        const file = input.files && input.files[0];
+        if (!file) {
+            img.classList.add('hidden');
+            img.removeAttribute('src');
+            if (ph) ph.classList.remove('hidden');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+            if (ph) ph.classList.add('hidden');
+        };
+        reader.onerror = () => {
+            img.classList.add('hidden');
+            if (ph) ph.classList.remove('hidden');
+            alert('Could not read that image. Please choose a valid JPG, PNG or WEBP file.');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Toggle the NHIS number field + cost note based on the NHIS answer.
+    function handleNhisChange(value) {
+        const grp = document.getElementById('nhis-number-group');
+        const numInput = document.getElementById('nhis_number');
+        const note = document.getElementById('nhis-cost-note');
+        if (value === 'yes') {
+            if (grp) grp.classList.remove('hidden');
+            if (numInput) numInput.setAttribute('required', 'required');
+            if (note) { note.textContent = 'NHIS covered: registration fee waived and service charges discounted.'; note.className = 'text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-2'; }
+        } else {
+            if (grp) grp.classList.add('hidden');
+            if (numInput) { numInput.removeAttribute('required'); numInput.value = ''; }
+            if (note) { note.textContent = 'Non-NHIS: a registration fee and full service charges apply.'; note.className = 'text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-2'; }
+        }
+    }
+
+    // Upload a passport photo for a freshly created patient (best-effort).
+    async function uploadPatientPhoto(patientId, file) {
+        if (!file) return;
+        const fd = new FormData();
+        fd.append('photo', file);
+        try { await api.post(`/patients/${patientId}/photo`, fd); }
+        catch (e) { console.warn('Passport photo upload failed:', e); }
+    }
+
     async function handleRegisterSubmit(e) {
         e.preventDefault();
 
-        const isDep = (registrationMode === 'dependant');
-        
-        // Auto-add if they have filled the fields but list is empty
-        if (isDep && pendingDependants.length === 0) {
-            const depFirst = document.getElementById('dep_first_name').value.trim();
-            const depDob = document.getElementById('dep_date_of_birth').value;
-            if (depFirst || depDob) {
-                handleAddDependantClick();
-                if (pendingDependants.length === 0) return;
-            } else {
-                alert('Please add at least one Dependant.');
-                return;
-            }
-        }
-
+        // Dependants-only path: an NIS officer who already has a patient file —
+        // we just attach dependants to it, we do not recreate the officer.
+        const isDependantsOnly = (registrationMode === 'officer' && officerAlreadyPatientId);
         const val = (id) => document.getElementById(id) ? document.getElementById(id).value : '';
-        const commonPayload = {
-            blood_group: document.getElementById('blood_group').value,
-            genotype: document.getElementById('genotype').value,
+
+        // Address + next-of-kin context shared by the main file and its dependants.
+        const addressCtx = {
             state: val('state') || null,
             lga: val('lga') || null,
             city: val('city') || null,
@@ -1379,15 +1807,41 @@
             next_of_kin_name: val('next_of_kin_name') || null,
             next_of_kin_relationship: val('next_of_kin_relationship') || null,
             next_of_kin_address: val('next_of_kin_address') || null,
-            allergies: document.getElementById('allergies').value || null,
-            disability: document.getElementById('disability').value || 'None'
         };
 
+        // Build a dependant payload; each dependant carries its OWN medical markers
+        // and inherits the sponsor's NHIS coverage.
+        const depPayload = (dep, sponsorNumber, contactPhone, isNhisFlag) => ({
+            ...addressCtx,
+            first_name: dep.first_name,
+            middle_name: dep.middle_name,
+            last_name: dep.last_name,
+            gender: dep.gender,
+            marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
+            date_of_birth: dep.date_of_birth,
+            phone: (contactPhone && /^\+?\d{7,15}$/.test(contactPhone)) ? contactPhone : '00000000000',
+            email: null,
+            immigration_service_number: 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000),
+            sponsor_service_number: sponsorNumber,
+            relationship_to_sponsor: dep.relationship_to_sponsor,
+            nin: dep.nin || null,
+            is_nhis: !!isNhisFlag,
+            blood_group: dep.blood_group,
+            genotype: dep.genotype,
+            allergies: dep.allergies || null,
+            disability: dep.disability || 'None',
+        });
+
+        // NHIS answer for the main officer/civilian.
+        const mainIsNhis = document.querySelector('input[name="nhis_status"]:checked')?.value === 'yes';
+        const mainNhisNumber = mainIsNhis ? (document.getElementById('nhis_number').value.trim() || null) : null;
+
         try {
-            if (!isDep) {
-                let serviceNo = document.getElementById('immigration_service_number').value.trim();
-                const payload = {
-                    ...commonPayload,
+            if (!isDependantsOnly) {
+                // 1. Register the main officer/civilian.
+                const serviceNo = document.getElementById('immigration_service_number').value.trim();
+                const mainPayload = {
+                    ...addressCtx,
                     first_name: document.getElementById('first_name').value,
                     middle_name: document.getElementById('middle_name').value || null,
                     last_name: document.getElementById('last_name').value,
@@ -1402,34 +1856,46 @@
                     email: document.getElementById('email').value || null,
                     immigration_service_number: serviceNo || null,
                     nin: document.getElementById('nin').value || null,
+                    is_nhis: mainIsNhis,
+                    nhis_number: mainNhisNumber,
+                    blood_group: document.getElementById('blood_group').value,
+                    genotype: document.getElementById('genotype').value,
+                    allergies: document.getElementById('allergies').value || null,
+                    disability: document.getElementById('disability').value || 'None',
                 };
-                const res = await api.post('/patients', payload);
-                const pat = res.patient;
-                document.getElementById('success-patient-name').innerText = pat.full_name;
-                document.getElementById('success-patient-code').innerText = pat.immigration_service_number;
+                const res = await api.post('/patients', mainPayload);
+                const main = res.patient;
+                const created = [main];
+
+                // Upload the main patient's passport photo (if any).
+                await uploadPatientPhoto(main.id, document.getElementById('passport_photo').files[0]);
+
+                // 2. Register dependants tied to the officer/civilian just created.
+                //    Dependants inherit the main person's NHIS coverage.
+                for (const dep of pendingDependants) {
+                    const depRes = await api.post('/patients', depPayload(dep, main.immigration_service_number, main.phone, mainIsNhis));
+                    await uploadPatientPhoto(depRes.patient.id, dep.photoFile);
+                    created.push(depRes.patient);
+                }
+
+                document.getElementById('success-patient-name').innerText = created.map(p => p.full_name).join(', ');
+                document.getElementById('success-patient-code').innerText = created.map(p => p.immigration_service_number).join(', ');
             } else {
+                // Dependants for an EXISTING NIS officer (officer file already exists).
+                if (pendingDependants.length === 0) {
+                    const depFirst = document.getElementById('dep_first_name').value.trim();
+                    const depDob = document.getElementById('dep_date_of_birth').value;
+                    if (depFirst || depDob) { handleAddDependantClick(); if (pendingDependants.length === 0) return; }
+                    else { alert('Please add at least one Dependant.'); return; }
+                }
+                const officerService = officerData ? officerData.service_number : '';
                 const registeredPats = [];
                 for (const dep of pendingDependants) {
-                    const serviceNo = 'NIS/DEP/' + Math.floor(10000 + Math.random() * 90000);
-                    const payload = {
-                        ...commonPayload,
-                        first_name: dep.first_name,
-                        middle_name: dep.middle_name,
-                        last_name: dep.last_name,
-                        gender: dep.gender,
-                        marital_status: dep.relationship_to_sponsor === 'Wife' ? 'Married' : 'Single',
-                        date_of_birth: dep.date_of_birth,
-                        phone: (sponsorPhone && /^\+?\d{7,15}$/.test(sponsorPhone)) ? sponsorPhone : '00000000000',
-                        email: null,
-                        immigration_service_number: serviceNo,
-                        sponsor_service_number: dep.sponsor_service_number,
-                        relationship_to_sponsor: dep.relationship_to_sponsor,
-                        nin: null
-                    };
-                    const res = await api.post('/patients', payload);
-                    registeredPats.push(res.patient);
+                    // Dependants of an NIS officer are NHIS-covered.
+                    const depRes = await api.post('/patients', depPayload(dep, dep.sponsor_service_number || officerService, sponsorPhone, true));
+                    await uploadPatientPhoto(depRes.patient.id, dep.photoFile);
+                    registeredPats.push(depRes.patient);
                 }
-                
                 document.getElementById('success-patient-name').innerText = registeredPats.map(p => p.full_name).join(', ');
                 document.getElementById('success-patient-code').innerText = registeredPats.map(p => p.immigration_service_number).join(', ');
             }
@@ -1450,9 +1916,11 @@
         const tabBtnTimeline = document.getElementById('tab-btn-timeline');
         const tabBtnMedications = document.getElementById('tab-btn-medications');
         const tabBtnDiagnostics = document.getElementById('tab-btn-diagnostics');
+        const tabBtnDocuments = document.getElementById('tab-btn-documents');
         const detTimeline = document.getElementById('det-timeline');
         const detMedications = document.getElementById('det-medications');
         const detDiagnostics = document.getElementById('det-diagnostics');
+        const detDocuments = document.getElementById('det-documents');
 
         if (!tabBtnTimeline || !tabBtnMedications || !detTimeline || !detMedications) return;
 
@@ -1463,10 +1931,12 @@
         tabBtnTimeline.className = inactiveBtnClass;
         tabBtnMedications.className = inactiveBtnClass;
         if (tabBtnDiagnostics) tabBtnDiagnostics.className = inactiveBtnClass;
+        if (tabBtnDocuments) tabBtnDocuments.className = inactiveBtnClass;
 
         detTimeline.classList.add('hidden');
         detMedications.classList.add('hidden');
         if (detDiagnostics) detDiagnostics.classList.add('hidden');
+        if (detDocuments) detDocuments.classList.add('hidden');
 
         // Activate selected
         if (tabName === 'timeline') {
@@ -1478,6 +1948,10 @@
         } else if (tabName === 'diagnostics') {
             if (tabBtnDiagnostics) tabBtnDiagnostics.className = activeBtnClass;
             if (detDiagnostics) detDiagnostics.classList.remove('hidden');
+        } else if (tabName === 'documents') {
+            if (tabBtnDocuments) tabBtnDocuments.className = activeBtnClass;
+            if (detDocuments) detDocuments.classList.remove('hidden');
+            loadDocuments();
         }
     }
 
@@ -1486,6 +1960,10 @@
             const res = await api.get(`/patients/${id}`);
             const pat = res.patient;
             const timeline = res.timeline;
+
+            // Remember which file is open (used by ID card + documents).
+            window.__currentPatient = pat;
+            window.__currentPatientId = id;
 
             // Reset tabs to timeline default view
             switchDetailsTab('timeline');
@@ -1564,6 +2042,21 @@
                     } else if (event.type === 'appointment') {
                         icon = 'calendar';
                         color = 'text-blue-600 bg-blue-500/10 border border-blue-500/20';
+                    } else if (event.type === 'payment') {
+                        icon = 'banknote';
+                        color = 'text-emerald-600 bg-emerald-500/10 border border-emerald-500/20';
+                    } else if (event.type === 'billing_charge') {
+                        icon = 'receipt';
+                        color = 'text-amber-600 bg-amber-500/10 border border-amber-500/20';
+                    } else if (event.type === 'lab_result') {
+                        icon = 'flask-conical';
+                        color = 'text-indigo-600 bg-indigo-500/10 border border-indigo-500/20';
+                    } else if (event.type === 'radiology_result') {
+                        icon = 'scan';
+                        color = 'text-purple-600 bg-purple-500/10 border border-purple-500/20';
+                    } else if (event.type === 'admission') {
+                        icon = 'bed';
+                        color = 'text-rose-600 bg-rose-500/10 border border-rose-500/20';
                     }
 
                     return `
@@ -1634,6 +2127,7 @@
             const diagBody = document.getElementById('det-diagnostics');
             if (diagBody) {
                 const diagnosticsList = res.diagnostics || [];
+                window.__diagnostics = diagnosticsList; // for the print function
                 if (diagnosticsList.length > 0) {
                     diagBody.innerHTML = diagnosticsList.map(d => {
                         const isLab = d.type === 'lab';
@@ -1654,6 +2148,9 @@
                                     <div class="text-right shrink-0">
                                         <span class="text-[9px] text-slate-400 block mb-0.5">Completed Date</span>
                                         <b class="text-[10px] text-slate-700 dark:text-slate-300">${new Date(d.completed_at).toLocaleString()}</b>
+                                        <button type="button" onclick="printDiagnosticReport(${d.id}, '${d.type}')" class="mt-1.5 inline-flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-[9px] font-bold px-2 py-1 rounded-lg transition cursor-pointer">
+                                            <i data-lucide="printer" class="w-3 h-3"></i> Print Report
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="pt-1">
@@ -1696,6 +2193,177 @@
 
     function closeDetailsModal() {
         document.getElementById('details-modal').classList.add('hidden');
+    }
+
+    // Print an official diagnostic report from the patient profile, naming the
+    // scientist/radiographer who conducted it.
+    function printDiagnosticReport(id, type) {
+        const d = (window.__diagnostics || []).find(x => x.id === id && x.type === type);
+        if (!d) { alert('Report not found.'); return; }
+        const pat = window.__currentPatient || {};
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        const isLab = d.type === 'lab';
+        const fullName = [pat.first_name, pat.last_name].filter(Boolean).join(' ');
+        // Inline the NIS crest (from the sidebar logo already loaded) as a data URI.
+        let logo = '';
+        try {
+            const img = document.querySelector('img[src*="nis_logo"]');
+            if (img && img.complete && img.naturalWidth) {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth; c.height = img.naturalHeight;
+                c.getContext('2d').drawImage(img, 0, 0);
+                logo = c.toDataURL('image/png');
+            }
+        } catch (e) { /* ignore */ }
+        const w = window.open('', '_blank', 'width=800,height=900');
+        if (!w) { alert('Please allow pop-ups to print the report.'); return; }
+        w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Report — ${esc(d.test_name)}</title>
+        <style>
+            *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#1e293b}
+            body{padding:32px;max-width:720px;margin:auto}
+            .hd{text-align:center;border-bottom:2px solid #0B6B3A;padding-bottom:12px;margin-bottom:16px}
+            .hd img{height:56px;width:56px;object-fit:contain;margin:0 auto 4px}
+            .hd h1{font-size:18px;margin:4px 0;color:#0B6B3A;text-transform:uppercase;letter-spacing:1px}
+            .hd h2{font-size:12px;margin:2px 0;color:#475569;font-weight:600}
+            .hd p{font-size:10px;color:#94a3b8;margin:2px 0}
+            .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;margin:12px 0}
+            .lbl{font-size:8px;text-transform:uppercase;color:#94a3b8;font-weight:700;display:block}
+            table{width:100%;border-collapse:collapse;margin:12px 0;font-size:11px}
+            th,td{border:1px solid #e2e8f0;padding:8px;text-align:left}
+            th{background:#f1f5f9;text-transform:uppercase;font-size:9px;letter-spacing:.5px}
+            .remarks{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:11px;font-style:italic}
+            .sign{display:flex;justify-content:space-between;margin-top:40px;font-size:10px}
+            .sign .line{border-top:1px solid #64748b;width:200px;padding-top:4px;text-align:center}
+            .foot{text-align:center;font-size:8px;color:#94a3b8;margin-top:24px;border-top:1px solid #e2e8f0;padding-top:8px}
+        </style></head><body>
+            <div class="hd">
+                ${logo ? `<img src="${logo}" alt="NIS">` : ''}
+                <h1>Nigeria Immigration Service</h1>
+                <h2>${isLab ? 'Pathological &amp; Diagnostic Laboratories' : 'Radiology &amp; Imaging Department'}</h2>
+                <p>Official ${isLab ? 'Clinical Laboratory' : 'Radiology'} Report</p>
+            </div>
+            <div class="grid">
+                <div><span class="lbl">Patient Name</span> ${esc(fullName)}</div>
+                <div><span class="lbl">Hospital Code</span> ${esc(pat.immigration_service_number || '')}</div>
+                <div><span class="lbl">Ordering Doctor</span> Dr. ${esc(d.doctor_name || 'Staff')}</div>
+                <div><span class="lbl">Date Authorized</span> ${esc(new Date(d.completed_at).toLocaleString())}</div>
+            </div>
+            <table>
+                <thead><tr><th>${isLab ? 'Investigation' : 'Scan'}</th><th>Result / Findings</th>${isLab ? '<th>Reference Range</th>' : ''}</tr></thead>
+                <tbody><tr>
+                    <td><b>${esc(d.test_name)}</b></td>
+                    <td>${esc(d.result_value)}</td>
+                    ${isLab ? `<td>${esc(d.normal_range || 'N/A')}</td>` : ''}
+                </tr></tbody>
+            </table>
+            <div class="remarks"><b>Remarks:</b> ${esc(d.remarks && d.remarks !== 'N/A' ? d.remarks : 'No remarks provided.')}</div>
+            <div class="sign">
+                <div class="line"><b>${esc(d.scientist_name || (isLab ? 'Laboratory Scientist' : 'Radiographer'))}</b><br><span style="font-size:8px;color:#94a3b8">Conducted / Verified By</span></div>
+                <div class="line">${esc(new Date(d.completed_at).toLocaleDateString())}<br><span style="font-size:8px;color:#94a3b8">Date</span></div>
+            </div>
+            <div class="foot">This report has been electronically verified and authorized for clinical release. Verification ID: NIS-${isLab ? 'LAB' : 'RAD'}-${d.id}</div>
+            <script>window.onload=function(){window.print();}<\/script>
+        </body></html>`);
+        w.document.close();
+    }
+
+    // ─── Patient ID Card ───────────────────────────────────────────────
+    async function openIdCard() {
+        const id = window.__currentPatientId;
+        if (!id) return;
+        try {
+            const res = await api.get(`/patients/${id}/id-card`);
+            const c = res.card;
+            document.getElementById('idc-name').innerText = c.full_name;
+            document.getElementById('idc-code').innerText = c.hospital_code || '—';
+            document.getElementById('idc-dob').innerText = c.date_of_birth || '—';
+            document.getElementById('idc-gender').innerText = c.gender || '—';
+            document.getElementById('idc-blood').innerText = c.blood_group || '—';
+            document.getElementById('idc-geno').innerText = c.genotype || '—';
+            document.getElementById('idc-issued').innerText = c.issued_on;
+            document.getElementById('idc-barcode').innerText = c.barcode || '';
+            document.getElementById('idc-qr').src = res.qr;
+
+            const nhis = document.getElementById('idc-nhis');
+            nhis.classList.toggle('hidden', !c.nhis);
+
+            const photo = document.getElementById('idc-photo');
+            const ph = document.getElementById('idc-photo-ph');
+            if (c.photo_url) {
+                photo.src = c.photo_url; photo.classList.remove('hidden'); ph.classList.add('hidden');
+            } else {
+                photo.classList.add('hidden'); ph.classList.remove('hidden');
+            }
+
+            document.getElementById('idcard-modal').classList.remove('hidden');
+            lucide.createIcons();
+        } catch (e) { alert(e.message || 'Failed to build ID card.'); }
+    }
+    function closeIdCard() { document.getElementById('idcard-modal').classList.add('hidden'); }
+    function printIdCard() { window.print(); }
+
+    // ─── Patient Documents ─────────────────────────────────────────────
+    const docCategoryLabels = { referral:'Referral', consent:'Consent', id_copy:'ID copy', lab_report:'External report', insurance:'Insurance', other:'Other' };
+
+    async function loadDocuments() {
+        const id = window.__currentPatientId;
+        const box = document.getElementById('det-documents-list');
+        if (!id || !box) return;
+        box.innerHTML = '<p class="text-xs text-slate-400">Loading…</p>';
+        try {
+            const res = await api.get(`/patients/${id}/documents`);
+            const list = res.documents || [];
+            box.innerHTML = list.length ? list.map(d => `
+                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px]">
+                    <div class="min-w-0">
+                        <b class="text-slate-800 dark:text-white block truncate">${d.title}</b>
+                        <span class="text-slate-500 block truncate">${docCategoryLabels[d.category]||d.category} · ${d.original_name} · ${d.size_kb} KB</span>
+                        <span class="text-slate-400 text-[9px] block">${d.uploaded_by ? 'by '+d.uploaded_by+' · ' : ''}${d.created_at}</span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="downloadDocument(${d.id},'${(d.original_name||'file').replace(/'/g,"\\'")}')" class="text-emerald-600 hover:underline font-bold">Download</button>
+                        <button onclick="deleteDocument(${d.id})" class="text-red-500 hover:underline font-bold">Delete</button>
+                    </div>
+                </div>`).join('') : '<p class="text-xs text-slate-400">No documents attached to this file.</p>';
+        } catch (e) { box.innerHTML = '<p class="text-xs text-red-500">Failed to load documents.</p>'; }
+    }
+
+    async function uploadDocument(ev) {
+        ev.preventDefault();
+        const id = window.__currentPatientId;
+        const fileEl = document.getElementById('doc-file');
+        if (!id || !fileEl.files.length) return;
+        const fd = new FormData();
+        fd.append('title', document.getElementById('doc-title').value);
+        fd.append('category', document.getElementById('doc-category').value);
+        fd.append('file', fileEl.files[0]);
+        try {
+            await api.post(`/patients/${id}/documents`, fd);
+            document.getElementById('doc-upload-form').reset();
+            loadDocuments();
+        } catch (e) { alert(e.message || 'Upload failed.'); }
+    }
+
+    async function downloadDocument(docId, name) {
+        try {
+            const token = localStorage.getItem('nis_hms_token');
+            const res = await fetch(`${api.baseUrl}/patient-documents/${docId}/download`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Download failed');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = name || 'document';
+            document.body.appendChild(a); a.click(); a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) { alert('Could not download the document.'); }
+    }
+
+    async function deleteDocument(docId) {
+        if (!confirm('Delete this document permanently?')) return;
+        try { await api.delete(`/patient-documents/${docId}`); loadDocuments(); }
+        catch (e) { alert(e.message || 'Delete failed.'); }
     }
 
     // Initialize Register Patient button permissions

@@ -119,6 +119,7 @@
         <h3 class="text-base font-bold text-slate-800 dark:text-white mb-4">Input Laboratory Diagnostics Values</h3>
         
         <form id="result-form" onsubmit="handleResultSubmit(event)" class="space-y-4">
+            <p id="catalogue-hint" class="hidden text-[10px] text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-lg px-3 py-2"></p>
             <div>
                 <label class="block text-[10px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-1">Result Value *</label>
                 <input type="text" id="result_value" required placeholder="e.g. 5.4 or Negative" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-emerald-500">
@@ -178,6 +179,10 @@
                     <span id="rep-doctor-name" class="text-slate-800 font-semibold"></span>
                 </div>
                 <div>
+                    <span class="font-bold block text-slate-450 uppercase text-[8px]">Conducted / Verified By:</span>
+                    <span id="rep-scientist-name" class="text-slate-800 font-semibold"></span>
+                </div>
+                <div>
                     <span class="font-bold block text-slate-450 uppercase text-[8px]">Date Authorized:</span>
                     <span id="rep-date" class="text-slate-800 font-semibold"></span>
                 </div>
@@ -208,6 +213,19 @@
                 <span class="font-bold block mb-1">Pathologist / Scientist Remarks:</span>
                 <span id="rep-remarks" class="italic"></span>
             </div>
+            <!-- Signature block (who conducted / authorized the report) -->
+            <div class="flex justify-between items-end pt-4 mt-1 text-[9px] text-slate-600">
+                <div class="text-center">
+                    <div class="border-b border-slate-400 w-36 mb-1 h-6"></div>
+                    <span class="font-bold uppercase text-[8px] text-slate-450 block">Conducted / Verified By</span>
+                    <span id="rep-sign-scientist" class="font-semibold text-slate-800"></span>
+                </div>
+                <div class="text-center">
+                    <div class="border-b border-slate-400 w-36 mb-1 h-6"></div>
+                    <span class="font-bold uppercase text-[8px] text-slate-450 block">Date</span>
+                    <span id="rep-sign-date" class="font-semibold text-slate-800"></span>
+                </div>
+            </div>
             <!-- Signature stamp -->
             <div class="text-center text-[8px] text-slate-400 pt-2 border-t border-slate-100">
                 <p>This report has been electronically verified and authorized for clinical release.</p>
@@ -229,6 +247,31 @@
 <script>
     let activeRequest = null;
     let labWorklist = [];
+    let currentLabReport = null;
+    let labCatalogue = {}; // keyed by lowercased test name AND code
+
+    const FLAG_META = {
+        low:           { label: 'LOW',  cls: 'bg-amber-100 text-amber-700 border border-amber-300' },
+        high:          { label: 'HIGH', cls: 'bg-amber-100 text-amber-700 border border-amber-300' },
+        critical_low:  { label: 'CRITICAL LOW',  cls: 'bg-red-600 text-white' },
+        critical_high: { label: 'CRITICAL HIGH', cls: 'bg-red-600 text-white' },
+        normal:        { label: 'NORMAL', cls: 'bg-emerald-100 text-emerald-700 border border-emerald-300' },
+    };
+    function flagBadge(flag) {
+        const m = FLAG_META[flag];
+        if (!m) return '';
+        return `<span class="ml-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wide ${m.cls}">${m.label}</span>`;
+    }
+
+    async function loadLabCatalogue() {
+        try {
+            const res = await api.get('/lab-tests');
+            (res.tests || []).forEach(t => {
+                labCatalogue[(t.name || '').toLowerCase()] = t;
+                labCatalogue[(t.code || '').toLowerCase()] = t;
+            });
+        } catch (e) { /* catalogue is optional; entry still works manually */ }
+    }
 
     async function loadLabQueue() {
         try {
@@ -249,16 +292,29 @@
         document.getElementById('lab-stat-approved').innerText = list.filter(r => r.status === 'approved').length;
     }
 
+    // Normalised workflow stage — treats legacy 'completed' rows that carry a
+    // draft result as 'result_submitted' (pending authorization) so the approve
+    // button still appears for them.
+    function labStage(req) {
+        const hasResult = !!req.result_value;
+        const isApproved = req.result_status === 'approved' || req.status === 'approved';
+        if (isApproved) return 'approved';
+        if (req.status === 'result_submitted' || (req.status === 'completed' && hasResult)) return 'result_submitted';
+        return req.status;
+    }
+
     function filterWorklist() {
         const query = document.getElementById('lab-search').value.toLowerCase().trim();
         const status = document.getElementById('lab-status-filter').value;
-        const role = user.roles && user.roles[0] ? user.roles[0].name : '';
+        const roles = (user.roles || []).map(r => r.name);
+        const canProcess = ['super_admin', 'lab_scientist', 'radiographer'].some(x => roles.includes(x));
+        const canApprove = ['super_admin', 'medical_director', 'chief_medical_officer'].some(x => roles.includes(x));
         const tbody = document.getElementById('lab-table-body');
 
         let filtered = labWorklist;
 
         if (status !== 'all') {
-            filtered = filtered.filter(r => r.status === status);
+            filtered = filtered.filter(r => labStage(r) === status);
         }
 
         if (query.length > 0) {
@@ -274,28 +330,41 @@
                 let statusClass = 'bg-slate-100 text-slate-700';
                 let actionHTML = '';
 
-                if (req.status === 'requested') {
+                // Payment badge (only when the test carries a bill).
+                let paymentBadge = '';
+                const hasBill = req.payment_status && req.payment_status !== 'n/a';
+                if (hasBill) {
+                    paymentBadge = req.is_paid
+                        ? `<span class="ml-1 px-2 py-0.5 text-[8px] font-black rounded-full uppercase bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Paid</span>`
+                        : `<span class="ml-1 px-2 py-0.5 text-[8px] font-black rounded-full uppercase bg-red-500/10 text-red-600 border border-red-500/20">Awaiting Payment</span>`;
+                }
+
+                const stage = labStage(req);
+                if (stage === 'requested') {
                     statusClass = 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
-                    if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
+                    if (hasBill && !req.is_paid) {
+                        // Blocked until the cashier confirms payment.
+                        actionHTML = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-red-600"><i data-lucide="lock" class="w-3 h-3"></i> Awaiting Payment${req.bill_amount ? ' · ₦' + Number(req.bill_amount).toLocaleString() : ''}</span>`;
+                    } else if (canProcess) {
                         actionHTML = `<button onclick="collectSample(${req.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Collect Sample</button>`;
                     }
-                } else if (req.status === 'sample_collected') {
+                } else if (stage === 'sample_collected') {
                     statusClass = 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
-                    if (['super_admin', 'lab_scientist', 'radiographer'].includes(role)) {
+                    if (canProcess) {
                         actionHTML = `<button onclick="openResultModal(${JSON.stringify(req).replace(/"/g, '&quot;')})" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Input Values</button>`;
                     }
-                } else if (req.status === 'result_submitted') {
+                } else if (stage === 'result_submitted') {
                     statusClass = 'bg-indigo-500/10 text-indigo-600 border border-indigo-500/20';
-                    if (['super_admin', 'medical_director', 'chief_medical_officer'].includes(role)) {
+                    if (canApprove) {
                         actionHTML = `<button onclick="approveResult(${req.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Approve Report</button>`;
                     } else {
                         actionHTML = `<span class="text-slate-800 dark:text-slate-200 font-semibold text-[10px]">Awaiting Approval</span>`;
                     }
-                } else if (req.status === 'approved') {
+                } else if (stage === 'approved') {
                     statusClass = 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
                     actionHTML = `
-                        <button onclick="openPrintReportModal(${req.id})" class="bg-slate-800 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-705 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
-                            Print Report
+                        <button onclick="openPrintReportModal(${req.id})" class="inline-flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition cursor-pointer">
+                            <i data-lucide="printer" class="w-3 h-3"></i> Print Report
                         </button>
                     `;
                 }
@@ -307,19 +376,20 @@
                             <div class="text-[9px] text-slate-500">Code: ${req.patient.immigration_service_number}</div>
                         </td>
                         <td class="py-3.5 px-6">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">${req.test_name}</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-200">${req.test_name}</span>${flagBadge(req.flag)}
                             <div class="text-[9px] text-slate-500">Ordered by: Dr. ${req.doctor?.full_name || 'Staff'}</div>
                         </td>
                         <td class="py-3.5 px-6 text-slate-800 dark:text-slate-200">${new Date(req.created_at).toLocaleDateString()}</td>
                         <td class="py-3.5 px-6">
                             <span class="px-2.5 py-0.5 text-[9px] font-bold rounded-full uppercase ${statusClass}">
-                                ${req.status.replace('_', ' ')}
-                            </span>
+                                ${stage.replace('_', ' ')}
+                            </span>${paymentBadge}
                         </td>
                         <td class="py-3.5 px-6 text-right">${actionHTML}</td>
                     </tr>
                 `;
             }).join('');
+            if (window.lucide) lucide.createIcons();
         } else {
             tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500 text-xs font-semibold">No laboratory requests found matching active filters.</td></tr>`;
         }
@@ -339,6 +409,23 @@
     function openResultModal(req) {
         activeRequest = req;
         document.getElementById('result-form').reset();
+
+        // Auto-fill reference range + unit from the catalogue when the ordered
+        // test matches a catalogue entry. Values remain editable by the scientist.
+        const cat = labCatalogue[(req.test_name || '').toLowerCase()];
+        const hint = document.getElementById('catalogue-hint');
+        if (cat) {
+            if (cat.ref_low !== null && cat.ref_low !== undefined) document.getElementById('normal_range_min').value = cat.ref_low;
+            if (cat.ref_high !== null && cat.ref_high !== undefined) document.getElementById('normal_range_max').value = cat.ref_high;
+            if (cat.unit) document.getElementById('unit').value = cat.unit;
+            if (hint) {
+                hint.classList.remove('hidden');
+                hint.innerText = `Catalogue: ${cat.name} — range ${cat.ref_low ?? '–'} to ${cat.ref_high ?? '–'} ${cat.unit || ''}. Values auto-flag on submit.`;
+            }
+        } else if (hint) {
+            hint.classList.add('hidden');
+        }
+
         document.getElementById('result-modal').classList.remove('hidden');
     }
 
@@ -384,10 +471,16 @@
         document.getElementById('rep-patient-name').innerText = `${req.patient.first_name} ${req.patient.last_name}`;
         document.getElementById('rep-patient-code').innerText = req.patient.immigration_service_number;
         document.getElementById('rep-doctor-name').innerText = `Dr. ${req.doctor?.full_name || 'Staff'}`;
-        document.getElementById('rep-date').innerText = new Date(req.updated_at || req.created_at).toLocaleString();
+        const scientistName = req.scientist_name || 'Laboratory Scientist';
+        document.getElementById('rep-scientist-name').innerText = scientistName;
+        document.getElementById('rep-sign-scientist').innerText = scientistName;
+        const authDate = req.approved_at ? new Date(req.approved_at) : new Date(req.updated_at || req.created_at);
+        document.getElementById('rep-date').innerText = authDate.toLocaleString();
+        document.getElementById('rep-sign-date').innerText = authDate.toLocaleDateString();
 
         document.getElementById('rep-test-name').innerText = req.test_name;
-        document.getElementById('rep-value').innerText = req.result_value || 'Pending';
+        const flagTxt = (FLAG_META[req.flag] && req.flag !== 'normal') ? `  [${FLAG_META[req.flag].label}]` : '';
+        document.getElementById('rep-value').innerText = (req.result_value || 'Pending') + flagTxt;
         document.getElementById('rep-range').innerText = (req.normal_range_min || req.normal_range_max) 
             ? `${req.normal_range_min || '0'} - ${req.normal_range_max || '∞'}` 
             : 'N/A';
@@ -396,6 +489,22 @@
         
         document.getElementById('rep-stamp').innerText = `Verification ID: NIS-LAB-VERIFIED-${req.id}-${new Date(req.updated_at).getTime()}`;
 
+        // Keep the data so the Print button can render a self-contained document.
+        currentLabReport = {
+            patient: `${req.patient.first_name} ${req.patient.last_name}`,
+            code: req.patient.immigration_service_number || '',
+            doctor: `Dr. ${req.doctor?.full_name || 'Staff'}`,
+            scientist: scientistName,
+            date: authDate.toLocaleString(),
+            dateShort: authDate.toLocaleDateString(),
+            test: req.test_name,
+            value: (req.result_value || 'Pending') + flagTxt,
+            range: (req.normal_range_min || req.normal_range_max) ? `${req.normal_range_min || '0'} - ${req.normal_range_max || '∞'}` : 'N/A',
+            unit: req.unit || 'N/A',
+            remarks: req.remarks || 'No pathology comments provided.',
+            id: req.id,
+        };
+
         document.getElementById('print-report-modal').classList.remove('hidden');
     }
 
@@ -403,52 +512,62 @@
         document.getElementById('print-report-modal').classList.add('hidden');
     }
 
+    // Print the exact on-screen report card. A new window is used with the
+    // report card's own markup + its Tailwind stylesheet so the printout looks
+    // identical to the modal preview.
+    // Inline the (already-loaded) NIS logo as a data URI so it always prints,
+    // regardless of network timing in the new window.
+    function logoDataUrl() {
+        try {
+            const img = document.querySelector('#printable-report-area img');
+            if (img && img.complete && img.naturalWidth) {
+                const c = document.createElement('canvas');
+                c.width = img.naturalWidth;
+                c.height = img.naturalHeight;
+                c.getContext('2d').drawImage(img, 0, 0);
+                return c.toDataURL('image/png');
+            }
+        } catch (e) { /* tainted/canvas blocked — fall back to the URL */ }
+        return null;
+    }
+
     function printReportVoucher() {
-        window.print();
+        const area = document.getElementById('printable-report-area');
+        if (!area) { window.print(); return; }
+        // Pull the app's compiled stylesheet(s) so Tailwind classes render.
+        const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+            .map(el => el.outerHTML).join('\n');
+
+        // Guarantee the crest prints: swap the logo src for an inlined data URI.
+        let bodyHtml = area.outerHTML;
+        const dataUrl = logoDataUrl();
+        if (dataUrl) {
+            bodyHtml = bodyHtml.replace(/src="[^"]*nis_logo\.jpg"/i, `src="${dataUrl}"`);
+        }
+
+        const w = window.open('', '_blank', 'width=820,height=1000');
+        if (!w) { alert('Please allow pop-ups to print the report.'); return; }
+        w.document.write(`<!doctype html><html><head><meta charset="utf-8">
+            <title>Laboratory Report</title>
+            <base href="${location.origin}/">
+            ${styles}
+            <style>body{background:#fff;margin:0;padding:24px;display:flex;justify-content:center}
+                   #printable-report-area{max-width:640px;width:100%;border:none!important;box-shadow:none!important}</style>
+        </head><body>${bodyHtml}
+            <script>
+                window.onload=function(){
+                    var imgs=[].slice.call(document.images);
+                    Promise.all(imgs.map(function(i){return i.complete?1:new Promise(function(r){i.onload=i.onerror=r;});}))
+                        .then(function(){ setTimeout(function(){ window.print(); }, 150); });
+                };
+            <\/script>
+        </body></html>`);
+        w.document.close();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        loadLabCatalogue();
         loadLabQueue();
     });
 </script>
-
-<style>
-    @media print {
-        header, footer, aside, nav, button, select, h1, p, input, .grid, .bg-white:not(#print-report-modal), #result-modal {
-            display: none !important;
-        }
-        body {
-            background: white !important;
-            color: black !important;
-        }
-        #print-report-modal {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            display: block !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-        #print-report-modal > div {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-        }
-        #printable-report-area {
-            border: none !important;
-            padding: 0 !important;
-            width: 100% !important;
-        }
-        button {
-            display: none !important;
-        }
-    }
-</style>
 @endsection

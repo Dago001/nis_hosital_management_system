@@ -11,11 +11,62 @@ use App\Models\LabRequest;
 use App\Models\RadiologyRequest;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Patient;
+use App\Services\DrugSafetyService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class ClinicalController extends Controller
 {
+    /**
+     * Roles allowed to access ANY patient visit regardless of the assigned
+     * doctor ("break-glass"). Every such access is captured by audit logging.
+     */
+    private const OVERRIDE_ROLES = ['super_admin', 'medical_director', 'chief_medical_officer'];
+
+    /**
+     * Whether the current user may open/act on a given visit. The assigned
+     * doctor can; senior override roles can; an unassigned visit may be picked
+     * up by any consulting clinician. Everyone else is blocked, so one doctor
+     * cannot see or complete another doctor's assigned patient.
+     */
+    private function canAccessVisit(Visit $visit): bool
+    {
+        $user = Auth::user();
+        if (! $user) {
+            return false;
+        }
+
+        foreach (self::OVERRIDE_ROLES as $role) {
+            if ($user->hasRole($role)) {
+                return true;
+            }
+        }
+
+        if (empty($visit->staff_id)) {
+            return true;
+        }
+
+        return $user->staff && (int) $visit->staff_id === (int) $user->staff->id;
+    }
+
+    /**
+     * Advisory drug-safety check (allergy conflicts + interactions) the
+     * consultation UI calls as the doctor builds a prescription.
+     */
+    public function drugSafetyCheck(Request $request, DrugSafetyService $safety)
+    {
+        $validated = $request->validate([
+            'patient_id' => 'required|exists:patients,id',
+            'drugs' => 'required|array|min:1',
+            'drugs.*' => 'required|string|max:255',
+        ]);
+
+        $patient = Patient::find($validated['patient_id']);
+
+        return response()->json($safety->check($patient, $validated['drugs']));
+    }
+
     public function recordVitals(Request $request)
     {
         $validated = $request->validate([
@@ -96,8 +147,19 @@ class ClinicalController extends Controller
             'radiology_tests.*.clinical_indication' => 'nullable|string',
         ]);
 
-        $doctor = Auth::user()->staff;
-        $doctorId = $doctor ? $doctor->id : $visit->staff_id;
+        // Per-doctor isolation: only the assigned doctor (or a senior override
+        // role) may complete this consult. Unassigned visits may be picked up.
+        if (! $this->canAccessVisit($visit)) {
+            return response()->json([
+                'message' => 'This patient is assigned to another doctor. You do not have access to this consultation.'
+            ], 403);
+        }
+
+        $callerStaffId = Auth::user()->staff?->id;
+        // Preserve the originally assigned doctor; only stamp the caller when the
+        // visit is unassigned. This stops a consult from silently reassigning
+        // another doctor's patient to whoever completed it.
+        $doctorId = $visit->staff_id ?: $callerStaffId;
 
         DB::transaction(function () use ($visit, $validated, $doctorId) {
             // 1. Update the consultation details on the visit
@@ -138,10 +200,22 @@ class ClinicalController extends Controller
                 }
             }
 
-            // 3. Process Lab requests if ordered
+            // 3. Process Lab requests if ordered — each test is billable, so
+            //    raise a laboratory invoice that must be paid at the cashier
+            //    before the sample is processed.
             if (!empty($validated['lab_tests'])) {
+                $isNhis = $visit->patient && $visit->patient->isNhis();
+                $labDefault = \App\Models\ServiceTariff::priceFor('LAB_DEFAULT', 2500.00);
+
+                $labRequests = [];
+                $labItems = [];
+                $labTotal = 0.0;
                 foreach ($validated['lab_tests'] as $lab) {
-                    LabRequest::create([
+                    $catalogue = \App\Models\LabTest::matchByName($lab['test_name']);
+                    $price = ($catalogue && (float) $catalogue->price > 0) ? (float) $catalogue->price : $labDefault;
+                    $labTotal += $price;
+
+                    $labRequests[] = LabRequest::create([
                         'visit_id' => $visit->id,
                         'patient_id' => $visit->patient_id,
                         'staff_id' => $doctorId,
@@ -149,6 +223,31 @@ class ClinicalController extends Controller
                         'clinical_indication' => $lab['clinical_indication'] ?? null,
                         'status' => 'requested'
                     ]);
+                    $labItems[] = [
+                        'item_name' => 'Lab Test: ' . $lab['test_name'],
+                        'quantity' => 1,
+                        'unit_price' => $price,
+                        'total_price' => $price,
+                    ];
+                }
+
+                if ($labTotal > 0) {
+                    $labDiscount = $isNhis ? round($labTotal * 0.15, 2) : 0.0;
+                    $labInvoice = Invoice::create([
+                        'patient_id' => $visit->patient_id,
+                        'visit_id' => $visit->id,
+                        'total_amount' => $labTotal,
+                        'discount_amount' => $labDiscount,
+                        'paid_amount' => 0.00,
+                        'status' => 'unpaid',
+                    ]);
+                    foreach ($labItems as $li) {
+                        InvoiceItem::create($li + ['invoice_id' => $labInvoice->id]);
+                    }
+                    // Link every lab request in this order to the invoice.
+                    foreach ($labRequests as $lr) {
+                        $lr->update(['invoice_id' => $labInvoice->id]);
+                    }
                 }
             }
 
@@ -168,16 +267,18 @@ class ClinicalController extends Controller
             }
 
             // 5. Generate Billing Invoice automatically for GOPD Consultation Fee
+            //    (price comes from the configurable service tariff catalogue).
             $patient = $visit->patient;
+            $consultFee = \App\Models\ServiceTariff::priceFor('CONSULT_GOPD', 2000.00);
             $discount = 0.00;
             if ($patient && $patient->isNhis()) {
-                $discount = 2000.00 * 0.15; // 15% discount
+                $discount = $consultFee * 0.15; // 15% NHIS discount
             }
 
             $invoice = Invoice::create([
                 'patient_id' => $visit->patient_id,
                 'visit_id' => $visit->id,
-                'total_amount' => 2000.00, // Fixed Consultation Fee in NGN
+                'total_amount' => $consultFee,
                 'discount_amount' => $discount,
                 'paid_amount' => 0.00,
                 'status' => 'unpaid'
@@ -187,13 +288,21 @@ class ClinicalController extends Controller
                 'invoice_id' => $invoice->id,
                 'item_name' => 'General Medical Consultation',
                 'quantity' => 1,
-                'unit_price' => 2000.00,
-                'total_price' => 2000.00
+                'unit_price' => $consultFee,
+                'total_price' => $consultFee
             ]);
         });
 
+        // Advisory drug-safety alerts on the prescribed drugs (recorded for the UI).
+        $safetyAlerts = ['allergy_alerts' => [], 'interaction_alerts' => [], 'has_alerts' => false];
+        if (!empty($validated['prescriptions'])) {
+            $drugNames = array_map(fn ($p) => $p['drug_name'], $validated['prescriptions']);
+            $safetyAlerts = app(DrugSafetyService::class)->check($visit->patient, $drugNames);
+        }
+
         return response()->json([
             'message' => 'Consultation completed and billing generated.',
+            'safety_alerts' => $safetyAlerts,
             'visit' => $visit->load(['prescriptions', 'labRequests', 'radiologyRequests'])
         ]);
     }
@@ -214,6 +323,14 @@ class ClinicalController extends Controller
             return response()->json([
                 'message' => 'No active waiting consult file found for this patient. Ensure triage vitals are recorded first.'
             ], 404);
+        }
+
+        // Per-doctor isolation: a doctor may only open a waiting visit assigned
+        // to them (senior override roles excepted).
+        if (! $this->canAccessVisit($visit)) {
+            return response()->json([
+                'message' => 'This patient is assigned to another doctor.'
+            ], 403);
         }
 
         return response()->json([

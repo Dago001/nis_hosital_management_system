@@ -24,20 +24,20 @@
             <div class="flex items-center gap-3">
                 <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
-                    <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
-                    <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
+                    <span class="text-sm font-medium text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
+                    <span class="text-[9px] text-slate-500 font-normal uppercase tracking-widest leading-none">Medical Services Portal</span>
                 </div>
             </div>
 
             <!-- Navbar Links -->
-            <nav class="hidden md:flex items-center gap-8 text-xs font-bold text-slate-650">
+            <nav class="hidden md:flex items-center gap-8 text-xs font-normal text-slate-650">
                 <a href="/" class="hover:text-nigGreen-600 transition">Home</a>
                 <a href="/about" class="hover:text-nigGreen-600 transition">About Us</a>
                 <a href="/services" class="text-nigGreen-600 hover:text-nigGreen-700 transition">Clinical Services</a>
             </nav>
             
             <div class="flex items-center gap-3">
-                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
+                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-normal transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
                     <i data-lucide="lock" class="w-4 h-4"></i> Access Portal
                 </a>
             </div>
@@ -48,7 +48,7 @@
     <main class="flex-grow py-10 space-y-12">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <!-- Breadcrumbs -->
-            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+            <div class="text-[10px] text-slate-400 font-normal uppercase tracking-wider mb-2 flex items-center gap-1">
                 <a href="/" class="hover:text-nigGreen-600">Home</a>
                 <span>/</span>
                 <span class="text-slate-500">Clinical Services</span>
@@ -59,9 +59,9 @@
                 <div class="space-y-4">
                     <div class="flex items-center gap-2">
                         <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
-                        <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Healthcare capabilities</span>
+                        <span class="text-[9px] font-normal text-nigGreen-600 uppercase tracking-widest">Healthcare capabilities</span>
                     </div>
-                    <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    <h1 class="text-2xl lg:text-3xl font-semibold text-slate-900 tracking-tight leading-tight">
                         NIS Healthcare & Medical Facilities
                     </h1>
                     <p class="text-xs text-slate-655 leading-relaxed font-sans">
@@ -75,7 +75,7 @@
                         <div class="p-2.5 bg-nigGreen-100 text-nigGreen-600 rounded-xl w-max">
                             <i data-lucide="activity" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">General Outpatient GOPD</h3>
+                        <h3 class="text-sm font-normal text-slate-900">General Outpatient GOPD</h3>
                         <p class="text-xs text-slate-500 leading-relaxed font-sans">
                             Consultations, vital signs triage records, primary health check-ups, and routine clinic referrals for officers and civil patient services.
                         </p>
@@ -86,7 +86,7 @@
                         <div class="p-2.5 bg-nigGreen-100 text-nigGreen-600 rounded-xl w-max">
                             <i data-lucide="test-tube" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">Pathological Laboratories</h3>
+                        <h3 class="text-sm font-normal text-slate-900">Pathological Laboratories</h3>
                         <p class="text-xs text-slate-500 leading-relaxed font-sans">
                             Fully equipped diagnostics department for running hematology, biochemistry, microbiology, and sample testing with director reviews.
                         </p>
@@ -97,7 +97,7 @@
                         <div class="p-2.5 bg-nigGreen-100 text-nigGreen-600 rounded-xl w-max">
                             <i data-lucide="pill" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">Pharmaceutical Dispensary</h3>
+                        <h3 class="text-sm font-normal text-slate-900">Pharmaceutical Dispensary</h3>
                         <p class="text-xs text-slate-500 leading-relaxed font-sans">
                             Stock inventory audits, medicine cost pricing, and strict invoice verification to dispense drugs securely to verified receipt holders.
                         </p>
@@ -108,7 +108,7 @@
                         <div class="p-2.5 bg-nigGreen-100 text-nigGreen-600 rounded-xl w-max">
                             <i data-lucide="shield-alert" class="w-5 h-5"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">Emergency & Ambulance Command</h3>
+                        <h3 class="text-sm font-normal text-slate-900">Emergency & Ambulance Command</h3>
                         <p class="text-xs text-slate-500 leading-relaxed font-sans">
                             24/7 border patrol emergency responders, ambulance units management, and rapid evacuation clinic support channels.
                         </p>
@@ -126,7 +126,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
                         <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
-                        <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
+                        <span class="font-medium text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Managing federal healthcare parameters, roster queues, diagnostic approvals, and inventory costing audits for the Nigeria Immigration Service officers and civil service.
@@ -135,8 +135,8 @@
 
                 <!-- Column 2: Quick Links -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
-                    <ul class="space-y-2 text-[10px] text-slate-500 font-semibold font-sans">
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
+                    <ul class="space-y-2 text-[10px] text-slate-500 font-light font-sans">
                         <li><a href="/" class="hover:text-nigGreen-600">Home Directory</a></li>
                         <li><a href="/about" class="hover:text-nigGreen-600">Command Profile</a></li>
                         <li><a href="/services" class="hover:text-nigGreen-600">Healthcare Services</a></li>
@@ -146,7 +146,7 @@
 
                 <!-- Column 3: Contact Info -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
                     <ul class="space-y-2 text-[10px] text-slate-500 font-sans">
                         <li>NIS HQ, Sauka, Airport Road, Abuja.</li>
                         <li>Phone: +234 (0) 9-234-5678</li>
@@ -156,11 +156,11 @@
 
                 <!-- Column 4: Regulatory Warning -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Please review and agree to our processing policies to schedule outpatient consultations.
                     </p>
-                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-bold underline flex items-center gap-1">
+                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-normal underline flex items-center gap-1">
                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read & Agree to Policy
                     </button>
                 </div>
@@ -178,7 +178,7 @@
         <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative my-8 flex flex-col max-h-[85vh]">
             <div class="flex items-center gap-2 mb-4 text-nigGreen-600">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
-                <h3 class="text-base font-bold text-slate-900">Data Consent & Processing Policy</h3>
+                <h3 class="text-base font-normal text-slate-900">Data Consent & Processing Policy</h3>
             </div>
             
             <div class="overflow-y-auto pr-2 text-xs text-slate-650 space-y-4 leading-relaxed font-sans flex-grow">
@@ -196,7 +196,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-100">
-                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
+                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-normal transition shadow-md shadow-nigGreen-600/10">
                     Agree & Proceed
                 </button>
             </div>

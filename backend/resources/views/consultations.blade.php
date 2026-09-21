@@ -66,7 +66,31 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <!-- Left Column: SOAP Encounter Form (Direct Form Grid Item) -->
         <form id="encounter-form" onsubmit="handleConsultSubmit(event)" class="lg:col-span-2 space-y-6 hidden">
-        
+
+        <!-- Comprehensive Clinical History (past illnesses, diagnoses, results) -->
+        <div id="clinical-history-panel" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
+                        <i data-lucide="history" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-850 dark:text-white">Comprehensive Clinical History</h3>
+                        <p class="text-[9px] text-slate-500">Past illnesses, diagnoses, admissions &amp; investigations</p>
+                    </div>
+                </div>
+                <span class="text-[9px] bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 font-bold px-2.5 py-1 rounded-xl" id="history-count">0 events</span>
+            </div>
+
+            <!-- Key clinical markers (allergies, blood group, genotype) -->
+            <div id="history-markers" class="flex flex-wrap gap-2"></div>
+
+            <!-- History timeline -->
+            <div id="clinical-history-container" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <div class="text-center py-6 text-slate-400 text-[10px]">Select a patient file to view history.</div>
+            </div>
+        </div>
+
         <!-- Completed Diagnostics Display Panel -->
         <div id="diagnostics-display-panel" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
@@ -233,7 +257,7 @@
           </div>
           <div>
                <h3 class="text-xs font-bold text-slate-850 dark:text-white">Clinical AI Advisor</h3>
-               <p class="text-[9px] text-slate-500">Real-time medical CDSS & dosage support</p>
+               <p class="text-[9px] text-slate-500">Worldwide CDSS · real-time, evidence-based</p>
           </div>
      </div>
 
@@ -241,10 +265,11 @@
      <div class="space-y-1.5">
           <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Quick Queries</span>
           <div class="flex flex-wrap gap-1.5">
-               <button type="button" onclick="askAi('Pediatric Paracetamol dosage guide')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Pediatric Dosage</button>
+               <button type="button" onclick="askAi('Give a differential diagnosis and workup for fever with jaundice in a returning traveller')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Differential Dx</button>
                <button type="button" onclick="askAi('Check NSAID and ACE Inhibitor drug interactions')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Drug Interactions</button>
-               <button type="button" onclick="askAi('ICD-10 coding cheat sheet')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">ICD-10 Finder</button>
-               <button type="button" onclick="askAi('WHO malaria treatment protocol')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Malaria Protocol</button>
+               <button type="button" onclick="askAi('Pediatric Paracetamol weight-based dosage guide')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Pediatric Dosage</button>
+               <button type="button" onclick="askAi('What are the latest WHO treatment guidelines for this condition, with sources?')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">Latest Guidelines</button>
+               <button type="button" onclick="askAi('ICD-10 coding cheat sheet for common outpatient diagnoses')" class="px-2 py-1 bg-slate-50 dark:bg-slate-950 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-600 dark:text-slate-400 hover:text-emerald-600 border border-slate-200 dark:border-slate-805 hover:border-emerald-500/20 rounded-lg text-[9px] transition font-medium">ICD-10 Finder</button>
           </div>
      </div>
 
@@ -255,7 +280,7 @@
                     <i data-lucide="bot" class="w-3.5 h-3.5"></i>
                </div>
                <p class="text-slate-600 dark:text-slate-350 leading-relaxed">
-                    Hello. I am your Clinical AI Advisor. Ask me about drug dosages, clinical interactions, diagnostic findings, or ICD-10 codes.
+                    Hello. I am your Clinical AI Advisor — I can help with any illness worldwide: diagnosis &amp; differentials, investigations, treatment protocols, drug dosing &amp; interactions, and coding. When connected, I search current guidelines in real time and cite the sources.
                </p>
           </div>
      </div>
@@ -372,6 +397,68 @@
         }
     }
 
+    // Render the patient's key markers and clinical history timeline.
+    function renderClinicalHistory(patient, timeline) {
+        const markersEl = document.getElementById('history-markers');
+        const histEl = document.getElementById('clinical-history-container');
+        const countEl = document.getElementById('history-count');
+        if (!markersEl || !histEl) return;
+
+        const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        const chip = (label, value, tone) => {
+            const tones = {
+                red: 'bg-red-500/10 text-red-600 border-red-500/20',
+                slate: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700',
+                emerald: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+            };
+            return `<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border ${tones[tone]||tones.slate}">
+                <span class="opacity-60 uppercase text-[8px] tracking-wider">${label}</span> ${esc(value)}</span>`;
+        };
+
+        // Key markers — allergies flagged in red (critical for prescribing).
+        const markers = [];
+        const allergies = (patient.allergies && String(patient.allergies).trim() && patient.allergies !== 'None') ? patient.allergies : null;
+        markers.push(chip('Allergies', allergies || 'None recorded', allergies ? 'red' : 'slate'));
+        if (patient.blood_group) markers.push(chip('Blood', patient.blood_group, 'emerald'));
+        if (patient.genotype) markers.push(chip('Genotype', patient.genotype, 'emerald'));
+        if (patient.disability && patient.disability !== 'None') markers.push(chip('Disability', patient.disability, 'slate'));
+        if (patient.is_nhis) markers.push(chip('NHIS', patient.nhis_number || 'Covered', 'emerald'));
+        markersEl.innerHTML = markers.join('');
+
+        // Clinical timeline — past illnesses/diagnoses, admissions, results.
+        const clinicalTypes = ['consultation', 'admission', 'lab_result', 'radiology_result'];
+        const events = (timeline || []).filter(e => clinicalTypes.includes(e.type));
+        countEl.innerText = `${events.length} event${events.length === 1 ? '' : 's'}`;
+
+        if (events.length === 0) {
+            histEl.innerHTML = `<div class="text-center py-6 text-slate-400 text-[10px]">No prior clinical history recorded for this patient.</div>`;
+            return;
+        }
+
+        const meta = {
+            consultation:     { icon: 'stethoscope',     color: 'text-emerald-650 bg-emerald-500/10 border-emerald-500/20' },
+            admission:        { icon: 'bed',             color: 'text-rose-600 bg-rose-500/10 border-rose-500/20' },
+            lab_result:       { icon: 'flask-conical',   color: 'text-indigo-600 bg-indigo-500/10 border-indigo-500/20' },
+            radiology_result: { icon: 'scan',            color: 'text-purple-600 bg-purple-500/10 border-purple-500/20' },
+        };
+
+        histEl.innerHTML = events.map(e => {
+            const m = meta[e.type] || { icon: 'clock', color: 'text-slate-500 bg-slate-100 border-slate-200' };
+            return `
+                <div class="flex gap-3 items-start text-xs p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-950/20">
+                    <div class="p-1.5 rounded-full ${m.color} border shrink-0 mt-0.5"><i data-lucide="${m.icon}" class="w-3.5 h-3.5"></i></div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h5 class="font-bold text-slate-850 dark:text-white text-[11px]">${esc(e.title)}</h5>
+                            <span class="text-[8.5px] text-slate-400 font-mono shrink-0">${esc(e.date)}</span>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 text-[10.5px] mt-0.5 break-words">${esc(e.description)}</p>
+                    </div>
+                </div>`;
+        }).join('');
+        if (window.lucide) lucide.createIcons();
+    }
+
     async function loadPatientDiagnostics(patientId) {
         const container = document.getElementById('diagnostics-list-container');
         const countBadge = document.getElementById('diag-count');
@@ -379,6 +466,9 @@
         try {
             const res = await api.get(`/patients/${patientId}`);
             const list = res.diagnostics || [];
+
+            // Render the full clinical history (markers + timeline) too.
+            renderClinicalHistory(res.patient || {}, res.timeline || []);
 
             countBadge.innerText = `${list.length} Approved Report${list.length === 1 ? '' : 's'}`;
 
@@ -527,10 +617,32 @@
     }
 
     // Form submit
+    async function runDrugSafetyCheck(patientId) {
+        if (!prescribedDrugs.length || !patientId) return true;
+        try {
+            const res = await api.post('/clinical/drug-safety-check', {
+                patient_id: patientId,
+                drugs: prescribedDrugs.map(d => d.drug_name),
+            });
+            if (!res.has_alerts) return true;
+            const lines = [];
+            (res.allergy_alerts || []).forEach(a => lines.push('⚠ ALLERGY: ' + a.message));
+            (res.interaction_alerts || []).forEach(i => lines.push('⚠ INTERACTION (' + i.severity + '): ' + i.message));
+            return confirm('DRUG SAFETY ALERTS\n\n' + lines.join('\n\n') + '\n\nProceed with prescription anyway?');
+        } catch (e) {
+            return true; // never block on a check failure
+        }
+    }
+
     async function handleConsultSubmit(e) {
         e.preventDefault();
         const visitId = document.getElementById('visit-selector').value;
         if (!visitId) return;
+
+        // Advisory drug-safety check before saving the prescription.
+        const visit = activeVisits.find(v => v.id === parseInt(visitId));
+        const proceed = await runDrugSafetyCheck(visit?.patient_id);
+        if (!proceed) return;
 
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.disabled = true;
@@ -573,6 +685,8 @@
     }
 
     // Clinical AI Advisor chat logic
+    let aiHistory = []; // [{role:'user'|'assistant', content}] — multi-turn memory
+
     async function askAi(queryText) {
         document.getElementById('ai-query-input').value = queryText;
         handleAiSubmit(new Event('submit'));
@@ -592,7 +706,7 @@
         // Append User Message
         chatLog.innerHTML += `
             <div class="flex gap-2 items-start text-[11px] justify-end">
-                <div class="bg-emerald-605 text-white p-2.5 rounded-2xl max-w-[85%] shadow-sm">
+                <div class="bg-emerald-600 text-white p-2.5 rounded-2xl max-w-[85%] shadow-sm">
                     <p class="leading-relaxed font-semibold">${htmlEntities(query)}</p>
                 </div>
             </div>
@@ -617,8 +731,13 @@
         lucide.createIcons();
 
         try {
-            const res = await api.post('/clinical/ai-chat', { message: query });
-            
+            const res = await api.post('/clinical/ai-chat', { message: query, history: aiHistory.slice(-10) });
+
+            // Remember the exchange for follow-up questions (multi-turn context).
+            aiHistory.push({ role: 'user', content: query });
+            aiHistory.push({ role: 'assistant', content: String(res.reply || '').slice(0, 8000) });
+            if (aiHistory.length > 20) aiHistory = aiHistory.slice(-20);
+
             // Remove Loader
             const loader = document.getElementById(loaderId);
             if (loader) loader.remove();
@@ -661,6 +780,8 @@
 
     function formatMarkdown(text) {
         let html = text;
+        // Markdown links [text](url) — used for cited sources.
+        html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-emerald-600 dark:text-emerald-400 underline break-all">$1</a>');
         // Replace Headings
         html = html.replace(/### (.*?)\n/g, '<h4 class="text-xs font-black text-emerald-650 dark:text-emerald-500 uppercase mt-2.5 mb-1.5">$1</h4>');
         // Replace bold

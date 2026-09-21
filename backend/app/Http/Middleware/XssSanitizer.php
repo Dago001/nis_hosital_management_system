@@ -57,6 +57,11 @@ class XssSanitizer
      */
     protected function clean(string $value): string
     {
+        // Strip null bytes and non-printable control characters (except tab,
+        // newline and carriage return). These are used to smuggle payloads past
+        // naive filters and to corrupt file paths / log lines.
+        $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $value) ?? str_replace("\0", '', $value);
+
         // Remove complete <script>/<style> blocks including their contents.
         $value = preg_replace('#<(script|style|iframe|object|embed)\b[^>]*>.*?</\1>#is', '', $value) ?? $value;
 

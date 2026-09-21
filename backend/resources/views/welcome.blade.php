@@ -12,6 +12,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Locally bundled Tailwind CSS + Lucide icons -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Landing-page motion & polish (progressive; disabled for reduced-motion) -->
+    <style>
+        @media (prefers-reduced-motion: no-preference) {
+            [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1);transition-delay:var(--d,0s);will-change:opacity,transform}
+            [data-reveal].in{opacity:1;transform:none}
+            [data-reveal="zoom"]{transform:scale(.96)}
+            [data-reveal="left"]{transform:translateX(-30px)}
+            [data-reveal="right"]{transform:translateX(30px)}
+
+            @keyframes nis-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+            @keyframes nis-aurora{0%{transform:translate(0,0) scale(1)}33%{transform:translate(6%,-4%) scale(1.15)}66%{transform:translate(-5%,5%) scale(.95)}100%{transform:translate(0,0) scale(1)}}
+            @keyframes nis-shimmer{0%{background-position:-150% 0}100%{background-position:250% 0}}
+            @keyframes nis-fade-down{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+
+            .nis-float{animation:nis-float 6s ease-in-out infinite}
+            .nis-header-in{animation:nis-fade-down .6s ease both}
+            .nis-hero-title{background:linear-gradient(100deg,#0f172a 0%,#0f172a 40%,#059669 55%,#0f172a 70%,#0f172a 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:nis-shimmer 6s linear infinite}
+            .nis-cta{position:relative;overflow:hidden}
+            .nis-cta::after{content:"";position:absolute;top:0;left:0;height:100%;width:60%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:nis-shimmer 3.2s ease-in-out infinite}
+            .nis-aurora{position:absolute;border-radius:9999px;filter:blur(60px);opacity:.5;animation:nis-aurora 16s ease-in-out infinite;pointer-events:none}
+            .nis-lift{transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s ease}
+            .nis-lift:hover{transform:translateY(-6px)}
+        }
+        /* Decorative aurora colors (kept subtle) */
+        .nis-aurora.a1{background:#34d399}
+        .nis-aurora.a2{background:#0ea5e9}
+        .nis-aurora.a3{background:#a7f3d0}
+    </style>
 </head>
 <body class="bg-[#f4f7f5] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-nigGreen-600 selection:text-white font-sans">
 @if(\App\Models\Setting::getVal('maintenance_mode', '0') === '1')
@@ -33,8 +62,8 @@
                 </div>
 
                 <div class="space-y-2">
-                    <span class="text-[9px] font-black text-emerald-600 tracking-widest uppercase">Nigeria Immigration Service</span>
-                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight font-sans">System Under Maintenance</h1>
+                    <span class="text-[9px] font-semibold text-emerald-600 tracking-widest uppercase">Nigeria Immigration Service</span>
+                    <h1 class="text-xl font-medium text-slate-900 tracking-tight font-sans">System Under Maintenance</h1>
                     <p class="text-xs text-slate-650 font-sans leading-relaxed">
                         The NIS Medical Services Portal (NIS-MSP) is currently undergoing scheduled system optimization, database migrations, and security updates. 
                     </p>
@@ -60,7 +89,7 @@
 
                 <!-- CTA Staff portal access -->
                 <div class="pt-2">
-                    <a href="/login" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/10 cursor-pointer">
+                    <a href="/login" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-normal transition-all shadow-lg shadow-emerald-600/10 cursor-pointer">
                         <i data-lucide="lock" class="w-4 h-4"></i> Access Staff Portal
                     </a>
                 </div>
@@ -77,18 +106,18 @@
     <div class="h-2 w-full bg-gradient-to-r from-nigGreen-600 via-white to-nigGreen-600"></div>
 
     <!-- Official Header -->
-    <header class="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
+    <header class="nis-header-in w-full bg-white/90 backdrop-blur border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
-                    <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
-                    <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
+                    <span class="text-sm font-medium text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
+                    <span class="text-[9px] text-slate-500 font-normal uppercase tracking-widest leading-none">Medical Services Portal</span>
                 </div>
             </div>
 
             <!-- Navbar Links -->
-            <nav class="hidden md:flex items-center gap-8 text-xs font-bold text-slate-600">
+            <nav class="hidden md:flex items-center gap-8 text-xs font-normal text-slate-600">
                 <a href="/" class="text-nigGreen-600 hover:text-nigGreen-700 transition">Home</a>
                 <a href="/about" class="hover:text-nigGreen-600 transition">About Us</a>
                 <a href="/services" class="hover:text-nigGreen-600 transition">Clinical Services</a>
@@ -96,7 +125,7 @@
             
             <div class="flex items-center gap-3">
                 <!-- Portal Dashboard/Login Button -->
-                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
+                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-normal transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
                     <i data-lucide="lock" class="w-4 h-4"></i> Access Portal
                 </a>
             </div>
@@ -106,15 +135,20 @@
     <!-- Main Content -->
     <main class="flex-grow py-10 space-y-12">
         <!-- Hero section card -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl overflow-hidden flex flex-col lg:flex-row">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <!-- Decorative animated aurora backdrop -->
+            <div class="nis-aurora a1 -z-0" style="width:22rem;height:22rem;top:-4rem;left:-3rem"></div>
+            <div class="nis-aurora a2 -z-0" style="width:18rem;height:18rem;bottom:-5rem;right:-2rem;animation-delay:-6s"></div>
+            <div class="nis-aurora a3 -z-0" style="width:14rem;height:14rem;top:4rem;right:30%;animation-delay:-3s"></div>
+
+            <div data-reveal="zoom" class="relative z-10 bg-white/95 backdrop-blur border border-slate-200 shadow-xl rounded-3xl overflow-hidden flex flex-col lg:flex-row nis-lift">
                 <!-- Left building image -->
-                <div class="w-full lg:w-5/12 bg-slate-900 relative min-h-[300px] lg:min-h-full">
-                    <img src="/images/nis_building.jpg" alt="Nigeria Immigration Service Facility" class="absolute inset-0 w-full h-full object-cover opacity-90">
+                <div class="w-full lg:w-5/12 bg-slate-900 relative min-h-[300px] lg:min-h-full overflow-hidden group">
+                    <img src="/images/nis_building.jpg" alt="Nigeria Immigration Service Facility" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[6000ms] ease-out group-hover:scale-110">
                     <div class="absolute inset-0 bg-gradient-to-t from-nigGreen-900/90 via-transparent to-black/30"></div>
                     <div class="absolute bottom-6 left-6 right-6 text-white text-left">
-                        <span class="text-[9px] font-bold text-emerald-450 uppercase tracking-widest block mb-0.5">Abuja HQ</span>
-                        <h3 class="text-base font-extrabold">NIS Medical Services Headquarters</h3>
+                        <span class="text-[9px] font-normal text-emerald-450 uppercase tracking-widest block mb-0.5">Abuja HQ</span>
+                        <h3 class="text-base font-medium">NIS Medical Services Headquarters</h3>
                         <p class="text-[10px] text-slate-300 mt-1 font-sans">Federal Secretariat Complex, Abuja, FCT.</p>
                     </div>
                 </div>
@@ -122,46 +156,40 @@
                 <!-- Right Welcome text -->
                 <div class="w-full lg:w-7/12 p-8 lg:p-12 space-y-6 flex flex-col justify-center bg-white">
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2">
+                        <div data-reveal class="flex items-center gap-2" style="--d:.1s">
                             <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
-                            <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
+                            <span class="text-[9px] font-normal text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
                         </div>
-                        
-                        <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight font-sans">
+
+                        <h1 data-reveal style="--d:.2s" class="nis-hero-title text-2xl lg:text-3xl font-semibold tracking-tight leading-tight font-sans">
                             NIS Medical Services Portal (NIS-MSP)
                         </h1>
-                        
-                        <p class="text-xs text-slate-600 leading-relaxed font-sans">
-                            This secure portal coordinates all clinical operations for Nigeria Immigration Service medical facilities. Authorized personnel can access triage logs, physician SOAP consultations, pathology worklists, pharmacy costing files, and cashier checkout invoicing.
+
+                        <p data-reveal style="--d:.3s" class="text-xs text-slate-600 leading-relaxed font-sans">
+                            A secure hospital management platform built for Nigeria Immigration Service medical facilities. It connects patient care, clinical records, laboratory services, pharmacy, billing, payments, and hospital administration in one centralized system, giving authorized personnel the tools to manage healthcare operations from patient registration to treatment and discharge.
                         </p>
                     </div>
 
-                    <!-- CTA -->
-                    <div class="flex">
-                        <a href="/login" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-extrabold transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/10">
-                            Launch Systems Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Trust / Statistics Band -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-reveal-group class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach([
                     ['icon'=>'users','value'=>'50,000+','label'=>'Patients Served'],
                     ['icon'=>'stethoscope','value'=>'120+','label'=>'Medical Officers'],
                     ['icon'=>'building-2','value'=>'12','label'=>'Clinical Departments'],
                     ['icon'=>'clock','value'=>'24/7','label'=>'Emergency Response'],
                 ] as $stat)
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div data-reveal="zoom" class="nis-lift bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-nigGreen-200">
                         <div class="p-3 rounded-xl bg-nigGreen-50 text-nigGreen-600 shrink-0">
                             <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none">{{ $stat['value'] }}</div>
-                            <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
+                            <div class="text-lg sm:text-xl font-semibold text-slate-900 leading-none" data-count="{{ $stat['value'] }}">{{ $stat['value'] }}</div>
+                            <div class="text-[10px] text-slate-500 font-light uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -170,16 +198,16 @@
 
         <!-- Clinical Services Highlights -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-8">
+            <div data-reveal class="text-center max-w-2xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-2">
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
-                    <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
+                    <span class="text-[9px] font-normal text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
                 </div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
+                <h2 class="text-2xl font-semibold text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
                 <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey · from registration and triage to diagnostics, pharmacy and billing.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div data-reveal-group class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach([
                     ['icon'=>'user-plus','title'=>'Patient Registration','desc'=>'Fast, secure enrolment of officers, dependants and civilians with unique hospital codes and biometric markers.'],
                     ['icon'=>'activity','title'=>'Nursing Triage & Vitals','desc'=>'Structured vital-sign capture and priority triage routing directly into the physician consultation queue.'],
@@ -188,11 +216,11 @@
                     ['icon'=>'pill','title'=>'Pharmacy & Dispensary','desc'=>'Prescription costing, dispensing and real-time drug inventory with reorder-level alerts.'],
                     ['icon'=>'credit-card','title'=>'Billing & Cashiering','desc'=>'Automated invoicing, NHIS discounting and multi-channel payment collection with receipts.'],
                 ] as $svc)
-                    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-nigGreen-200 transition-all group">
-                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 group-hover:bg-nigGreen-600 group-hover:text-white transition-colors">
+                    <div data-reveal class="nis-lift bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-nigGreen-200 transition-all group">
+                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 transition-all duration-300 group-hover:bg-nigGreen-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-6">
                             <i data-lucide="{{ $svc['icon'] }}" class="w-6 h-6"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
+                        <h3 class="text-sm font-normal text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
                         <p class="text-xs text-slate-600 leading-relaxed">{{ $svc['desc'] }}</p>
                     </div>
                 @endforeach
@@ -201,9 +229,9 @@
 
         <!-- Appointment Booking Form Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
+            <div data-reveal class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
                 <div class="space-y-2">
-                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <h2 class="text-xl font-normal text-slate-900 flex items-center gap-2">
                         <i data-lucide="calendar" class="text-nigGreen-600"></i> Book an Outpatient Appointment
                     </h2>
                     <p class="text-xs text-slate-500 leading-relaxed font-sans">
@@ -213,55 +241,55 @@
                 
                 <form id="appointment-booking-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">First Name</label>
-                        <input type="text" id="apt-first-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">First Name</label>
+                        <input type="text" id="apt-first-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">Last Name</label>
-                        <input type="text" id="apt-last-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">Last Name</label>
+                        <input type="text" id="apt-last-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">Email Address</label>
-                        <input type="email" id="apt-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="apt-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Phone Number</label>
-                        <input type="tel" id="apt-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Phone Number</label>
+                        <input type="tel" id="apt-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Preferred Date</label>
-                        <input type="date" id="apt-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Preferred Date</label>
+                        <input type="date" id="apt-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Preferred Time</label>
-                        <input type="time" id="apt-time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Preferred Time</label>
+                        <input type="time" id="apt-time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Hospital Code (If registered)</label>
-                        <input type="text" id="apt-service-number" placeholder="NIS/PAT/XXXXXX" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Hospital Code (If registered)</label>
+                        <input type="text" id="apt-service-number" placeholder="NIS/PAT/XXXXXX" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
-                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
+                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
                     </div>
                     <div class="md:col-span-3 flex justify-end">
-                        <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
+                        <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-normal transition shadow-md shadow-nigGreen-600/10">
                             Submit Appointment Request
                         </button>
                     </div>
                 </form>
 
                 <!-- Success/Error Notification -->
-                <div id="booking-alert" class="hidden p-4 rounded-xl text-xs font-bold font-sans"></div>
+                <div id="booking-alert" class="hidden p-4 rounded-xl text-xs font-normal font-sans"></div>
             </div>
         </div>
 
         <!-- Location Real Time Map & Contact Info Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Info Panel -->
-            <div class="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-between">
+            <div data-reveal="left" class="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-between">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <h3 class="text-lg font-normal text-slate-900 mb-2 flex items-center gap-2">
                         <i data-lucide="map-pin" class="text-nigGreen-600"></i> Hospital Physical Location
                     </h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-sans">
@@ -274,25 +302,25 @@
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="map-pin" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">NIS Headquarters, Sauka, Airport Road, Abuja, Nigeria.</span>
+                        <span class="text-xs font-light text-slate-700">NIS Headquarters, Sauka, Airport Road, Abuja, Nigeria.</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="phone" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">+234 (0) 9-234-5678, +234 (0) 803-123-4567</span>
+                        <span class="text-xs font-light text-slate-700">+234 (0) 9-234-5678, +234 (0) 803-123-4567</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="mail" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">support@immigration.gov.ng, medical@immigration.gov.ng</span>
+                        <span class="text-xs font-light text-slate-700">support@immigration.gov.ng, medical@immigration.gov.ng</span>
                     </div>
                 </div>
             </div>
 
             <!-- Map Iframe Embed -->
-            <div class="bg-white border border-slate-200 shadow-lg rounded-3xl p-3 overflow-hidden h-[320px]">
+            <div data-reveal="right" class="bg-white border border-slate-200 shadow-lg rounded-3xl p-3 overflow-hidden h-[320px]">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3941.0562629165913!2d7.420803514785465!3d9.01284569353086!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x104e76a666e858db%3A0xe54d241ebad5ba7f!2sNigeria%20Immigration%20Service%2520Headquarters!5e0!3m2!1sen!2sng!4v1657492934241!5m2!1sen!2sng" 
                         width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-2xl"></iframe>
             </div>
@@ -302,12 +330,12 @@
     <!-- Official Government Footer -->
     <footer class="w-full bg-[#e8ebe9] border-t border-slate-200/80 pt-10 pb-8 text-xs text-slate-650">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-200">
+            <div data-reveal-group class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-200">
                 <!-- Column 1: Command Title -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
                         <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
-                        <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
+                        <span class="font-medium text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Managing federal healthcare parameters, roster queues, diagnostic approvals, and inventory costing audits for the Nigeria Immigration Service officers and civil service.
@@ -316,8 +344,8 @@
 
                 <!-- Column 2: Quick Links -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
-                    <ul class="space-y-2 text-[10px] text-slate-500 font-semibold font-sans">
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
+                    <ul class="space-y-2 text-[10px] text-slate-500 font-light font-sans">
                         <li><a href="/" class="hover:text-nigGreen-600">Home Directory</a></li>
                         <li><a href="/about" class="hover:text-nigGreen-600">Command Profile</a></li>
                         <li><a href="/services" class="hover:text-nigGreen-600">Healthcare Services</a></li>
@@ -327,7 +355,7 @@
 
                 <!-- Column 3: Contact Info -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
                     <ul class="space-y-2 text-[10px] text-slate-500 font-sans">
                         <li>NIS HQ, Sauka, Airport Road, Abuja.</li>
                         <li>Phone: +234 (0) 9-234-5678</li>
@@ -337,11 +365,11 @@
 
                 <!-- Column 4: Regulatory Warning -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Please review and agree to our processing policies to schedule outpatient consultations.
                     </p>
-                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-bold underline flex items-center gap-1">
+                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-normal underline flex items-center gap-1">
                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read & Agree to Policy
                     </button>
                 </div>
@@ -359,7 +387,7 @@
         <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative my-8 flex flex-col max-h-[85vh]">
             <div class="flex items-center gap-2 mb-4 text-nigGreen-600">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
-                <h3 class="text-base font-bold text-slate-900">Data Consent & Processing Policy</h3>
+                <h3 class="text-base font-normal text-slate-900">Data Consent & Processing Policy</h3>
             </div>
             
             <div class="overflow-y-auto pr-2 text-xs text-slate-650 space-y-4 leading-relaxed font-sans flex-grow">
@@ -377,7 +405,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-100">
-                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
+                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-normal transition shadow-md shadow-nigGreen-600/10">
                     Agree & Proceed
                 </button>
             </div>
@@ -422,7 +450,7 @@
                 pendingSubmit = true;
                 openConsentModal();
                 const alert = document.getElementById('booking-alert');
-                alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-amber-50 text-amber-700';
+                alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-amber-50 text-amber-700';
                 alert.innerText = 'Please read and agree to our Data Consent Policy to complete your appointment request.';
                 alert.classList.remove('hidden');
                 return;
@@ -433,7 +461,7 @@
 
         async function submitAppointmentRequest() {
             const alert = document.getElementById('booking-alert');
-            alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-nigGreen-50 text-nigGreen-600';
+            alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-nigGreen-50 text-nigGreen-600';
             alert.innerText = 'Submitting appointment request...';
             alert.classList.remove('hidden');
 
@@ -459,15 +487,15 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-emerald-100 text-emerald-800';
+                    alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-emerald-100 text-emerald-800';
                     alert.innerText = data.message;
                     document.getElementById('appointment-booking-form').reset();
                 } else {
-                    alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-red-100 text-red-800';
+                    alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-red-100 text-red-800';
                     alert.innerText = data.message || 'Verification failed. Please check inputs.';
                 }
             } catch (error) {
-                alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-red-100 text-red-800';
+                alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-red-100 text-red-800';
                 alert.innerText = 'Error connecting to servers.';
             }
         }
@@ -477,7 +505,6 @@
             lucide.createIcons();
         });
     </script>
-    <script src="/assets/support-chat.js"></script>
 
     <!-- ═══════════ MediBot: AI Assistant (bottom-left) ═══════════ -->
     <div id="medibot" class="fixed bottom-6 left-6 z-[9998] font-sans">
@@ -487,7 +514,7 @@
             <span class="relative flex h-6 w-6 items-center justify-center">
                 <i data-lucide="bot" class="w-5 h-5"></i>
             </span>
-            <span class="text-xs font-bold">Ask MediBot</span>
+            <span class="text-xs font-normal">Ask MediBot</span>
         </button>
 
         <!-- Chat panel -->
@@ -498,7 +525,7 @@
                     <i data-lucide="bot" class="w-5 h-5"></i>
                 </div>
                 <div class="flex-grow">
-                    <p class="text-sm font-bold leading-tight">MediBot Assistant</p>
+                    <p class="text-sm font-normal leading-tight">MediBot Assistant</p>
                     <p class="text-[10px] text-emerald-100 flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Online · answers &amp; bookings
                     </p>
@@ -509,9 +536,9 @@
             <div id="medibot-messages" class="flex-grow overflow-y-auto p-4 space-y-3 bg-slate-50 text-xs"></div>
             <!-- Quick chips -->
             <div id="medibot-chips" class="px-3 pt-2 flex flex-wrap gap-1.5 shrink-0 bg-white border-t border-slate-100">
-                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-semibold bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
-                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
-                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
+                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-light bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
+                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-light bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
+                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-light bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
             </div>
             <!-- Input -->
             <form onsubmit="mediBotSubmit(event)" class="p-3 flex items-center gap-2 shrink-0 bg-white border-t border-slate-100">
@@ -600,5 +627,67 @@
         }
     </script>
 @endif
+
+    <!-- Landing-page scroll-reveal, staggered cards & animated stat counters -->
+    <script>
+        (function () {
+            const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Give each child of a reveal-group a staggered reveal.
+            document.querySelectorAll('[data-reveal-group]').forEach(group => {
+                Array.from(group.children).forEach((child, i) => {
+                    if (!child.hasAttribute('data-reveal')) child.setAttribute('data-reveal', '');
+                    child.style.setProperty('--d', (i * 0.09) + 's');
+                });
+            });
+
+            if (reduce || !('IntersectionObserver' in window)) {
+                // No motion: just show everything.
+                document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('in'));
+                runCounters(true);
+                return;
+            }
+
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('in');
+                        if (e.target.querySelector && e.target.querySelector('[data-count]')) {
+                            e.target.querySelectorAll('[data-count]').forEach(animateCount);
+                        }
+                        if (e.target.hasAttribute('data-count')) animateCount(e.target);
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+            document.querySelectorAll('[data-count]').forEach(el => io.observe(el));
+
+            function runCounters(immediate) {
+                document.querySelectorAll('[data-count]').forEach(el => immediate ? (el.textContent = el.getAttribute('data-count')) : animateCount(el));
+            }
+
+            // Count up numeric portion of a stat value, preserving prefix/suffix (e.g. "50,000+", "24/7").
+            function animateCount(el) {
+                if (el.__counted) return; el.__counted = true;
+                const raw = el.getAttribute('data-count') || el.textContent;
+                const m = raw.match(/^(\D*)([\d,]+)(.*)$/);
+                if (!m) { el.textContent = raw; return; }
+                const prefix = m[1], suffix = m[3];
+                const target = parseInt(m[2].replace(/,/g, ''), 10);
+                if (!isFinite(target)) { el.textContent = raw; return; }
+                const dur = 1100, start = performance.now();
+                const fmt = n => n.toLocaleString();
+                function tick(now) {
+                    const p = Math.min(1, (now - start) / dur);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = prefix + fmt(Math.round(target * eased)) + suffix;
+                    if (p < 1) requestAnimationFrame(tick); else el.textContent = raw;
+                }
+                requestAnimationFrame(tick);
+            }
+        })();
+    </script>
 </body>
 </html>
