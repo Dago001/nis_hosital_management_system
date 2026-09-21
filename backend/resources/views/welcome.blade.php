@@ -166,7 +166,7 @@
                         </h1>
 
                         <p data-reveal style="--d:.3s" class="text-xs text-slate-600 leading-relaxed font-sans">
-                            This secure portal coordinates all clinical operations for Nigeria Immigration Service medical facilities. Authorized personnel can access triage logs, physician SOAP consultations, pathology worklists, pharmacy costing files, and cashier checkout invoicing.
+                            A secure hospital management platform built for Nigeria Immigration Service medical facilities. It connects patient care, clinical records, laboratory services, pharmacy, billing, payments, and hospital administration in one centralized system, giving authorized personnel the tools to manage healthcare operations from patient registration to treatment and discharge.
                         </p>
                     </div>
 
