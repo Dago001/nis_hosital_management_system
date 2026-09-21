@@ -17,8 +17,8 @@ use App\Http\Controllers\Api\ClinicalAiController;
 use App\Http\Controllers\Api\SettingController;
 
 // Public routes
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
-Route::post('/verify-mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:10,1');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/verify-mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:login');
 Route::post('/appointments/request', [AppointmentController::class, 'requestAppointment'])->middleware('throttle:30,1');
 Route::post('/chat/session/init', [SupportChatController::class, 'initSession'])->middleware('throttle:30,1');
 Route::get('/chat/messages', [SupportChatController::class, 'getVisitorMessages']);

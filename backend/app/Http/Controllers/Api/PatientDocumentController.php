@@ -52,11 +52,27 @@ class PatientDocumentController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:150',
             'category' => 'required|in:referral,consent,id_copy,lab_report,insurance,other',
-            // 10 MB cap; common clinical document / scan formats only.
-            'file' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,webp,doc,docx',
+            // 10 MB cap; common clinical document / scan formats only. `mimes`
+            // validates the real (content-guessed) type, and `extensions` pins
+            // the client extension so a spoofed content-type cannot slip through.
+            'file' => [
+                'required', 'file', 'max:10240',
+                'mimes:pdf,jpg,jpeg,png,webp,doc,docx',
+                'extensions:pdf,jpg,jpeg,png,webp,doc,docx',
+            ],
         ]);
 
         $file = $request->file('file');
+
+        // Defence-in-depth: reject any file whose original name carries a
+        // dangerous / executable extension (including double extensions such as
+        // "report.pdf.php"), regardless of what the mime guesser reported.
+        $original = $file->getClientOriginalName();
+        if (preg_match('/\.(php\d*|phtml|phar|exe|sh|bat|cmd|com|cgi|pl|py|rb|js|jsp|asp|aspx|htaccess|html?|svg)(\.|$)/i', $original)) {
+            return response()->json(['message' => 'This file type is not permitted.'], 422);
+        }
+
+        // Hashed, non-guessable name on the private (non-public) disk.
         $path = $file->store('patient_documents/' . $patient->id, 'local');
 
         $doc = PatientDocument::create([
@@ -64,8 +80,10 @@ class PatientDocumentController extends Controller
             'title' => $validated['title'],
             'category' => $validated['category'],
             'file_path' => $path,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getClientMimeType(),
+            // Keep the display name but strip any path components and control chars.
+            'original_name' => mb_substr(preg_replace('/[\x00-\x1F\/\\\\]+/', '_', basename($original)) ?? 'document', 0, 200),
+            // Trust the server-side guessed type, not the client-supplied header.
+            'mime_type' => $file->getMimeType() ?: $file->getClientMimeType(),
             'size_bytes' => $file->getSize(),
             'uploaded_by' => Auth::id(),
         ]);

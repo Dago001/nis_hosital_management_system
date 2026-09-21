@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use App\Services\MfaService;
@@ -13,6 +14,15 @@ use App\Services\MfaService;
 class AuthController extends Controller
 {
     protected MfaService $mfaService;
+
+    /**
+     * A pre-computed bcrypt hash used to run a dummy verification when the
+     * submitted email does not exist. This keeps the response time for
+     * "unknown user" and "wrong password" roughly equal, defeating the
+     * timing side-channel that would otherwise let an attacker enumerate
+     * which email addresses are registered.
+     */
+    private const DUMMY_HASH = '$2y$12$MgcfgKUY0F.EkOScALNV9.qHmSwMAwp6M4JwMWuq.zq9I9aOO2krW';
 
     public function __construct(MfaService $mfaService)
     {
@@ -26,19 +36,38 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
+        // Progressive brute-force / credential-stuffing lockout, keyed on
+        // email + IP (see the 'login' limiter in AppServiceProvider).
+        $throttleKey = 'login:'.mb_strtolower((string) $request->input('email')).'|'.$request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            return response()->json([
+                'message' => 'Too many login attempts. Please try again in '
+                    . RateLimiter::availableIn($throttleKey) . ' seconds.',
+            ], 429);
+        }
+
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        // Always run a hash check (against a dummy hash for unknown users) so the
+        // timing profile does not reveal whether the account exists.
+        $passwordOk = Hash::check($request->password, $user?->password ?? self::DUMMY_HASH);
+
+        if (!$user || !$passwordOk) {
+            RateLimiter::hit($throttleKey, 900); // remember failures for 15 minutes
             return response()->json([
                 'message' => 'The provided credentials do not match our records.'
             ], 422);
         }
 
         if ($user->status !== 'active') {
+            RateLimiter::hit($throttleKey, 900);
             return response()->json([
                 'message' => 'Your account has been suspended. Please contact the administrator.'
             ], 403);
         }
+
+        // Successful credential check — clear the failure counter.
+        RateLimiter::clear($throttleKey);
 
         // Check if MFA is enabled.
         // NOTE: MFA is temporarily bypassed for the Cashier role while testing.
@@ -71,17 +100,27 @@ class AuthController extends Controller
             'code' => 'required|string|size:6',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+        // Lock out repeated OTP guessing (email + IP).
+        $throttleKey = 'mfa:'.mb_strtolower((string) $request->input('email')).'|'.$request->ip();
+        if (RateLimiter::tooManyAttempts($throttleKey, 6)) {
+            return response()->json([
+                'message' => 'Too many verification attempts. Please try again in '
+                    . RateLimiter::availableIn($throttleKey) . ' seconds.',
+            ], 429);
         }
 
-        if (!$this->mfaService->verifyOtp($user, $request->code)) {
+        $user = User::where('email', $request->email)->first();
+
+        // Return an identical error whether the user exists or the code is wrong
+        // so this endpoint cannot be used to enumerate accounts.
+        if (!$user || !$this->mfaService->verifyOtp($user, $request->code)) {
+            RateLimiter::hit($throttleKey, 900);
             return response()->json([
                 'message' => 'Invalid or expired MFA passcode.'
             ], 422);
         }
+
+        RateLimiter::clear($throttleKey);
 
         // Verification successful, return Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;

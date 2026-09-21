@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(\App\Http\Middleware\SafeSecurityHeaders::class);
         $middleware->append(\App\Http\Middleware\XssSanitizer::class);
+
+        // Apply the global 'api' rate limiter to every API route as a
+        // denial-of-service / abuse ceiling (see AppServiceProvider).
+        $middleware->throttleApi('api');
+
         $middleware->alias([
             'role_or_permission' => \App\Http\Middleware\CheckRoleOrPermission::class,
             'audit' => \App\Http\Middleware\LogAuditAction::class,
