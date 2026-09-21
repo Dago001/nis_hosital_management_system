@@ -12,6 +12,35 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Locally bundled Tailwind CSS + Lucide icons -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Landing-page motion & polish (progressive; disabled for reduced-motion) -->
+    <style>
+        @media (prefers-reduced-motion: no-preference) {
+            [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1);transition-delay:var(--d,0s);will-change:opacity,transform}
+            [data-reveal].in{opacity:1;transform:none}
+            [data-reveal="zoom"]{transform:scale(.96)}
+            [data-reveal="left"]{transform:translateX(-30px)}
+            [data-reveal="right"]{transform:translateX(30px)}
+
+            @keyframes nis-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+            @keyframes nis-aurora{0%{transform:translate(0,0) scale(1)}33%{transform:translate(6%,-4%) scale(1.15)}66%{transform:translate(-5%,5%) scale(.95)}100%{transform:translate(0,0) scale(1)}}
+            @keyframes nis-shimmer{0%{background-position:-150% 0}100%{background-position:250% 0}}
+            @keyframes nis-fade-down{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+
+            .nis-float{animation:nis-float 6s ease-in-out infinite}
+            .nis-header-in{animation:nis-fade-down .6s ease both}
+            .nis-hero-title{background:linear-gradient(100deg,#0f172a 0%,#0f172a 40%,#059669 55%,#0f172a 70%,#0f172a 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:nis-shimmer 6s linear infinite}
+            .nis-cta{position:relative;overflow:hidden}
+            .nis-cta::after{content:"";position:absolute;top:0;left:0;height:100%;width:60%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:nis-shimmer 3.2s ease-in-out infinite}
+            .nis-aurora{position:absolute;border-radius:9999px;filter:blur(60px);opacity:.5;animation:nis-aurora 16s ease-in-out infinite;pointer-events:none}
+            .nis-lift{transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s ease}
+            .nis-lift:hover{transform:translateY(-6px)}
+        }
+        /* Decorative aurora colors (kept subtle) */
+        .nis-aurora.a1{background:#34d399}
+        .nis-aurora.a2{background:#0ea5e9}
+        .nis-aurora.a3{background:#a7f3d0}
+    </style>
 </head>
 <body class="bg-[#f4f7f5] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-nigGreen-600 selection:text-white font-sans">
 @if(\App\Models\Setting::getVal('maintenance_mode', '0') === '1')
@@ -77,7 +106,7 @@
     <div class="h-2 w-full bg-gradient-to-r from-nigGreen-600 via-white to-nigGreen-600"></div>
 
     <!-- Official Header -->
-    <header class="w-full bg-white border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
+    <header class="nis-header-in w-full bg-white/90 backdrop-blur border-b border-slate-200/80 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
@@ -106,11 +135,16 @@
     <!-- Main Content -->
     <main class="flex-grow py-10 space-y-12">
         <!-- Hero section card -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl overflow-hidden flex flex-col lg:flex-row">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <!-- Decorative animated aurora backdrop -->
+            <div class="nis-aurora a1 -z-0" style="width:22rem;height:22rem;top:-4rem;left:-3rem"></div>
+            <div class="nis-aurora a2 -z-0" style="width:18rem;height:18rem;bottom:-5rem;right:-2rem;animation-delay:-6s"></div>
+            <div class="nis-aurora a3 -z-0" style="width:14rem;height:14rem;top:4rem;right:30%;animation-delay:-3s"></div>
+
+            <div data-reveal="zoom" class="relative z-10 bg-white/95 backdrop-blur border border-slate-200 shadow-xl rounded-3xl overflow-hidden flex flex-col lg:flex-row nis-lift">
                 <!-- Left building image -->
-                <div class="w-full lg:w-5/12 bg-slate-900 relative min-h-[300px] lg:min-h-full">
-                    <img src="/images/nis_building.jpg" alt="Nigeria Immigration Service Facility" class="absolute inset-0 w-full h-full object-cover opacity-90">
+                <div class="w-full lg:w-5/12 bg-slate-900 relative min-h-[300px] lg:min-h-full overflow-hidden group">
+                    <img src="/images/nis_building.jpg" alt="Nigeria Immigration Service Facility" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[6000ms] ease-out group-hover:scale-110">
                     <div class="absolute inset-0 bg-gradient-to-t from-nigGreen-900/90 via-transparent to-black/30"></div>
                     <div class="absolute bottom-6 left-6 right-6 text-white text-left">
                         <span class="text-[9px] font-bold text-emerald-450 uppercase tracking-widest block mb-0.5">Abuja HQ</span>
@@ -122,23 +156,23 @@
                 <!-- Right Welcome text -->
                 <div class="w-full lg:w-7/12 p-8 lg:p-12 space-y-6 flex flex-col justify-center bg-white">
                     <div class="space-y-4">
-                        <div class="flex items-center gap-2">
+                        <div data-reveal class="flex items-center gap-2" style="--d:.1s">
                             <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
                             <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
                         </div>
-                        
-                        <h1 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-tight font-sans">
+
+                        <h1 data-reveal style="--d:.2s" class="nis-hero-title text-2xl lg:text-3xl font-black tracking-tight leading-tight font-sans">
                             NIS Medical Services Portal (NIS-MSP)
                         </h1>
-                        
-                        <p class="text-xs text-slate-600 leading-relaxed font-sans">
+
+                        <p data-reveal style="--d:.3s" class="text-xs text-slate-600 leading-relaxed font-sans">
                             This secure portal coordinates all clinical operations for Nigeria Immigration Service medical facilities. Authorized personnel can access triage logs, physician SOAP consultations, pathology worklists, pharmacy costing files, and cashier checkout invoicing.
                         </p>
                     </div>
 
                     <!-- CTA -->
-                    <div class="flex">
-                        <a href="/login" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-extrabold transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/10">
+                    <div data-reveal style="--d:.4s" class="flex">
+                        <a href="/login" class="nis-cta bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-extrabold transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/20 hover:shadow-nigGreen-600/40 hover:-translate-y-0.5">
                             Launch Systems Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -148,19 +182,19 @@
 
         <!-- Trust / Statistics Band -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div data-reveal-group class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 @foreach([
                     ['icon'=>'users','value'=>'50,000+','label'=>'Patients Served'],
                     ['icon'=>'stethoscope','value'=>'120+','label'=>'Medical Officers'],
                     ['icon'=>'building-2','value'=>'12','label'=>'Clinical Departments'],
                     ['icon'=>'clock','value'=>'24/7','label'=>'Emergency Response'],
                 ] as $stat)
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div data-reveal="zoom" class="nis-lift bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm hover:shadow-lg hover:border-nigGreen-200">
                         <div class="p-3 rounded-xl bg-nigGreen-50 text-nigGreen-600 shrink-0">
                             <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none">{{ $stat['value'] }}</div>
+                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none" data-count="{{ $stat['value'] }}">{{ $stat['value'] }}</div>
                             <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
                         </div>
                     </div>
@@ -170,7 +204,7 @@
 
         <!-- Clinical Services Highlights -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-8">
+            <div data-reveal class="text-center max-w-2xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-2">
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
                     <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
@@ -179,7 +213,7 @@
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
                 <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey · from registration and triage to diagnostics, pharmacy and billing.</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div data-reveal-group class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach([
                     ['icon'=>'user-plus','title'=>'Patient Registration','desc'=>'Fast, secure enrolment of officers, dependants and civilians with unique hospital codes and biometric markers.'],
                     ['icon'=>'activity','title'=>'Nursing Triage & Vitals','desc'=>'Structured vital-sign capture and priority triage routing directly into the physician consultation queue.'],
@@ -188,8 +222,8 @@
                     ['icon'=>'pill','title'=>'Pharmacy & Dispensary','desc'=>'Prescription costing, dispensing and real-time drug inventory with reorder-level alerts.'],
                     ['icon'=>'credit-card','title'=>'Billing & Cashiering','desc'=>'Automated invoicing, NHIS discounting and multi-channel payment collection with receipts.'],
                 ] as $svc)
-                    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:border-nigGreen-200 transition-all group">
-                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 group-hover:bg-nigGreen-600 group-hover:text-white transition-colors">
+                    <div data-reveal class="nis-lift bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-nigGreen-200 transition-all group">
+                        <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 transition-all duration-300 group-hover:bg-nigGreen-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-6">
                             <i data-lucide="{{ $svc['icon'] }}" class="w-6 h-6"></i>
                         </div>
                         <h3 class="text-sm font-bold text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
@@ -201,7 +235,7 @@
 
         <!-- Appointment Booking Form Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
+            <div data-reveal class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
                 <div class="space-y-2">
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                         <i data-lucide="calendar" class="text-nigGreen-600"></i> Book an Outpatient Appointment
@@ -259,7 +293,7 @@
         <!-- Location Real Time Map & Contact Info Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Info Panel -->
-            <div class="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-between">
+            <div data-reveal="left" class="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
                         <i data-lucide="map-pin" class="text-nigGreen-600"></i> Hospital Physical Location
@@ -292,7 +326,7 @@
             </div>
 
             <!-- Map Iframe Embed -->
-            <div class="bg-white border border-slate-200 shadow-lg rounded-3xl p-3 overflow-hidden h-[320px]">
+            <div data-reveal="right" class="bg-white border border-slate-200 shadow-lg rounded-3xl p-3 overflow-hidden h-[320px]">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3941.0562629165913!2d7.420803514785465!3d9.01284569353086!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x104e76a666e858db%3A0xe54d241ebad5ba7f!2sNigeria%20Immigration%20Service%2520Headquarters!5e0!3m2!1sen!2sng!4v1657492934241!5m2!1sen!2sng" 
                         width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-2xl"></iframe>
             </div>
@@ -302,7 +336,7 @@
     <!-- Official Government Footer -->
     <footer class="w-full bg-[#e8ebe9] border-t border-slate-200/80 pt-10 pb-8 text-xs text-slate-650">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-200">
+            <div data-reveal-group class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 pb-8 border-b border-slate-200">
                 <!-- Column 1: Command Title -->
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
@@ -599,5 +633,67 @@
         }
     </script>
 @endif
+
+    <!-- Landing-page scroll-reveal, staggered cards & animated stat counters -->
+    <script>
+        (function () {
+            const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Give each child of a reveal-group a staggered reveal.
+            document.querySelectorAll('[data-reveal-group]').forEach(group => {
+                Array.from(group.children).forEach((child, i) => {
+                    if (!child.hasAttribute('data-reveal')) child.setAttribute('data-reveal', '');
+                    child.style.setProperty('--d', (i * 0.09) + 's');
+                });
+            });
+
+            if (reduce || !('IntersectionObserver' in window)) {
+                // No motion: just show everything.
+                document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('in'));
+                runCounters(true);
+                return;
+            }
+
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(e => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add('in');
+                        if (e.target.querySelector && e.target.querySelector('[data-count]')) {
+                            e.target.querySelectorAll('[data-count]').forEach(animateCount);
+                        }
+                        if (e.target.hasAttribute('data-count')) animateCount(e.target);
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+            document.querySelectorAll('[data-count]').forEach(el => io.observe(el));
+
+            function runCounters(immediate) {
+                document.querySelectorAll('[data-count]').forEach(el => immediate ? (el.textContent = el.getAttribute('data-count')) : animateCount(el));
+            }
+
+            // Count up numeric portion of a stat value, preserving prefix/suffix (e.g. "50,000+", "24/7").
+            function animateCount(el) {
+                if (el.__counted) return; el.__counted = true;
+                const raw = el.getAttribute('data-count') || el.textContent;
+                const m = raw.match(/^(\D*)([\d,]+)(.*)$/);
+                if (!m) { el.textContent = raw; return; }
+                const prefix = m[1], suffix = m[3];
+                const target = parseInt(m[2].replace(/,/g, ''), 10);
+                if (!isFinite(target)) { el.textContent = raw; return; }
+                const dur = 1100, start = performance.now();
+                const fmt = n => n.toLocaleString();
+                function tick(now) {
+                    const p = Math.min(1, (now - start) / dur);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = prefix + fmt(Math.round(target * eased)) + suffix;
+                    if (p < 1) requestAnimationFrame(tick); else el.textContent = raw;
+                }
+                requestAnimationFrame(tick);
+            }
+        })();
+    </script>
 </body>
 </html>
