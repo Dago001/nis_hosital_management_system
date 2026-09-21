@@ -62,8 +62,8 @@
                 </div>
 
                 <div class="space-y-2">
-                    <span class="text-[9px] font-black text-emerald-600 tracking-widest uppercase">Nigeria Immigration Service</span>
-                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight font-sans">System Under Maintenance</h1>
+                    <span class="text-[9px] font-semibold text-emerald-600 tracking-widest uppercase">Nigeria Immigration Service</span>
+                    <h1 class="text-xl font-medium text-slate-900 tracking-tight font-sans">System Under Maintenance</h1>
                     <p class="text-xs text-slate-650 font-sans leading-relaxed">
                         The NIS Medical Services Portal (NIS-MSP) is currently undergoing scheduled system optimization, database migrations, and security updates. 
                     </p>
@@ -89,7 +89,7 @@
 
                 <!-- CTA Staff portal access -->
                 <div class="pt-2">
-                    <a href="/login" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/10 cursor-pointer">
+                    <a href="/login" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl text-xs font-normal transition-all shadow-lg shadow-emerald-600/10 cursor-pointer">
                         <i data-lucide="lock" class="w-4 h-4"></i> Access Staff Portal
                     </a>
                 </div>
@@ -111,13 +111,13 @@
             <div class="flex items-center gap-3">
                 <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-14 w-14 object-contain bg-white rounded-xl p-0.5 border border-slate-100 shadow-sm">
                 <div>
-                    <span class="text-sm font-extrabold text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
-                    <span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest leading-none">Medical Services Portal</span>
+                    <span class="text-sm font-medium text-nigGreen-600 tracking-tight uppercase block leading-tight">Nigeria Immigration Service</span>
+                    <span class="text-[9px] text-slate-500 font-normal uppercase tracking-widest leading-none">Medical Services Portal</span>
                 </div>
             </div>
 
             <!-- Navbar Links -->
-            <nav class="hidden md:flex items-center gap-8 text-xs font-bold text-slate-600">
+            <nav class="hidden md:flex items-center gap-8 text-xs font-normal text-slate-600">
                 <a href="/" class="text-nigGreen-600 hover:text-nigGreen-700 transition">Home</a>
                 <a href="/about" class="hover:text-nigGreen-600 transition">About Us</a>
                 <a href="/services" class="hover:text-nigGreen-600 transition">Clinical Services</a>
@@ -125,7 +125,7 @@
             
             <div class="flex items-center gap-3">
                 <!-- Portal Dashboard/Login Button -->
-                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
+                <a href="/login" id="portal-btn" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-5 py-2.5 rounded-xl text-xs font-normal transition-all flex items-center gap-1.5 shadow-md shadow-nigGreen-600/10">
                     <i data-lucide="lock" class="w-4 h-4"></i> Access Portal
                 </a>
             </div>
@@ -147,8 +147,8 @@
                     <img src="/images/nis_building.jpg" alt="Nigeria Immigration Service Facility" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[6000ms] ease-out group-hover:scale-110">
                     <div class="absolute inset-0 bg-gradient-to-t from-nigGreen-900/90 via-transparent to-black/30"></div>
                     <div class="absolute bottom-6 left-6 right-6 text-white text-left">
-                        <span class="text-[9px] font-bold text-emerald-450 uppercase tracking-widest block mb-0.5">Abuja HQ</span>
-                        <h3 class="text-base font-extrabold">NIS Medical Services Headquarters</h3>
+                        <span class="text-[9px] font-normal text-emerald-450 uppercase tracking-widest block mb-0.5">Abuja HQ</span>
+                        <h3 class="text-base font-medium">NIS Medical Services Headquarters</h3>
                         <p class="text-[10px] text-slate-300 mt-1 font-sans">Federal Secretariat Complex, Abuja, FCT.</p>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
                     <div class="space-y-4">
                         <div data-reveal class="flex items-center gap-2" style="--d:.1s">
                             <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
-                            <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
+                            <span class="text-[9px] font-normal text-nigGreen-600 uppercase tracking-widest">FEDERAL REPUBLIC OF NIGERIA</span>
                         </div>
 
                         <h1 data-reveal style="--d:.2s" class="nis-hero-title text-2xl lg:text-3xl font-semibold tracking-tight leading-tight font-sans">
@@ -172,7 +172,7 @@
 
                     <!-- CTA -->
                     <div data-reveal style="--d:.4s" class="flex">
-                        <a href="/login" class="nis-cta bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-extrabold transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/20 hover:shadow-nigGreen-600/40 hover:-translate-y-0.5">
+                        <a href="/login" class="nis-cta bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3.5 rounded-xl text-xs font-medium transition-all text-center flex items-center justify-center gap-1.5 shadow-lg shadow-nigGreen-600/20 hover:shadow-nigGreen-600/40 hover:-translate-y-0.5">
                             Launch Systems Portal <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -194,8 +194,8 @@
                             <i data-lucide="{{ $stat['icon'] }}" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <div class="text-lg sm:text-xl font-black text-slate-900 leading-none" data-count="{{ $stat['value'] }}">{{ $stat['value'] }}</div>
-                            <div class="text-[10px] text-slate-500 font-semibold uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
+                            <div class="text-lg sm:text-xl font-semibold text-slate-900 leading-none" data-count="{{ $stat['value'] }}">{{ $stat['value'] }}</div>
+                            <div class="text-[10px] text-slate-500 font-light uppercase tracking-wide mt-1">{{ $stat['label'] }}</div>
                         </div>
                     </div>
                 @endforeach
@@ -207,10 +207,10 @@
             <div data-reveal class="text-center max-w-2xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-2">
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
-                    <span class="text-[9px] font-bold text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
+                    <span class="text-[9px] font-normal text-nigGreen-600 uppercase tracking-widest">Our Capabilities</span>
                     <span class="h-1.5 w-8 rounded bg-nigGreen-600"></span>
                 </div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
+                <h2 class="text-2xl font-semibold text-slate-900 tracking-tight">Comprehensive Clinical Services</h2>
                 <p class="text-xs text-slate-600 mt-2 leading-relaxed">A fully integrated digital healthcare platform coordinating every stage of the patient journey · from registration and triage to diagnostics, pharmacy and billing.</p>
             </div>
             <div data-reveal-group class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -226,7 +226,7 @@
                         <div class="p-3 rounded-2xl bg-nigGreen-50 text-nigGreen-600 w-fit mb-4 transition-all duration-300 group-hover:bg-nigGreen-600 group-hover:text-white group-hover:scale-110 group-hover:-rotate-6">
                             <i data-lucide="{{ $svc['icon'] }}" class="w-6 h-6"></i>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
+                        <h3 class="text-sm font-normal text-slate-900 mb-1.5">{{ $svc['title'] }}</h3>
                         <p class="text-xs text-slate-600 leading-relaxed">{{ $svc['desc'] }}</p>
                     </div>
                 @endforeach
@@ -237,7 +237,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div data-reveal class="bg-white border border-slate-200 shadow-xl rounded-3xl p-6 sm:p-8 lg:p-12 space-y-6">
                 <div class="space-y-2">
-                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <h2 class="text-xl font-normal text-slate-900 flex items-center gap-2">
                         <i data-lucide="calendar" class="text-nigGreen-600"></i> Book an Outpatient Appointment
                     </h2>
                     <p class="text-xs text-slate-500 leading-relaxed font-sans">
@@ -247,46 +247,46 @@
                 
                 <form id="appointment-booking-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">First Name</label>
-                        <input type="text" id="apt-first-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">First Name</label>
+                        <input type="text" id="apt-first-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">Last Name</label>
-                        <input type="text" id="apt-last-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">Last Name</label>
+                        <input type="text" id="apt-last-name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-650 uppercase tracking-wider mb-2">Email Address</label>
-                        <input type="email" id="apt-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-650 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-650 uppercase tracking-wider mb-2">Email Address</label>
+                        <input type="email" id="apt-email" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-650 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Phone Number</label>
-                        <input type="tel" id="apt-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Phone Number</label>
+                        <input type="tel" id="apt-phone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Preferred Date</label>
-                        <input type="date" id="apt-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Preferred Date</label>
+                        <input type="date" id="apt-date" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Preferred Time</label>
-                        <input type="time" id="apt-time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Preferred Time</label>
+                        <input type="time" id="apt-time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Hospital Code (If registered)</label>
-                        <input type="text" id="apt-service-number" placeholder="NIS/PAT/XXXXXX" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none">
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Hospital Code (If registered)</label>
+                        <input type="text" id="apt-service-number" placeholder="NIS/PAT/XXXXXX" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
-                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
+                        <label class="block text-[10px] font-normal text-slate-655 uppercase tracking-wider mb-2">Chief Complaint / Notes</label>
+                        <textarea id="apt-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-extralight focus:ring-1 focus:ring-nigGreen-655 outline-none resize-y"></textarea>
                     </div>
                     <div class="md:col-span-3 flex justify-end">
-                        <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
+                        <button type="submit" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-8 py-3 rounded-xl text-xs font-normal transition shadow-md shadow-nigGreen-600/10">
                             Submit Appointment Request
                         </button>
                     </div>
                 </form>
 
                 <!-- Success/Error Notification -->
-                <div id="booking-alert" class="hidden p-4 rounded-xl text-xs font-bold font-sans"></div>
+                <div id="booking-alert" class="hidden p-4 rounded-xl text-xs font-normal font-sans"></div>
             </div>
         </div>
 
@@ -295,7 +295,7 @@
             <!-- Info Panel -->
             <div data-reveal="left" class="bg-white border border-slate-200 shadow-lg rounded-3xl p-8 space-y-6 flex flex-col justify-between">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <h3 class="text-lg font-normal text-slate-900 mb-2 flex items-center gap-2">
                         <i data-lucide="map-pin" class="text-nigGreen-600"></i> Hospital Physical Location
                     </h3>
                     <p class="text-xs text-slate-600 leading-relaxed font-sans">
@@ -308,19 +308,19 @@
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="map-pin" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">NIS Headquarters, Sauka, Airport Road, Abuja, Nigeria.</span>
+                        <span class="text-xs font-light text-slate-700">NIS Headquarters, Sauka, Airport Road, Abuja, Nigeria.</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="phone" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">+234 (0) 9-234-5678, +234 (0) 803-123-4567</span>
+                        <span class="text-xs font-light text-slate-700">+234 (0) 9-234-5678, +234 (0) 803-123-4567</span>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-nigGreen-50 text-nigGreen-600 rounded-lg">
                             <i data-lucide="mail" class="w-4 h-4"></i>
                         </div>
-                        <span class="text-xs font-semibold text-slate-700">support@immigration.gov.ng, medical@immigration.gov.ng</span>
+                        <span class="text-xs font-light text-slate-700">support@immigration.gov.ng, medical@immigration.gov.ng</span>
                     </div>
                 </div>
             </div>
@@ -341,7 +341,7 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2">
                         <img src="/images/nis_logo.jpg" alt="NIS Logo" onerror="this.src='/favicon.svg'" class="h-8 w-8 object-contain rounded bg-white">
-                        <span class="font-extrabold text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
+                        <span class="font-medium text-nigGreen-600 uppercase text-[10px] tracking-wider">THE NIS HOSPITAL</span>
                     </div>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Managing federal healthcare parameters, roster queues, diagnostic approvals, and inventory costing audits for the Nigeria Immigration Service officers and civil service.
@@ -350,8 +350,8 @@
 
                 <!-- Column 2: Quick Links -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
-                    <ul class="space-y-2 text-[10px] text-slate-500 font-semibold font-sans">
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Quick Directory</h4>
+                    <ul class="space-y-2 text-[10px] text-slate-500 font-light font-sans">
                         <li><a href="/" class="hover:text-nigGreen-600">Home Directory</a></li>
                         <li><a href="/about" class="hover:text-nigGreen-600">Command Profile</a></li>
                         <li><a href="/services" class="hover:text-nigGreen-600">Healthcare Services</a></li>
@@ -361,7 +361,7 @@
 
                 <!-- Column 3: Contact Info -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Contact Desk</h4>
                     <ul class="space-y-2 text-[10px] text-slate-500 font-sans">
                         <li>NIS HQ, Sauka, Airport Road, Abuja.</li>
                         <li>Phone: +234 (0) 9-234-5678</li>
@@ -371,11 +371,11 @@
 
                 <!-- Column 4: Regulatory Warning -->
                 <div class="space-y-3">
-                    <h4 class="font-bold text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
+                    <h4 class="font-normal text-slate-900 text-[10px] uppercase tracking-wider">Legal Framework</h4>
                     <p class="text-[10px] text-slate-500 leading-relaxed font-sans">
                         Please review and agree to our processing policies to schedule outpatient consultations.
                     </p>
-                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-bold underline flex items-center gap-1">
+                    <button onclick="openConsentModal()" class="text-nigGreen-600 hover:text-nigGreen-700 text-[10px] font-normal underline flex items-center gap-1">
                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Read & Agree to Policy
                     </button>
                 </div>
@@ -393,7 +393,7 @@
         <div class="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl relative my-8 flex flex-col max-h-[85vh]">
             <div class="flex items-center gap-2 mb-4 text-nigGreen-600">
                 <i data-lucide="shield-check" class="w-5 h-5"></i>
-                <h3 class="text-base font-bold text-slate-900">Data Consent & Processing Policy</h3>
+                <h3 class="text-base font-normal text-slate-900">Data Consent & Processing Policy</h3>
             </div>
             
             <div class="overflow-y-auto pr-2 text-xs text-slate-650 space-y-4 leading-relaxed font-sans flex-grow">
@@ -411,7 +411,7 @@
             </div>
 
             <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-100">
-                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition shadow-md shadow-nigGreen-600/10">
+                <button onclick="acceptConsentPolicy()" class="bg-nigGreen-600 hover:bg-nigGreen-700 text-white px-6 py-2.5 rounded-xl text-xs font-normal transition shadow-md shadow-nigGreen-600/10">
                     Agree & Proceed
                 </button>
             </div>
@@ -456,7 +456,7 @@
                 pendingSubmit = true;
                 openConsentModal();
                 const alert = document.getElementById('booking-alert');
-                alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-amber-50 text-amber-700';
+                alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-amber-50 text-amber-700';
                 alert.innerText = 'Please read and agree to our Data Consent Policy to complete your appointment request.';
                 alert.classList.remove('hidden');
                 return;
@@ -467,7 +467,7 @@
 
         async function submitAppointmentRequest() {
             const alert = document.getElementById('booking-alert');
-            alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-nigGreen-50 text-nigGreen-600';
+            alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-nigGreen-50 text-nigGreen-600';
             alert.innerText = 'Submitting appointment request...';
             alert.classList.remove('hidden');
 
@@ -493,15 +493,15 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-emerald-100 text-emerald-800';
+                    alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-emerald-100 text-emerald-800';
                     alert.innerText = data.message;
                     document.getElementById('appointment-booking-form').reset();
                 } else {
-                    alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-red-100 text-red-800';
+                    alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-red-100 text-red-800';
                     alert.innerText = data.message || 'Verification failed. Please check inputs.';
                 }
             } catch (error) {
-                alert.className = 'p-4 rounded-xl text-xs font-bold font-sans bg-red-100 text-red-800';
+                alert.className = 'p-4 rounded-xl text-xs font-normal font-sans bg-red-100 text-red-800';
                 alert.innerText = 'Error connecting to servers.';
             }
         }
@@ -520,7 +520,7 @@
             <span class="relative flex h-6 w-6 items-center justify-center">
                 <i data-lucide="bot" class="w-5 h-5"></i>
             </span>
-            <span class="text-xs font-bold">Ask MediBot</span>
+            <span class="text-xs font-normal">Ask MediBot</span>
         </button>
 
         <!-- Chat panel -->
@@ -531,7 +531,7 @@
                     <i data-lucide="bot" class="w-5 h-5"></i>
                 </div>
                 <div class="flex-grow">
-                    <p class="text-sm font-bold leading-tight">MediBot Assistant</p>
+                    <p class="text-sm font-normal leading-tight">MediBot Assistant</p>
                     <p class="text-[10px] text-emerald-100 flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Online · answers &amp; bookings
                     </p>
@@ -542,9 +542,9 @@
             <div id="medibot-messages" class="flex-grow overflow-y-auto p-4 space-y-3 bg-slate-50 text-xs"></div>
             <!-- Quick chips -->
             <div id="medibot-chips" class="px-3 pt-2 flex flex-wrap gap-1.5 shrink-0 bg-white border-t border-slate-100">
-                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-semibold bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
-                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
-                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
+                <button onclick="mediBotSend('Book an appointment')" class="text-[10px] font-light bg-nigGreen-50 text-nigGreen-700 border border-nigGreen-200 px-2.5 py-1 rounded-full hover:bg-nigGreen-100">Book an appointment</button>
+                <button onclick="mediBotSend('What services do you offer?')" class="text-[10px] font-light bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Our services</button>
+                <button onclick="mediBotSend('What are your opening hours?')" class="text-[10px] font-light bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-200">Opening hours</button>
             </div>
             <!-- Input -->
             <form onsubmit="mediBotSubmit(event)" class="p-3 flex items-center gap-2 shrink-0 bg-white border-t border-slate-100">
