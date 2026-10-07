@@ -22,6 +22,14 @@ Route::get('/services', function () {
     return view('services');
 });
 
+Route::get('/privacy-policy', function () {
+    return view('privacy-policy');
+});
+
+Route::get('/cookie-policy', function () {
+    return view('cookie-policy');
+});
+
 Route::get('/support-chats', function () {
     return view('support-chats');
 });
