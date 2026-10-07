@@ -152,9 +152,18 @@
 
                 <!-- Internal Dashboard Footer -->
                 <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 mt-auto shrink-0">
-                    <div class="flex items-center justify-center gap-1.5 text-[9px] text-slate-400 dark:text-slate-500 font-semibold">
-                        <i data-lucide="shield-check" class="w-3 h-3 text-emerald-500 shrink-0"></i>
-                        <span>&copy; <span id="footer-year"></span> All Right Reserved | Nigeria Immigration Service</span>
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-slate-400 dark:text-slate-500 font-semibold">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
+                            <span>&copy; <span id="footer-year"></span> All Right Reserved | Nigeria Immigration Service</span>
+                        </div>
+                        <div class="flex items-center gap-4 text-[10px]">
+                            <a href="/privacy-policy" target="_blank" class="hover:text-emerald-600 transition underline">Privacy Policy</a>
+                            <span>&bull;</span>
+                            <a href="/cookie-policy" target="_blank" class="hover:text-emerald-600 transition underline">Cookie Policy</a>
+                            <span>&bull;</span>
+                            <a href="/" target="_blank" class="hover:text-emerald-600 transition">Portal Home</a>
+                        </div>
                     </div>
                 </footer>
             </main>

@@ -84,4 +84,6 @@ Route::get('/ipd', function () { return view('ipd'); });
 Route::get('/reports', function () { return view('reports'); });
 Route::get('/referrals', function () { return view('referrals'); });
 Route::get('/emergencies', function () { return view('emergency'); });
+Route::get('/privacy-policy', function () { return view('privacy-policy'); });
+Route::get('/cookie-policy', function () { return view('cookie-policy'); });
 
