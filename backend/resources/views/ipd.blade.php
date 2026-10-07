@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <h1 class="text-xl font-bold text-slate-800 dark:text-white">IPD & Bed Management</h1>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">In-patient department — admissions, wards & bed census</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">In-patient department · admissions, wards & bed census</p>
         </div>
         <div class="flex gap-2 flex-wrap">
             <button id="tab-admissions" class="ipd-tab-btn text-xs font-bold px-4 py-2 rounded-xl transition bg-emerald-600 text-white border-emerald-600">Active Admissions</button>

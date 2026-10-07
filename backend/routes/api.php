@@ -24,6 +24,7 @@ Route::post('/chat/session/init', [SupportChatController::class, 'initSession'])
 Route::get('/chat/messages', [SupportChatController::class, 'getVisitorMessages']);
 Route::post('/chat/send', [SupportChatController::class, 'sendVisitorMessage'])->middleware('throttle:60,1');
 Route::get('/external/sync-patients', [SettingController::class, 'syncPatients']);
+Route::post('/chatbot', [App\Http\Controllers\Api\ChatbotController::class, 'chat'])->middleware('throttle:60,1');
 
 // Protected routes
 Route::middleware(['auth:sanctum', 'audit'])->group(function () {
@@ -37,20 +38,28 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     // General Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // Patient Management
-    Route::get('/patients', [PatientController::class, 'index']);
+    // Patient Management — reading PHI requires a clinical/administrative need-to-know
+    Route::get('/patients', [PatientController::class, 'index'])->middleware('role_or_permission:view_patients');
+    // Patients assigned to the authenticated doctor (must precede the {id} route)
+    Route::get('/patients/assigned', [PatientController::class, 'assignedToMe'])->middleware('role_or_permission:consult_patients');
     Route::post('/patients', [PatientController::class, 'store'])->middleware('role_or_permission:register_patients');
-    Route::get('/patients/{id}', [PatientController::class, 'show']);
+    Route::get('/patients/{id}', [PatientController::class, 'show'])->middleware('role_or_permission:view_patients');
+
+    // Central Store / Inventory issuance (Inventory Officer -> Pharmacy)
+    Route::get('/inventory/items', [App\Http\Controllers\Api\InventoryController::class, 'items'])->middleware('role_or_permission:view_inventory');
+    Route::get('/inventory/pharmacists', [App\Http\Controllers\Api\InventoryController::class, 'pharmacists'])->middleware('role_or_permission:view_inventory');
+    Route::get('/inventory/issuances', [App\Http\Controllers\Api\InventoryController::class, 'issuances'])->middleware('role_or_permission:view_inventory');
+    Route::post('/inventory/issue', [App\Http\Controllers\Api\InventoryController::class, 'issue'])->middleware('role_or_permission:issue_stock');
 
     // Appointment Management
     Route::get('/appointments', [AppointmentController::class, 'index']);
-    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin,dental_officer,eye_clinic_officer');
     Route::get('/appointments/doctors', [AppointmentController::class, 'getDoctors']);
-    Route::post('/appointments/{id}/check-in', [AppointmentController::class, 'checkIn']);
-    Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel']);
+    Route::post('/appointments/{id}/check-in', [AppointmentController::class, 'checkIn'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/{id}/cancel', [AppointmentController::class, 'cancel'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
     Route::get('/appointments/requests', [AppointmentController::class, 'listRequests']);
-    Route::post('/appointments/requests/{id}/confirm', [AppointmentController::class, 'confirmRequest']);
-    Route::post('/appointments/requests/{id}/reject', [AppointmentController::class, 'rejectRequest']);
+    Route::post('/appointments/requests/{id}/confirm', [AppointmentController::class, 'confirmRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
+    Route::post('/appointments/requests/{id}/reject', [AppointmentController::class, 'rejectRequest'])->middleware('role_or_permission:doctor,consultant,nurse,records_officer,receptionist,hospital_admin');
 
     // Clinical Workflows (Vitals & SOAP Consultations)
     Route::post('/clinical/vitals', [ClinicalController::class, 'recordVitals'])->middleware('role_or_permission:nursing_vitals');
@@ -76,11 +85,11 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // Pharmacy & Dispensary
     Route::get('/pharmacy/inventory', [PharmacyController::class, 'getInventory']);
-    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory']);
-    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory']);
+    Route::post('/pharmacy/inventory', [PharmacyController::class, 'addInventory'])->middleware('role_or_permission:manage_inventory');
+    Route::put('/pharmacy/inventory/{id}', [PharmacyController::class, 'updateInventory'])->middleware('role_or_permission:manage_inventory');
     Route::get('/pharmacy/prescriptions', [PharmacyController::class, 'getPrescriptions']);
-    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription']);
-    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription']);
+    Route::post('/pharmacy/prescriptions/{id}/cost', [PharmacyController::class, 'costPrescription'])->middleware('role_or_permission:dispense_drugs');
+    Route::post('/pharmacy/prescriptions/{id}/dispense', [PharmacyController::class, 'dispensePrescription'])->middleware('role_or_permission:dispense_drugs');
 
     // Administrative / Audit Logs & Users
     Route::get('/admin/audit-logs', [AuditLogController::class, 'index'])->middleware('role_or_permission:view_audit_logs');
@@ -109,20 +118,20 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
 
     // === Queue Management ===
     Route::get('/queue', [App\Http\Controllers\Api\QueueController::class, 'index']);
-    Route::post('/queue/{id}/status', [App\Http\Controllers\Api\QueueController::class, 'updateStatus']);
+    Route::post('/queue/{id}/status', [App\Http\Controllers\Api\QueueController::class, 'updateStatus'])->middleware('role_or_permission:doctor,consultant,nurse,receptionist,ward_manager,records_officer');
     Route::get('/queue/departments', [App\Http\Controllers\Api\QueueController::class, 'getDepartments']);
     Route::get('/queue/stats', [App\Http\Controllers\Api\QueueController::class, 'stats']);
 
     // === IPD Management ===
     Route::get('/ipd/wards', [App\Http\Controllers\Api\IpdController::class, 'getWards']);
     Route::get('/ipd/admissions', [App\Http\Controllers\Api\IpdController::class, 'getAdmissions']);
-    Route::post('/ipd/admit', [App\Http\Controllers\Api\IpdController::class, 'admit']);
-    Route::put('/ipd/admissions/{id}', [App\Http\Controllers\Api\IpdController::class, 'update']);
-    Route::post('/ipd/admissions/{id}/discharge', [App\Http\Controllers\Api\IpdController::class, 'discharge']);
+    Route::post('/ipd/admit', [App\Http\Controllers\Api\IpdController::class, 'admit'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
+    Route::put('/ipd/admissions/{id}', [App\Http\Controllers\Api\IpdController::class, 'update'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
+    Route::post('/ipd/admissions/{id}/discharge', [App\Http\Controllers\Api\IpdController::class, 'discharge'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
     Route::get('/ipd/beds/available', [App\Http\Controllers\Api\IpdController::class, 'getAvailableBeds']);
-    Route::post('/ipd/wards', [App\Http\Controllers\Api\IpdController::class, 'createWard']);
-    Route::post('/ipd/beds', [App\Http\Controllers\Api\IpdController::class, 'createBed']);
-    Route::put('/ipd/beds/{id}/status', [App\Http\Controllers\Api\IpdController::class, 'updateBedStatus']);
+    Route::post('/ipd/wards', [App\Http\Controllers\Api\IpdController::class, 'createWard'])->middleware('role_or_permission:ward_manager,medical_director,hospital_admin');
+    Route::post('/ipd/beds', [App\Http\Controllers\Api\IpdController::class, 'createBed'])->middleware('role_or_permission:ward_manager,medical_director,hospital_admin');
+    Route::put('/ipd/beds/{id}/status', [App\Http\Controllers\Api\IpdController::class, 'updateBedStatus'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,medical_director,hospital_admin');
 
 
     // === Reports & Analytics ===
@@ -130,23 +139,26 @@ Route::middleware(['auth:sanctum', 'audit'])->group(function () {
     Route::get('/reports/patient-flow', [App\Http\Controllers\Api\ReportController::class, 'patientFlow']);
     Route::get('/reports/revenue', [App\Http\Controllers\Api\ReportController::class, 'revenue']);
     Route::get('/reports/clinical', [App\Http\Controllers\Api\ReportController::class, 'clinical']);
+    Route::get('/reports/diagnoses', [App\Http\Controllers\Api\ReportController::class, 'diagnoses']);
+    Route::get('/reports/bed-occupancy', [App\Http\Controllers\Api\ReportController::class, 'bedOccupancy']);
+    Route::get('/reports/staff-performance', [App\Http\Controllers\Api\ReportController::class, 'staffPerformance']);
 
 
 
     // === Referral Management ===
     Route::get('/referrals', [App\Http\Controllers\Api\ReferralController::class, 'index']);
-    Route::post('/referrals', [App\Http\Controllers\Api\ReferralController::class, 'store']);
+    Route::post('/referrals', [App\Http\Controllers\Api\ReferralController::class, 'store'])->middleware('role_or_permission:doctor,consultant,nurse,medical_director,chief_medical_officer,hospital_admin');
     Route::get('/referrals/doctors', [App\Http\Controllers\Api\ReferralController::class, 'getDoctors']);
     Route::get('/referrals/{id}', [App\Http\Controllers\Api\ReferralController::class, 'show']);
-    Route::post('/referrals/{id}/status', [App\Http\Controllers\Api\ReferralController::class, 'updateStatus']);
+    Route::post('/referrals/{id}/status', [App\Http\Controllers\Api\ReferralController::class, 'updateStatus'])->middleware('role_or_permission:doctor,consultant,nurse,medical_director,chief_medical_officer,hospital_admin');
 
 
 
     // === Emergency Management ===
     Route::get('/emergencies', [App\Http\Controllers\Api\EmergencyController::class, 'index']);
-    Route::post('/emergencies', [App\Http\Controllers\Api\EmergencyController::class, 'store']);
-    Route::put('/emergencies/{id}', [App\Http\Controllers\Api\EmergencyController::class, 'update']);
-    Route::post('/emergencies/{id}/admit-to-ward', [App\Http\Controllers\Api\EmergencyController::class, 'admitToWard']);
+    Route::post('/emergencies', [App\Http\Controllers\Api\EmergencyController::class, 'store'])->middleware('role_or_permission:doctor,consultant,nurse,ambulance_officer,ward_manager,hospital_admin');
+    Route::put('/emergencies/{id}', [App\Http\Controllers\Api\EmergencyController::class, 'update'])->middleware('role_or_permission:doctor,consultant,nurse,ambulance_officer,ward_manager,hospital_admin');
+    Route::post('/emergencies/{id}/admit-to-ward', [App\Http\Controllers\Api\EmergencyController::class, 'admitToWard'])->middleware('role_or_permission:doctor,consultant,nurse,ward_manager,hospital_admin');
     Route::get('/emergencies/staff', [App\Http\Controllers\Api\EmergencyController::class, 'getStaff']);
     Route::get('/emergencies/beds', [App\Http\Controllers\Api\EmergencyController::class, 'getAvailableBeds']);
 

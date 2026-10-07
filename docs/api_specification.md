@@ -10,7 +10,7 @@ This document details the RESTful API endpoints available in the NIS HMS Laravel
 - **Request Body**:
   ```json
   {
-    "email": "doctor@nishms.gov.ng",
+    "email": "doctor@immigration.gov.ng",
     "password": "Password123#"
   }
   ```
@@ -18,7 +18,7 @@ This document details the RESTful API endpoints available in the NIS HMS Laravel
   ```json
   {
     "mfa_required": true,
-    "email": "doctor@nishms.gov.ng",
+    "email": "doctor@immigration.gov.ng",
     "message": "Multi-Factor Authentication code has been sent to your registered email."
   }
   ```
@@ -37,7 +37,7 @@ This document details the RESTful API endpoints available in the NIS HMS Laravel
 - **Request Body**:
   ```json
   {
-    "email": "doctor@nishms.gov.ng",
+    "email": "doctor@immigration.gov.ng",
     "code": "123456"
   }
   ```

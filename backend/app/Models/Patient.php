@@ -15,12 +15,21 @@ class Patient extends Model
         'middle_name',
         'last_name',
         'gender',
+        'marital_status',
+        'occupation',
+        'religion',
+        'place_of_birth',
+        'tribe',
         'date_of_birth',
         'phone',
         'email',
         'address',
         'state',
         'lga',
+        'city',
+        'next_of_kin_name',
+        'next_of_kin_relationship',
+        'next_of_kin_address',
         'immigration_service_number',
         'sponsor_service_number',
         'relationship_to_sponsor',
@@ -71,9 +80,21 @@ class Patient extends Model
 
     public function getFullNameAttribute(): string
     {
-        return $this->middle_name 
+        return $this->middle_name
             ? "{$this->first_name} {$this->middle_name} {$this->last_name}"
             : "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Age in whole years, derived from date_of_birth.
+     */
+    public function getAgeAttribute(): ?int
+    {
+        if (empty($this->date_of_birth)) {
+            return null;
+        }
+
+        return \Illuminate\Support\Carbon::parse($this->date_of_birth)->age;
     }
 
     public function labRequests(): HasMany

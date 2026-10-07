@@ -43,19 +43,30 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    /**
+     * Roles (with permissions) resolved once per request and memoised on the
+     * instance, so repeated RBAC checks in middleware do not re-query the DB.
+     */
+    protected function resolvedRoles()
+    {
+        if (! $this->relationLoaded('roles')) {
+            $this->load('roles.permissions');
+        }
+
+        return $this->getRelation('roles');
+    }
+
     public function hasRole(string $role): bool
     {
-        return $this->roles()->where('name', $role)->exists();
+        return $this->resolvedRoles()->contains('name', $role);
     }
 
     public function hasPermission(string $permission): bool
     {
-        foreach ($this->roles()->with('permissions')->get() as $role) {
-            if ($role->permissions->contains('name', $permission)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->resolvedRoles()
+            ->pluck('permissions')
+            ->flatten()
+            ->contains('name', $permission);
     }
 
     public function staff(): HasOne

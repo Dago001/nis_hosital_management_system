@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Anthropic Claude (Clinical Decision Support AI)
+    |--------------------------------------------------------------------------
+    | Powers the live Clinical AI Advisor. When no API key is configured the
+    | system gracefully falls back to the built-in offline knowledge base so
+    | the feature keeps working in air-gapped / on-premise deployments.
+    */
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ANTHROPIC_MODEL', 'claude-opus-5'),
+        'version' => env('ANTHROPIC_VERSION', '2023-06-01'),
+        'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com/v1'),
+        'max_tokens' => (int) env('ANTHROPIC_MAX_TOKENS', 2000),
+    ],
+
 ];

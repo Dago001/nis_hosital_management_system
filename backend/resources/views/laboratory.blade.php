@@ -1,6 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Laboratory - NIS Medical Services Portal')
+@section('title', 'Laboratory | NIS Medical Services Portal')
+
+@section('styles')
+<style>
+    @media print {
+        body * { visibility: hidden !important; }
+        #printable-report-area, #printable-report-area * { visibility: visible !important; }
+        #printable-report-area {
+            position: absolute; left: 0; top: 0; width: 100%;
+            border: none !important; box-shadow: none !important;
+        }
+        @page { margin: 12mm; }
+    }
+</style>
+@endsection
 
 @section('content')
 <div class="space-y-6">
@@ -144,6 +158,7 @@
         <div id="printable-report-area" class="bg-white text-slate-900 p-6 border border-slate-100 rounded-2xl space-y-4 font-sans">
             <!-- Header -->
             <div class="text-center space-y-1 pb-3 border-b border-slate-200">
+                <img src="/images/nis_logo.jpg" alt="NIS" class="h-14 w-14 object-contain mx-auto mb-1">
                 <h2 class="text-base font-black uppercase tracking-wider text-slate-800">Nigeria Immigration Service</h2>
                 <h3 class="text-xs font-bold text-slate-600">Pathological & Diagnostic Laboratories, Abuja</h3>
                 <p class="text-[9px] text-slate-400">Official Clinical Laboratory Report</p>

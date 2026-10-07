@@ -1,6 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Billing & Cashier - NIS Medical Services Portal')
+@section('title', 'Billing & Cashier | NIS Medical Services Portal')
+
+@section('styles')
+<style>
+    /* When printing a receipt, show only the printable voucher area. */
+    @media print {
+        body * { visibility: hidden !important; }
+        #printable-receipt-area, #printable-receipt-area * { visibility: visible !important; }
+        #printable-receipt-area {
+            position: absolute; left: 0; top: 0; width: 100%;
+            border: none !important; box-shadow: none !important;
+        }
+        @page { margin: 12mm; }
+    }
+</style>
+@endsection
 
 @section('content')
 <div class="space-y-6">
@@ -104,6 +119,7 @@
         <div id="printable-receipt-area" class="bg-white text-slate-900 p-6 border border-slate-100 rounded-2xl space-y-4 font-sans">
             <!-- Receipt Header -->
             <div class="text-center space-y-1 pb-3 border-b border-slate-200">
+                <img src="/images/nis_logo.jpg" alt="NIS" class="h-14 w-14 object-contain mx-auto mb-1">
                 <h2 class="text-base font-black uppercase tracking-wider text-slate-800">Nigeria Immigration Service</h2>
                 <h3 class="text-xs font-bold text-slate-600">Hospital Medical Services Portal, Abuja</h3>
                 <p class="text-[9px] text-slate-400">Official Electronic Transaction Voucher</p>

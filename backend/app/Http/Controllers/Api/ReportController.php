@@ -239,6 +239,46 @@ class ReportController extends Controller
         return response()->json(['top_doctors' => $doctors]);
     }
 
+    /**
+     * Consolidated clinical analytics: top diagnoses, busiest clinicians,
+     * diagnostics throughput and consultation volume for the period.
+     */
+    public function clinical(Request $request)
+    {
+        $period = $request->get('period', 'month');
+        [$start, $end] = $this->getPeriodDates($period);
+
+        $topDiagnoses = Visit::whereBetween('created_at', [$start, $end])
+            ->whereNotNull('diagnosis_description')
+            ->selectRaw('diagnosis_icd10, diagnosis_description, count(*) as count')
+            ->groupBy('diagnosis_icd10', 'diagnosis_description')
+            ->orderByDesc('count')
+            ->limit(15)
+            ->get();
+
+        $topDoctors = Visit::whereBetween('created_at', [$start, $end])
+            ->with('doctor:id,first_name,last_name')
+            ->selectRaw('staff_id, count(*) as consultations')
+            ->groupBy('staff_id')
+            ->orderByDesc('consultations')
+            ->limit(10)
+            ->get()
+            ->map(fn ($r) => [
+                'doctor' => $r->doctor?->full_name ?? 'Unknown',
+                'consultations' => $r->consultations,
+            ]);
+
+        return response()->json([
+            'period' => $period,
+            'total_consultations' => Visit::whereBetween('created_at', [$start, $end])->whereNotNull('chief_complaint')->count(),
+            'lab_requests' => \App\Models\LabRequest::whereBetween('created_at', [$start, $end])->count(),
+            'radiology_requests' => \App\Models\RadiologyRequest::whereBetween('created_at', [$start, $end])->count(),
+            'admissions' => Admission::whereBetween('created_at', [$start, $end])->count(),
+            'diagnoses' => $topDiagnoses,
+            'top_doctors' => $topDoctors,
+        ]);
+    }
+
     // --- Helpers ---
     private function getPeriodDates(string $period): array
     {
@@ -252,13 +292,32 @@ class ReportController extends Controller
         };
     }
 
+    /**
+     * Build a driver-aware date grouping expression (MySQL / PostgreSQL / SQLite).
+     */
     private function dateGroupQuery(string $groupBy, string $col): string
     {
-        return match($groupBy) {
-            'hour'  => "DATE_FORMAT($col, '%Y-%m-%d %H:00')",
-            'day'   => "DATE($col)",
-            'month' => "DATE_FORMAT($col, '%Y-%m')",
-            default => "DATE($col)",
+        $driver = \DB::connection()->getDriverName();
+
+        return match ($driver) {
+            'pgsql' => match ($groupBy) {
+                'hour'  => "to_char($col, 'YYYY-MM-DD HH24:00')",
+                'day'   => "to_char($col, 'YYYY-MM-DD')",
+                'month' => "to_char($col, 'YYYY-MM')",
+                default => "to_char($col, 'YYYY-MM-DD')",
+            },
+            'sqlite' => match ($groupBy) {
+                'hour'  => "strftime('%Y-%m-%d %H:00', $col)",
+                'day'   => "strftime('%Y-%m-%d', $col)",
+                'month' => "strftime('%Y-%m', $col)",
+                default => "strftime('%Y-%m-%d', $col)",
+            },
+            default => match ($groupBy) { // mysql / mariadb
+                'hour'  => "DATE_FORMAT($col, '%Y-%m-%d %H:00')",
+                'day'   => "DATE($col)",
+                'month' => "DATE_FORMAT($col, '%Y-%m')",
+                default => "DATE($col)",
+            },
         };
     }
 }

@@ -66,7 +66,7 @@ class AppointmentController extends Controller
         return response()->json([
             'message' => 'Appointment booked successfully.',
             'appointment' => $appointment->load(['patient', 'doctor', 'department'])
-        ], 210);
+        ], 201);
     }
 
     public function checkIn(int $id)
